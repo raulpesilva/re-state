@@ -3,6 +3,7 @@
 [![NPM](https://img.shields.io/npm/v/@raulpesilva/re-state.svg)](https://www.npmjs.com/package/@raulpesilva/re-state)
 ![NPM](https://img.shields.io/npm/l/@raulpesilva/re-state)
 ![node-current](https://img.shields.io/node/v/@raulpesilva/re-state)
+![npm bundle size](https://img.shields.io/bundlephobia/min/@raulpesilva/re-state)
 
 Easy way to provide global state to reactJS and React Native applications
 
@@ -18,16 +19,22 @@ or
 yarn add @raulpesilva/re-state
 ```
 
+## TODO
+
+- [ ] - Examples
+- [ ] - Tests
+- [ ] - Doc
+
 ## Usage
 
-```tsx
+```js
 import * as React from 'react';
 import useReState from '@raulpesilva/re-state';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
 
 const Foo: React.FC = () => {
-  const [value, setValue] = useReState<number>('value', 0);
+  const [value, setValue] = useReState < number > ('value', 0);
 
   return (
     <View style={styles.container}>
@@ -49,7 +56,7 @@ const Foo: React.FC = () => {
 };
 
 const Bar: React.FC = () => {
-  const [value] = useReState<number>('value', 0);
+  const [value] = useReState < number > ('value', 0);
 
   return (
     <View style={styles.container}>
@@ -78,7 +85,7 @@ const styles = StyleSheet.create({
 
 or
 
-```tsx
+```js
 import * as React from 'react';
 import { createReState, useReStateSelector, createReStateDispatch } from '@raulpesilva/re-state';
 
