@@ -1,46 +1,178 @@
-# Getting Started with Create React App
+# re-state
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![NPM](https://img.shields.io/npm/v/@raulpesilva/re-state.svg)](https://www.npmjs.com/package/@raulpesilva/re-state)
+![NPM](https://img.shields.io/npm/l/@raulpesilva/re-state)
+![node-current](https://img.shields.io/node/v/@raulpesilva/re-state)
 
-## Available Scripts
+Easy way to provide global state to reactJS and React Native applications
 
-In the project directory, you can run:
+## Installation
 
-### `yarn start`
+```sh
+npm install @raulpesilva/re-state
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+or
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```sh
+yarn add @raulpesilva/re-state
+```
 
-### `yarn test`
+## Usage
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```tsx
+import * as React from 'react';
+import useReState from '@raulpesilva/re-state';
 
-### `yarn build`
+import { StyleSheet, View, Text, Button } from 'react-native';
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+const Foo: React.FC = () => {
+  const [value, setValue] = useReState<number>('value', 0);
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  return (
+    <View style={styles.container}>
+      <Button
+        onPress={() => {
+          setValue(value + 1);
+        }}
+        title=" + "
+      />
+      <Text>State value: {value}</Text>
+      <Button
+        onPress={() => {
+          setValue(value > 0 ? value - 1 : 0);
+        }}
+        title=" - "
+      />
+    </View>
+  );
+};
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+const Bar: React.FC = () => {
+  const [value] = useReState<number>('value', 0);
 
-### `yarn eject`
+  return (
+    <View style={styles.container}>
+      <Text>State value: {value}</Text>
+    </View>
+  );
+};
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Foo />
+      <Bar />
+    </View>
+  );
+}
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+or
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```tsx
+import * as React from 'react';
+import { createReState, useReStateSelector, createReStateDispatch } from '@raulpesilva/re-state';
 
-## Learn More
+import { StyleSheet, View, Text, Button } from 'react-native';
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+const useGlobalState = createReState<number>('value', 0);
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+const Foo: React.FC = () => {
+  const [value, setValue] = useGlobalState();
+
+  return (
+    <View style={styles.container}>
+      <Button
+        onPress={() => {
+          setValue(value + 1);
+        }}
+        title=" + "
+      />
+      <Text>State value: {value}</Text>
+      <Button
+        onPress={() => {
+          setValue(value > 0 ? value - 1 : 0);
+        }}
+        title=" - "
+      />
+    </View>
+  );
+};
+
+const Bar: React.FC = () => {
+  const [value] = useGlobalState();
+
+  return (
+    <View style={styles.container}>
+      <Text>State value: {value}</Text>
+    </View>
+  );
+};
+
+const Consumer: React.FC = () => {
+  const value = useReStateSelector<{ value: number }>((store) => store.value);
+
+  return (
+    <View style={styles.container}>
+      <Text>State value: {value}</Text>
+    </View>
+  );
+};
+
+const dispatchCountReState = createReStateDispatch<number>('value');
+const Setter: React.FC = () => {
+  return (
+    <View style={styles.container}>
+      <Button
+        onPress={() => {
+          dispatchCountReState((prev) => prev + 1);
+        }}
+        title=" + "
+      />
+      <Text><--></Text>
+      <Button
+        onPress={() => {
+          dispatchCountReState((prev) => prev - 1);
+        }}
+        title=" - "
+      />
+    </View>
+  );
+};
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Foo />
+      <Bar />
+      <Consumer />
+      <Setter />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+```
+
+## Contributing
+
+See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+
+## License
+
+MIT © [raulpesilva](https://github.com/raulpesilva)
