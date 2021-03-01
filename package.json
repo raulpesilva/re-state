@@ -1,8 +1,28 @@
 {
-  "name": "teste-build-re-state",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
+  "name": "re-state",
+  "version": "1.0.0",
+  "description": "easy way to create a shared state to the entire application",
+  "author": "raulpesilva",
+  "license": "MIT",
+  "repository": "raulpesilva/re-state",
+  "main": "dist/index.js",
+  "module": "dist/index.modern.js",
+  "source": "src/index.tsx",
+  "engines": {
+    "node": ">=10"
+  },
+  "peerDependencies": {
+    "react": "^16"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -10,8 +30,10 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/react-native": "^0.63.50",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-native": "^0.63.4",
     "react-scripts": "4.0.3",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"
@@ -19,6 +41,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "tsc:build": "tsc -b -v",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
