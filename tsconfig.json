@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     // "noEmit": true,
+    "module": "commonjs",
     "strict": true,
     "allowJs": true,
     "target": "es6",
     "sourceMap": true,
-    "module": "esnext",
     "outDir": "dist",
     "jsx": "react-jsx",
     "declaration": true,
