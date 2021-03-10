@@ -3,8 +3,8 @@ import store from './store'
 
 export const useReState = <S>(
   key: UniqueKey,
-  initialValue: SetReStateAction<S> = undefined
-): [S, (state: (prevState: S) => S | S) => void] => {
+  initialValue?: SetReStateAction<S>
+): [S, DispatchReState<SetReStateAction<S>>] => {
   const [, setReRender] = useState({})
 
   const setState = (newValue: SetReStateAction<S>) => {

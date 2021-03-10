@@ -1,10 +1,7 @@
 class Observer {
   _listeners = new Map()
 
-  subscribe<T>(
-    key: UniqueKey,
-    listener: (state: (state: T) => any | T) => T
-  ): () => void {
+  subscribe<T>(key: UniqueKey, listener: SetReStateAction<T>): FnVoid {
     if (this._listeners.has(key)) {
       const listeners = this._listeners.get(key)
       this._listeners.set(key, [...listeners, listener])

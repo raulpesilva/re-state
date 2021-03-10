@@ -1,6 +1,6 @@
 {
   "name": "@raulpesilva/re-state",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "easy way to create a shared state to the entire application",
   "author": "raulpesilva",
   "license": "MIT",

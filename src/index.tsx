@@ -1,9 +1,4 @@
-import {
-  createReState,
-  createReStateDispatch,
-  useReStateSelector,
-  useReState
-} from './package'
+import { createReState, createReStateDispatch, useReStateSelector, useReState } from './package'
 
 export { createReStateDispatch, createReState, useReStateSelector }
 
