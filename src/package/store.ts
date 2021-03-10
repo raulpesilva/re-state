@@ -49,7 +49,7 @@ class Store {
   getMany<T>(fn: (state: any) => T) {
     if (!isFunction(fn)) {
       throw new TypeError(
-        'para selecionar varia é necessário passar uma função - ex: (store)=>store.myKey'
+        'to select a value in the store it is necessary to pass a function - ex: (store)=>store.myKey'
       )
     }
     const objectStore = Store.convertStoreToObject(this.__store)
@@ -60,11 +60,11 @@ class Store {
     this.__listener.notify()
   }
 
-  subscribeSelector(listener: () => void) {
+  subscribeSelector(listener: FnVoid) {
     this.__listener.subscribe(listener)
   }
 
-  subscribe(key: UniqueKey, listener: () => void) {
+  subscribe(key: UniqueKey, listener: FnVoid) {
     this.__observer.subscribe(key, listener)
   }
 

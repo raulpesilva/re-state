@@ -1,5 +1,5 @@
 import store from './store'
 
-export const createReStateDispatch = (key: UniqueKey) => {
-  return (value: any) => store.set(key, value)
+export const createReStateDispatch = <S>(key: UniqueKey) => {
+  return (value: SetReStateAction<S>) => store.set(key, value)
 }

@@ -1,7 +1,7 @@
 class Listener {
-  _listeners = [() => {}]
+  _listeners: FnVoid[] = []
 
-  subscribe(listener: () => void): () => void {
+  subscribe(listener: FnVoid): FnVoid {
     this._listeners.push(listener)
     return (): void => {
       const index = this._listeners.indexOf(listener)
