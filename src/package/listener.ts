@@ -1,3 +1,5 @@
+import { FnVoid } from './types'
+
 class Listener {
   _listeners: FnVoid[] = []
 

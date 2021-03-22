@@ -1,3 +1,5 @@
+import { UniqueKey, SetReStateAction, FnVoid } from './types'
+
 class Observer {
   _listeners = new Map()
 

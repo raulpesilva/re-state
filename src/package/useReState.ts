@@ -1,5 +1,6 @@
 import { useDebugValue, useEffect, useState } from 'react'
 import store from './store'
+import { UniqueKey, SetReStateAction, DispatchReState } from './types'
 
 export const useReState = <S>(
   key: UniqueKey,

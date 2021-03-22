@@ -1,5 +1,6 @@
 import { useCallback, useDebugValue, useEffect, useRef, useState } from 'react'
 import store from './store'
+import { IStore } from './types'
 import { shallowEqual } from './utils'
 
 export const useReStateSelector = <T>(selector = (store: IStore<T>): any => store, isEquals = shallowEqual): T => {

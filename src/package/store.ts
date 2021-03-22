@@ -1,6 +1,7 @@
 import { getBatch } from './batch'
 import Listener from './listener'
 import Observer from './observer'
+import { UniqueKey, FnVoid } from './types'
 import { isFunction } from './utils'
 class Store {
   __store = new Map<UniqueKey, unknown>()
