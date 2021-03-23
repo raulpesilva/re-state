@@ -1,6 +1,7 @@
-import { useDebugValue, useEffect, useState } from 'react'
+import { useDebugValue, useState } from 'react'
 import store from './store'
 import { UniqueKey, SetReStateAction, DispatchReState } from './types'
+import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'
 
 export const useReState = <S>(
   key: UniqueKey,
@@ -28,7 +29,7 @@ export const useReState = <S>(
 
   useDebugValue(makeState(initialValue))
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const unSub = store.subscribe(key, reRender)
 
     if (!store.has(key) && initialValue) {
