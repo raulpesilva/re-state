@@ -62,11 +62,11 @@ class Store {
   }
 
   subscribeSelector(listener: FnVoid) {
-    this.__listener.subscribe(listener)
+    return this.__listener.subscribe(listener)
   }
 
   subscribe(key: UniqueKey, listener: FnVoid) {
-    this.__observer.subscribe(key, listener)
+    return this.__observer.subscribe(key, listener)
   }
 
   notify(key: UniqueKey) {
