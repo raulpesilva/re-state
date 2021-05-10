@@ -22,5 +22,5 @@
     "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": ["src/**/*", "./src/package/typings.d.ts"],
-  "exclude": ["node_modules", "dist", "example"]
+  "exclude": ["node_modules", "dist", "examples"]
 }
