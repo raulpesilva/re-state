@@ -1,18 +1,21 @@
 {
   "name": "@raulpesilva/re-state",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "easy way to create a shared state to the entire application",
   "author": "raulpesilva",
   "license": "MIT",
   "repository": "raulpesilva/re-state",
   "main": "dist/index.js",
-  "module": "dist/index.modern.js",
+  "types": "dist/index.d.js",
   "source": "src/index.tsx",
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=10"
   },
   "peerDependencies": {
-    "react": "^16"
+    "react": ">=16"
   },
   "peerDependenciesMeta": {
     "react-dom": {
