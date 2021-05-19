@@ -1,11 +1,30 @@
-# re-state
+<div align="center">
+  <img alt="re-state" width="250" src="assets/logo.svg" />
+  <br/>
+  <br/>
+  <a href="https://github.com/raulpesilva/re-state/blob/master/LICENSE">
+    <img alt="licence" src="https://badgen.net/npm/license/@raulpesilva/re-state?color=blue" />
+  </a>
+    <img alt="type included" src="https://badgen.net/npm/types/@raulpesilva/re-state?color=blue" />
+  <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
+    <img alt="npm version" src="https://badgen.net/npm/v/@raulpesilva/re-state?color=blue" />
+  </a>
+  <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
+    <img alt="Total downloads" src="https://badgen.net/npm/dt/@raulpesilva/re-state?color=blue" />
+  </a>
+  <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
+    <img alt="Weekly downloads" src="https://badgen.net/npm/dw/@raulpesilva/re-state?color=blue" />
+  </a>
+  <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
+    <img alt="Weekly downloads" src="https://img.shields.io/bundlephobia/min/@raulpesilva/re-state" />
+  </a>
+  <br/>
+  <br/>
+  <p>Easy way to provide global state to ReactJS and React Native applications</p>
+  <br/>
+  <br/>
 
-[![NPM](https://img.shields.io/npm/v/@raulpesilva/re-state.svg)](https://www.npmjs.com/package/@raulpesilva/re-state)
-![NPM](https://img.shields.io/npm/l/@raulpesilva/re-state)
-![node-current](https://img.shields.io/node/v/@raulpesilva/re-state)
-![npm bundle size](https://img.shields.io/bundlephobia/min/@raulpesilva/re-state)
-
-Easy way to provide global state to reactJS and React Native applications
+</div>
 
 ## Installation
 
@@ -21,49 +40,49 @@ yarn add @raulpesilva/re-state
 
 ## TODO
 
-- [ ] - Examples
+- [x] - Examples
 - [ ] - Tests
 - [ ] - Doc
 
-## Usage
+## Simple Usage
 
 ```js
-import * as React from 'react';
-import useReState from '@raulpesilva/re-state';
+import * as React from 'react'
+import useReState from '@raulpesilva/re-state'
 
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text, Button } from 'react-native'
 
 const Foo: React.FC = () => {
-  const [value, setValue] = useReState < number > ('value', 0);
+  const [value, setValue] = useReState < number > ('value', 0)
 
   return (
     <View style={styles.container}>
       <Button
         onPress={() => {
-          setValue(value + 1);
+          setValue(value + 1)
         }}
         title=" + "
       />
       <Text>State value: {value}</Text>
       <Button
         onPress={() => {
-          setValue(value > 0 ? value - 1 : 0);
+          setValue(value > 0 ? value - 1 : 0)
         }}
         title=" - "
       />
     </View>
-  );
-};
+  )
+}
 
 const Bar: React.FC = () => {
-  const [value] = useReState < number > ('value', 0);
+  const [value] = useReState < number > ('value', 0)
 
   return (
     <View style={styles.container}>
       <Text>State value: {value}</Text>
     </View>
-  );
-};
+  )
+}
 
 export default function App() {
   return (
@@ -71,7 +90,7 @@ export default function App() {
       <Foo />
       <Bar />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -80,100 +99,117 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+})
 ```
 
-or
+# Advanced Usage
 
-```js
-import * as React from 'react';
-import { createReState, useReStateSelector, createReStateDispatch } from '@raulpesilva/re-state';
+## Create a global State
 
-import { StyleSheet, View, Text, Button } from 'react-native';
+This method create a global state hook to use in any component
 
-const useGlobalState = createReState<number>('value', 0);
+```ts
+//mutedState.ts
+import { createReState } from '@raulpesilva/re-state'
 
-const Foo: React.FC = () => {
-  const [value, setValue] = useGlobalState();
+export type Muted = boolean
+export const key = 'muted'
 
-  return (
-    <View style={styles.container}>
-      <Button
-        onPress={() => {
-          setValue(value + 1);
-        }}
-        title=" + "
-      />
-      <Text>State value: {value}</Text>
-      <Button
-        onPress={() => {
-          setValue(value > 0 ? value - 1 : 0);
-        }}
-        title=" - "
-      />
-    </View>
-  );
-};
+export const useMuted = createReState<Muted>(key, true)
+```
 
-const Bar: React.FC = () => {
-  const [value] = useGlobalState();
+## Example create re state
+
+```tsx
+//MyComponent.tsx
+import { useMuted } from './mutedState'
+
+export const MyComponent = () => {
+  const [muted, useMuted] = useMuted()
 
   return (
-    <View style={styles.container}>
-      <Text>State value: {value}</Text>
-    </View>
-  );
-};
-
-const Consumer: React.FC = () => {
-  const value = useReStateSelector<{ value: number }>((store) => store.value);
-
-  return (
-    <View style={styles.container}>
-      <Text>State value: {value}</Text>
-    </View>
-  );
-};
-
-const dispatchCountReState = createReStateDispatch<number>('value');
-const Setter: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <Button
-        onPress={() => {
-          dispatchCountReState((prev) => prev + 1);
-        }}
-        title=" + "
-      />
-      <Text><--></Text>
-      <Button
-        onPress={() => {
-          dispatchCountReState((prev) => prev - 1);
-        }}
-        title=" - "
-      />
-    </View>
-  );
-};
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Foo />
-      <Bar />
-      <Consumer />
-      <Setter />
-    </View>
-  );
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
+      <span>or</span>
+      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
+    </div>
+  )
 }
+```
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+## Create re-state selector
+
+This method select any data from store and update when change
+
+```tsx
+import {useReStateSelector} from '@raulpesilva/re-state'
+import type { Muted } from './mutedState'
+import { key } from './mutedState'
+
+export const MyComponent = () => {
+  const muted = useReStateSelector<Muted>(({muted}=> muted))
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+    </div>
+  )
+}
+```
+
+```ts
+const result: any = useReStateSelector(selector: Function, equalityFn?: Function)
+```
+
+## Create re-state select
+
+This method select any data from store
+
+```ts
+//mutedState.ts
+import { createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const muteDispatch = createReStateDispatch<Muted>(key)
+export const toggleMute = () => muteDispatch(prev => !prev)
+
+export const getMutedValue = createReStateSelect<Muted>(key)
+```
+
+## Create re-state Dispatch
+
+This method update data on store
+
+```ts
+//mutedState.ts
+import { createReState, createReStateDispatch } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const muteDispatch = createReStateDispatch<Muted>(key)
+export const toggleMute = () => muteDispatch(prev => !prev)
+```
+
+```tsx
+import type { Muted,toggleMute } from './mutedState'
+import { key } from './mutedState'
+
+export const MyComponent = () => {
+  const muted = useReStateSelector<Muted>(({muted}=> muted))
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={toggleMute}>Toggle mute</button>
+    </div>
+  )
+}
 ```
 
 ## Contributing
