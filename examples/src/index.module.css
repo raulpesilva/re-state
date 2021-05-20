@@ -11,49 +11,5 @@ body {
   justify-content: center;
   align-items: center;
   background-color: #f7fafc;
-}
-.container {
-  width: 250px;
-  height: 40px;
-  padding: 2em;
-  display: flex;
-  background-color: #fff;
-  border-radius: 4px;
-}
-.actions {
-  width: 350px;
-  height: 40px;
-  padding: 2em;
-  display: flex;
-  background-color: #fff;
-  border-radius: 4px;
-  justify-content: space-evenly;
-}
-.display {
-  display: flex;
-  align-items: center;
-}
-.text {
-  font-size: 16px;
-}
-.value {
-  font-size: 2em;
-  margin: 1rem;
-}
-
-.button {
-  height: 40px;
-  padding: 0 2em;
-  background-color: #0099ff;
-  border: none;
-  border-radius: 4px;
-  transition: background 0.2s;
-  font-weight: bold;
-  color: #fff;
-  font-size: 16px;
-}
-
-.button:hover {
-  cursor: pointer;
-  background-color: #1086d4;
+  flex-direction: column;
 }

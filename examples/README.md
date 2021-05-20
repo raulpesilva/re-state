@@ -1,46 +1,189 @@
-# Getting Started with Create React App
+<div align="center">
+  <img alt="re-state" width="250" src="./assets/logo.svg" />
+  <br/>
+  <br/>
+  <h1>Examples</h1>
+  <br/>
+  <br/>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+</div>
 
-## Available Scripts
+## Installation
 
-In the project directory, you can run:
+```sh
+npm install @raulpesilva/re-state
+```
 
-### `yarn start`
+or
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```sh
+yarn add @raulpesilva/re-state
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Simple Usage
 
-### `yarn test`
+```js
+import * as React from 'react'
+import useReState from '@raulpesilva/re-state'
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+import { StyleSheet, View, Text, Button } from 'react-native'
 
-### `yarn build`
+const Foo: React.FC = () => {
+  const [value, setValue] = useReState < number > ('value', 0)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  return (
+    <View style={styles.container}>
+      <Button
+        onPress={() => {
+          setValue(value + 1)
+        }}
+        title=" + "
+      />
+      <Text>State value: {value}</Text>
+      <Button
+        onPress={() => {
+          setValue(value > 0 ? value - 1 : 0)
+        }}
+        title=" - "
+      />
+    </View>
+  )
+}
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+const Bar: React.FC = () => {
+  const [value] = useReState < number > ('value', 0)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  return (
+    <View style={styles.container}>
+      <Text>State value: {value}</Text>
+    </View>
+  )
+}
 
-### `yarn eject`
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Foo />
+      <Bar />
+    </View>
+  )
+}
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Advanced Usage
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Create a global State
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+This method create a global state hook to use in any component
 
-## Learn More
+```ts
+//mutedState.ts
+import { createReState } from '@raulpesilva/re-state'
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+export type Muted = boolean
+export const key = 'muted'
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+export const useMuted = createReState<Muted>(key, true)
+```
+
+## Example create re state
+
+```tsx
+//MyComponent.tsx
+import { useMuted } from './mutedState'
+
+export const MyComponent = () => {
+  const [muted, useMuted] = useMuted()
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
+      <span>or</span>
+      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
+    </div>
+  )
+}
+```
+
+## Create re-state selector
+
+This method select any data from store and update when change
+
+```tsx
+import {useReStateSelector} from '@raulpesilva/re-state'
+import type { Muted } from './mutedState'
+import { key } from './mutedState'
+
+export const MyComponent = () => {
+  const muted = useReStateSelector<Muted>(({muted}=> muted))
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+    </div>
+  )
+}
+```
+
+```ts
+const result: any = useReStateSelector(selector: Function, equalityFn?: Function)
+```
+
+## Create re-state select
+
+This method select any data from store
+
+```ts
+//mutedState.ts
+import { createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const muteDispatch = createReStateDispatch<Muted>(key)
+export const toggleMute = () => muteDispatch(prev => !prev)
+
+export const getMutedValue = createReStateSelect<Muted>(key)
+```
+
+## Create re-state Dispatch
+
+This method update data on store
+
+```ts
+//mutedState.ts
+import { createReState, createReStateDispatch } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const muteDispatch = createReStateDispatch<Muted>(key)
+export const toggleMute = () => muteDispatch(prev => !prev)
+```
+
+```tsx
+import type { Muted,toggleMute } from './mutedState'
+import { key } from './mutedState'
+
+export const MyComponent = () => {
+  const muted = useReStateSelector<Muted>(({muted}=> muted))
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={toggleMute}>Toggle mute</button>
+    </div>
+  )
+}
+```

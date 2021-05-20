@@ -1437,10 +1437,10 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@raulpesilva/re-state@latest":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@raulpesilva/re-state/-/re-state-1.0.9.tgz#12c9bd51d7206c109323ef8ac4e3b61ddc1daf40"
-  integrity sha512-BtaDfGO5HRPvKljZMjdlXti8aB/2IrvUDsOhTZiA4a+rZrYm6NtMvBgMnPfKvFr29m32/xl+Nbh848OEPRF2MQ==
+"@raulpesilva/re-state@^1.1.13":
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/@raulpesilva/re-state/-/re-state-1.1.13.tgz#b1d36e72b5f84adba3c10c839f26839501f503df"
+  integrity sha512-0ZhD3qhJyuZMMZAYdCR98F4W0tuy71USSBiw/xi551RdEvXpXF9CplkZhPC0hkXwIu5eu3jG6DpeBeNRORKb4w==
 
 "@rollup/plugin-node-resolve@^7.1.1":
   version "7.1.3"
