@@ -53,29 +53,19 @@ import useReState from '@raulpesilva/re-state'
 import { StyleSheet, View, Text, Button } from 'react-native'
 
 const Foo: React.FC = () => {
-  const [value, setValue] = useReState < number > ('value', 0)
+  const [value, setValue] = useReState<number>('value', 0)
 
   return (
     <View style={styles.container}>
-      <Button
-        onPress={() => {
-          setValue(value + 1)
-        }}
-        title=" + "
-      />
+      <Button onPress={() => setValue(value + 1)} title=" + " />
       <Text>State value: {value}</Text>
-      <Button
-        onPress={() => {
-          setValue(value > 0 ? value - 1 : 0)
-        }}
-        title=" - "
-      />
+      <Button onPress={() => setValue(value > 0 ? value - 1 : 0)} title=" - " />
     </View>
   )
 }
 
 const Bar: React.FC = () => {
-  const [value] = useReState < number > ('value', 0)
+  const [value] = useReState <number>('value', 0)
 
   return (
     <View style={styles.container}>
