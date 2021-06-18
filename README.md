@@ -3,11 +3,11 @@
   <br/>
   <br/>
   <a href="https://github.com/raulpesilva/re-state/blob/master/LICENSE">
-    <img alt="licence" src="https://badgen.net/npm/license/@raulpesilva/re-state?color=blue" />
+    <img alt="Licence" src="https://badgen.net/npm/license/@raulpesilva/re-state?color=blue" />
   </a>
     <img alt="type included" src="https://badgen.net/npm/types/@raulpesilva/re-state?color=blue" />
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
-    <img alt="npm version" src="https://badgen.net/npm/v/@raulpesilva/re-state?color=blue" />
+    <img alt="Npm version" src="https://badgen.net/npm/v/@raulpesilva/re-state?color=blue" />
   </a>
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
     <img alt="Total downloads" src="https://badgen.net/npm/dt/@raulpesilva/re-state?color=blue" />
@@ -16,7 +16,7 @@
     <img alt="Weekly downloads" src="https://badgen.net/npm/dw/@raulpesilva/re-state?color=blue" />
   </a>
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
-    <img alt="Weekly downloads" src="https://img.shields.io/bundlephobia/min/@raulpesilva/re-state" />
+    <img alt="Bundle size" src="https://img.shields.io/bundlephobia/min/@raulpesilva/re-state" />
   </a>
   <br/>
   <br/>
@@ -38,6 +38,8 @@ or
 yarn add @raulpesilva/re-state
 ```
 
+## See documentation - [![Docs](https://badgen.net/badge/Docs/latest/black)](https://restate.vercel.app/)
+
 ## TODO
 
 - [x] - Examples
@@ -46,7 +48,7 @@ yarn add @raulpesilva/re-state
 
 ## Simple Usage - [![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
 
-```js
+```tsx
 import * as React from 'react'
 import useReState from '@raulpesilva/re-state'
 
@@ -65,7 +67,7 @@ const Foo: React.FC = () => {
 }
 
 const Bar: React.FC = () => {
-  const [value] = useReState <number>('value', 0)
+  const [value] = useReState<number>('value', 0)
 
   return (
     <View style={styles.container}>

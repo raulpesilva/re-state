@@ -1,4 +1,4 @@
-export default {
+const config = {
   repository: 'https://github.com/raulpesilva/re-state', // project repo
   docsRepository: 'https://github.com/raulpesilva/re-state', // docs repo
   branch: 'master', // branch of docs
@@ -26,3 +26,5 @@ export default {
     </>
   ),
 }
+
+export default config
