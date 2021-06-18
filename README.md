@@ -3,7 +3,7 @@
   <br/>
   <br/>
   <a href="https://github.com/raulpesilva/re-state/blob/master/LICENSE">
-    <img alt="Licence" src="https://badgen.net/npm/license/@raulpesilva/re-state?color=blue" />
+    <img alt="License" src="https://badgen.net/npm/license/@raulpesilva/re-state?color=blue" />
   </a>
     <img alt="type included" src="https://badgen.net/npm/types/@raulpesilva/re-state?color=blue" />
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
