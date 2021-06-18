@@ -1,0 +1,57 @@
+# Basic
+
+[![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
+
+```tsx
+import * as React from 'react'
+import useReState from '@raulpesilva/re-state'
+
+const Foo = () => {
+  const [value, setValue] = useReState<number>('value', 0)
+
+  return (
+    <div style={styles.container}>
+      <button onPress={() => setValue(value + 1)}> + </button>
+      <p>State value: {value}</p>
+      <button onPress={() => setValue(value > 0 ? value - 1 : 0)}> - </button>
+    </div>
+  )
+}
+
+const Bar = () => {
+  const [value] = useReState<number>('value', 0)
+
+  return (
+    <div style={styles.container}>
+      <p>State value: {value}</p>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <div style={styles.container}>
+      <Foo />
+      <Bar />
+    </div>
+  )
+}
+
+const styles = {
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+}
+```
+
+## Behavior of useReState
+
+```ts
+export type MyType = boolean
+
+type MyCustomState = [MyType, (newValue: S | ((prevState: S) => S) | undefined ) => void]
+
+const [myCustomState, setMyCustomState]: MyCustomState = useReState<MyType>(unicKey: String | symbol, initialValue?: MyType)
+```

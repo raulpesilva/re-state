@@ -1,0 +1,65 @@
+# Create a global State
+
+This method create a global state hook to use in any component
+
+```ts
+//mutedState.ts
+import { createReState } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+```
+
+```ts
+const [muted, useMuted] = useMuted()
+```
+
+## Using created reState
+
+```tsx
+//MyComponent.tsx
+import { useMuted } from './mutedState'
+
+export const MyComponent = () => {
+  const [muted, useMuted] = useMuted()
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
+      <span>or</span>
+      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
+    </div>
+  )
+}
+```
+
+```tsx
+//MyOtherComponent.tsx
+import { useMuted } from './mutedState'
+
+export const MyOtherComponent = () => {
+  const [muted, useMuted] = useMuted()
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
+      <span>or</span>
+      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
+    </div>
+  )
+}
+```
+
+## Behavior
+
+```ts
+export type MyType = boolean
+
+type MyCustomState = ()=> [MyType, (newValue: S | ((prevState: S) => S) | undefined ) => void]
+
+const useMyCustomState: MyCustomState = createReState<MyType>(unicKey: String | symbol, initialValue?: MyType)
+```

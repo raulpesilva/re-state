@@ -1,0 +1,22 @@
+# Create re-state select
+
+This method select any data from store
+
+```ts
+//mutedState.ts
+import { createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const muteDispatch = createReStateDispatch<Muted>(key)
+export const toggleMute = () => muteDispatch(prev => !prev)
+
+export const getMutedValue = createReStateSelect<Muted>(key)
+```
+
+```ts
+type MyType = boolean
+const getMyValue: () => MyType  = createReStateSelect<MyType>(unicKey: String | Symbol)
+```

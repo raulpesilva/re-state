@@ -1,0 +1,7 @@
+{
+  "basic": "Basic",
+  "createRestate": "createReState",
+  "useReStateSelector": "useReStateSelector",
+  "createReStateSelect": "createReStateSelect",
+  "createReStateDispatch": "createReStateDispatch"
+}

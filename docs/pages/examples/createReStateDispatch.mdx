@@ -1,0 +1,32 @@
+# Create re-state Dispatch
+
+This method update data on store
+
+```ts
+//mutedState.ts
+import { createReState, createReStateDispatch } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const muteDispatch = createReStateDispatch<Muted>(key)
+export const toggleMute = () => muteDispatch(prev => !prev)
+```
+
+```tsx
+//MyComponent.tsx
+import type { Muted,toggleMute } from './mutedState'
+import { key } from './mutedState'
+
+export const MyComponent = () => {
+  const muted = useReStateSelector<Muted>(({muted}=> muted))
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+      <button onClick={toggleMute}>Toggle mute</button>
+    </div>
+  )
+}
+```

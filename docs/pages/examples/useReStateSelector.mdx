@@ -1,0 +1,24 @@
+# Create re-state selector
+
+This method select any data from store and update when change
+
+```tsx
+//MyComponent.tsx
+import {useReStateSelector} from '@raulpesilva/re-state'
+import type { Muted } from './mutedState'
+import { key } from './mutedState'
+
+export const MyComponent = () => {
+  const muted = useReStateSelector<Muted>(({muted}=> muted))
+
+  return (
+    <div>
+      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
+    </div>
+  )
+}
+```
+
+```ts
+const result: any = useReStateSelector(selector: Function, equalityFn?: Function)
+```
