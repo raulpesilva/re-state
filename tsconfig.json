@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     // "noEmit": true,
-    "module": "commonjs",
+    "module": "esnext",
     "strict": true,
-    "allowJs": true,
-    "target": "es6",
+    // "allowJs": true,
+    "target": "esnext",
     "sourceMap": true,
     "outDir": "dist",
     "jsx": "react-jsx",
@@ -19,8 +19,8 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "lib": ["dom", "esnext"]
   },
   "include": ["src/**/*", "./src/package/typings.d.ts"],
-  "exclude": ["node_modules", "dist", "examples"]
+  "exclude": ["node_modules", "dist", "examples", "assets"]
 }

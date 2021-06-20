@@ -1,10 +1,10 @@
 import { useCallback, useDebugValue, useRef, useState } from 'react'
 import store from './store'
-import { IStore } from './types'
+import { Selector } from './types'
 import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'
 import { shallowEqual } from './utils'
 
-export const useReStateSelector = <T>(selector = (store: IStore<T>): any => store, isEquals = shallowEqual): T => {
+export const useReStateSelector = <T, S = T>(selector: Selector<T, S>, isEquals = shallowEqual): S => {
   const prevState = useRef(store.getMany(selector))
   const [, setReRender] = useState({})
 
@@ -15,16 +15,16 @@ export const useReStateSelector = <T>(selector = (store: IStore<T>): any => stor
     setReRender({})
   }, [isEquals, selector])
 
-  useDebugValue(store.getMany<T>(selector))
+  useDebugValue(store.getMany<S>(selector))
 
   useIsomorphicLayoutEffect(() => {
     const unSub = store.subscribeSelector(() => {
-      store.getMany<T>(selector)
+      store.getMany<S>(selector)
       reRender()
     })
 
     return unSub
   }, [selector, reRender])
 
-  return store.getMany<T>(selector)
+  return store.getMany<S>(selector)
 }

@@ -43,8 +43,8 @@ yarn add @raulpesilva/re-state
 ## TODO
 
 - [x] - Examples
+- [x] - Docs
 - [ ] - Tests
-- [ ] - Doc
 
 ## Simple Usage - [![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
 

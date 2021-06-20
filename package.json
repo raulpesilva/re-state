@@ -1,10 +1,11 @@
 {
   "name": "@raulpesilva/re-state",
-  "version": "1.1.14",
+  "version": "1.1.16-beta.0",
   "description": "easy way to create a shared state to the entire application",
   "author": "raulpesilva",
   "license": "MIT",
   "repository": "raulpesilva/re-state",
+  "homepage": "https://restate.vercel.app/",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "source": "src/index.tsx",
