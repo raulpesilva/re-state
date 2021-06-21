@@ -1,14 +1,19 @@
 import styles from './index.module.css'
-import { addTodo, TodoItemProps, TodoList, toggleTodo } from '../../states'
-import { useReStateSelector } from '@raulpesilva/re-state'
+import { addTodo, TodoItemProps, TodoKey, toggleTodo } from '../../states'
+import type { TodoList } from '../../states'
+import { Selector, useReStateSelector } from '@raulpesilva/re-state'
 import { useRef } from 'react'
+
+type Store = { [TodoKey]: TodoList }
+
+const todosSelector: Selector<Store, TodoList> = ({ todos }) => todos
+const countFinishedTodoSelector: Selector<Store, number> = ({ todos }) =>
+  todos ? todos.filter(todo => todo.finished).length : 0
 
 export const AdvancedUsage = () => {
   const taskRef = useRef<HTMLInputElement>(null)
-  const todos = useReStateSelector<TodoList>(({ todos }) => todos ?? [])
-  const totalFinished = useReStateSelector<TodoList>(({ todos }) =>
-    todos ? todos.filter(todo => todo.finished).length : 0
-  )
+  const todos = useReStateSelector(todosSelector)
+  const totalFinished = useReStateSelector(countFinishedTodoSelector)
 
   const handleAddTodo = () => {
     if (taskRef.current?.value?.trim()) {

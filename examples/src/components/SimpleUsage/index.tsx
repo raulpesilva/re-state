@@ -10,10 +10,10 @@ const Foo: React.FC = () => {
       <button
         className={styles.button}
         onClick={() => {
-          setValue(prevValue => prevValue + 1)
+          setValue(value > 0 ? value - 1 : 0)
         }}
       >
-        +
+        -
       </button>
       <p className={styles.display}>
         <span className={styles.text}>Foo - State value: </span>
@@ -22,10 +22,10 @@ const Foo: React.FC = () => {
       <button
         className={styles.button}
         onClick={() => {
-          setValue(value > 0 ? value - 1 : 0)
+          setValue(prevValue => prevValue + 1)
         }}
       >
-        -
+        +
       </button>
     </div>
   )

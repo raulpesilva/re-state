@@ -3,7 +3,7 @@ import { createReState, createReStateDispatch, createReStateSelect } from '@raul
 export type TodoItemProps = { task: string; id: string; finished: boolean }
 export type TodoList = TodoItemProps[]
 
-const TodoKey = 'todos'
+export const TodoKey = 'todos'
 
 export const useTodoState = createReState<TodoList>(TodoKey, [] as TodoList)
 export const dispatchTodoState = createReStateDispatch<TodoList>(TodoKey)
