@@ -1,7 +1,6 @@
-import { createReState, createReStateDispatch, useReStateSelector, useReState, createReStateSelect } from './package'
+import { createReState, createReStateDispatch, createReStateSelect, useReState, useReStateSelector } from './package'
 
+export type { Selector, UniqueKey } from './package'
 export { createReStateDispatch, createReState, useReStateSelector, createReStateSelect }
-
-export type { UniqueKey, Selector } from './package'
 
 export default useReState

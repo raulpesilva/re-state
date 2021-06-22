@@ -1,5 +1,5 @@
 import store from './store'
-import { UniqueKey, SetReStateAction } from './types'
+import { SetReStateAction, UniqueKey } from './types'
 
 export const createReStateDispatch = <S>(key: UniqueKey) => {
   return (value: SetReStateAction<S>) => store.set(key, value)

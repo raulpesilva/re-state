@@ -1,6 +1,6 @@
 import { useCallback, useDebugValue, useState } from 'react'
 import store from './store'
-import { UniqueKey, SetReStateAction, DispatchReState } from './types'
+import { DispatchReState, SetReStateAction, UniqueKey } from './types'
 import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'
 
 export const useReState = <S>(

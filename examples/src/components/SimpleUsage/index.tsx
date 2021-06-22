@@ -1,5 +1,4 @@
 import useReState from '@raulpesilva/re-state'
-
 import styles from './index.module.css'
 
 const Foo: React.FC = () => {

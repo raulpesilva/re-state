@@ -1,4 +1,4 @@
-import { useCallback, useDebugValue, useRef, useState } from 'react'
+import { useCallback, useDebugValue, useState } from 'react'
 import store from './store'
 import { Selector } from './types'
 import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'

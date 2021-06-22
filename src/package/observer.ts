@@ -1,4 +1,4 @@
-import { UniqueKey, SetReStateAction, FnVoid } from './types'
+import { FnVoid, SetReStateAction, UniqueKey } from './types'
 
 class Observer {
   _listeners = new Map()

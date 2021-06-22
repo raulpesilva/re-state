@@ -11,7 +11,7 @@ import { key } from './mutedState'
 type Store = { [key]: Muted }
 
 export const MyComponent = () => {
-  const muted = useReStateSelector<Store>(({ muted }) => muted)
+  const muted = useReStateSelector<Store, Boolean>(({ muted }) => muted)
 
   return (
     <div>
@@ -22,7 +22,9 @@ export const MyComponent = () => {
 ```
 
 ```ts
+type Store = { MeyKey: Boolean }
+type DataToReturn = boolean
 type Selector<Store, DataToReturn = Store> = (store: Store) => DataToReturn
 
-const result: any = useReStateSelector(selector: Selector, equalityFn?: Function)
+const result: DataToReturn = useReStateSelector<Store,DataToReturn>(selector: Selector, equalityFn?: Function)
 ```

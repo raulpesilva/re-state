@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react'
 import { Selector, useReStateSelector } from '@raulpesilva/re-state'
+import { useCallback, useRef } from 'react'
 import type { TodoList } from '../../states'
 import { addTodo, TodoItemProps, TodoKey, toggleTodo } from '../../states'
 import styles from './index.module.css'
