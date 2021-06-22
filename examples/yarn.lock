@@ -1437,10 +1437,8 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@raulpesilva/re-state@1.1.16-beta.0":
-  version "1.1.16-beta.0"
-  resolved "https://registry.yarnpkg.com/@raulpesilva/re-state/-/re-state-1.1.16-beta.0.tgz#f5052a2cd285ba734c3079cebeb9d5ab77bda38e"
-  integrity sha512-jnFyjD5lTR32EjTABax7EB9vfjk9hY3+evThusFtrK5QVUFL2fJEo9rsBOsVyU9E9c6mgoT7FRcnyF+bPE90FQ==
+"@raulpesilva/re-state@file:../dist":
+  version "0.0.0"
 
 "@rollup/plugin-node-resolve@^7.1.1":
   version "7.1.3"

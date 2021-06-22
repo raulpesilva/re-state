@@ -1,25 +1,25 @@
-import styles from './index.module.css'
-import { addTodo, TodoItemProps, TodoKey, toggleTodo } from '../../states'
-import type { TodoList } from '../../states'
+import { useCallback, useRef } from 'react'
 import { Selector, useReStateSelector } from '@raulpesilva/re-state'
-import { useRef } from 'react'
+import type { TodoList } from '../../states'
+import { addTodo, TodoItemProps, TodoKey, toggleTodo } from '../../states'
+import styles from './index.module.css'
 
 type Store = { [TodoKey]: TodoList }
 
 const todosSelector: Selector<Store, TodoList> = ({ todos }) => todos
 const countFinishedTodoSelector: Selector<Store, number> = ({ todos }) =>
   todos ? todos.filter(todo => todo.finished).length : 0
+const countTodosSelector: Selector<Store, number> = ({ todos }) => todos.length ?? 0
 
 export const AdvancedUsage = () => {
   const taskRef = useRef<HTMLInputElement>(null)
-  const todos = useReStateSelector(todosSelector)
-  const totalFinished = useReStateSelector(countFinishedTodoSelector)
 
-  const handleAddTodo = () => {
+  const handleAddTodo = useCallback(() => {
     if (taskRef.current?.value?.trim()) {
       addTodo({ task: taskRef.current.value })
     }
-  }
+  }, [])
+
   return (
     <div className={styles.container}>
       <div className={styles.wrapperInput}>
@@ -28,14 +28,39 @@ export const AdvancedUsage = () => {
           add
         </button>
       </div>
-      <div className={styles.wrapperCount}>
-        <span>
-          Total: <strong>{todos.length}</strong>
-        </span>
-        <span>
-          Total Finished: <strong>{totalFinished}</strong>
-        </span>
-      </div>
+      <Total />
+      <TotalFinished />
+      <Todo />
+    </div>
+  )
+}
+
+const TotalFinished = () => {
+  const totalFinished = useReStateSelector(countFinishedTodoSelector)
+  return (
+    <div className={styles.wrapperCount}>
+      <span>
+        Total Finished: <strong>{totalFinished}</strong>
+      </span>
+    </div>
+  )
+}
+
+const Total = () => {
+  const countTodo = useReStateSelector(countTodosSelector)
+  return (
+    <div className={styles.wrapperCount}>
+      <span>
+        Total: <strong>{countTodo}</strong>
+      </span>
+    </div>
+  )
+}
+
+const Todo = () => {
+  const todos = useReStateSelector(todosSelector)
+  return (
+    <div>
       {todos.map(todo => (
         <TodoItem key={todo.id} {...todo} />
       ))}
@@ -44,9 +69,9 @@ export const AdvancedUsage = () => {
 }
 
 const TodoItem = (props: TodoItemProps) => {
-  const handleToggleFinished = () => {
+  const handleToggleFinished = useCallback(() => {
     toggleTodo(props.id)
-  }
+  }, [props.id])
   return (
     <div className={styles.todoItem}>
       <p>{props.task}</p>

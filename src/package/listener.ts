@@ -1,9 +1,9 @@
 import { FnVoid } from './types'
 
 class Listener {
-  _listeners: FnVoid[] = []
+  _listeners: ((state: any) => void)[] = []
 
-  subscribe(listener: FnVoid): FnVoid {
+  subscribe(listener: (state: any) => void): FnVoid {
     this._listeners.push(listener)
     return (): void => {
       const index = this._listeners.indexOf(listener)
@@ -14,9 +14,9 @@ class Listener {
     }
   }
 
-  notify(): void {
+  notify(state: any): void {
     for (const listener of this._listeners) {
-      listener()
+      listener(state)
     }
   }
 }

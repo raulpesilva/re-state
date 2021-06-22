@@ -5,26 +5,26 @@ import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'
 import { shallowEqual } from './utils'
 
 export const useReStateSelector = <T, S = T>(selector: Selector<T, S>, isEquals = shallowEqual): S => {
-  const prevState = useRef(store.getMany(selector))
-  const [, setReRender] = useState({})
+  const [selectorValue, setSelectorValue] = useState<S>(store.getMany(selector))
 
-  const reRender = useCallback(() => {
-    if (isEquals(prevState.current, store.getMany(selector))) {
-      return
-    }
-    setReRender({})
-  }, [isEquals, selector])
+  const reRender = useCallback(
+    (prevState: S) => {
+      if (!isEquals(prevState, store.getMany<S>(selector))) {
+        setSelectorValue(store.getMany<S>(selector))
+      }
+    },
+    [isEquals, selector]
+  )
 
-  useDebugValue(store.getMany<S>(selector))
+  useDebugValue(selectorValue)
 
   useIsomorphicLayoutEffect(() => {
-    const unSub = store.subscribeSelector(() => {
-      store.getMany<S>(selector)
-      reRender()
+    const unSub = store.subscribeSelector((state: S) => {
+      reRender(state)
     })
 
     return unSub
   }, [selector, reRender])
 
-  return store.getMany<S>(selector)
+  return selectorValue
 }

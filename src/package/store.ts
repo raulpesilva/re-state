@@ -58,10 +58,11 @@ class Store {
   }
 
   notifySelectors() {
-    this.__listener.notify()
+    const objectStore = Store.convertStoreToObject(this.__store)
+    this.__listener.notify(objectStore)
   }
 
-  subscribeSelector(listener: FnVoid) {
+  subscribeSelector(listener: (state: any) => void) {
     return this.__listener.subscribe(listener)
   }
 
