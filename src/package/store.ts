@@ -18,10 +18,10 @@ class Store {
   }
 
   set<S>(key: UniqueKey, newValue: S): void {
-    const prevValue = this.get<S>(key)
+    const prevState = this.get<S>(key)
 
     if (typeof newValue === 'function') {
-      this.__store.set(key, newValue(prevValue))
+      this.__store.set(key, newValue(prevState))
     } else {
       this.__store.set(key, newValue)
     }
@@ -29,7 +29,7 @@ class Store {
     const batch = getBatch()
     batch(() => {
       this.notify(key)
-      this.notifySelectors()
+      this.notifySelectors(prevState)
     })
   }
 
@@ -57,9 +57,8 @@ class Store {
     return fn(objectStore)
   }
 
-  notifySelectors() {
-    const objectStore = Store.convertStoreToObject(this.__store)
-    this.__listener.notify(objectStore)
+  notifySelectors(prevState: any) {
+    this.__listener.notify(prevState)
   }
 
   subscribeSelector(listener: (state: any) => void) {
