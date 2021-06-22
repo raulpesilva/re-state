@@ -138,9 +138,10 @@ This method select any data from store and update when change
 import {useReStateSelector} from '@raulpesilva/re-state'
 import type { Muted } from './mutedState'
 import { key } from './mutedState'
+type Store = { [key]: Muted}
 
 export const MyComponent = () => {
-  const muted = useReStateSelector<Muted>(({muted}=> muted))
+  const muted = useReStateSelector<Store, Muted>(({muted}=> muted))
 
   return (
     <div>
@@ -191,9 +192,10 @@ export const toggleMute = () => muteDispatch(prev => !prev)
 ```tsx
 import type { Muted,toggleMute } from './mutedState'
 import { key } from './mutedState'
+type Store = { [key]: Muted}
 
 export const MyComponent = () => {
-  const muted = useReStateSelector<Muted>(({muted}=> muted))
+  const muted = useReStateSelector<Store,Muted>(({ muted }=> muted))
 
   return (
     <div>
