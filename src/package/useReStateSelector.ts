@@ -19,8 +19,8 @@ export const useReStateSelector = <T, S = T>(selector: Selector<T, S>, isEquals 
   useDebugValue(selectorValue)
 
   useIsomorphicLayoutEffect(() => {
-    const unSub = store.subscribeSelector((state: S) => {
-      reRender(state)
+    const unSub = store.subscribeSelector((state: T) => {
+      reRender(selector(state))
     })
 
     return unSub
