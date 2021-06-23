@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- fix createReState select to return a hook
 - useReStateSelector is equal params
 
 ### Changed
