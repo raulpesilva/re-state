@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.16] - 2021-06-23
+
 ### Breaking changes
 
 - new createReStateSelect is CreateGetReState (is the same old interface)
