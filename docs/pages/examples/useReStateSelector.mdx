@@ -4,12 +4,14 @@ This method select any data from store and update when change
 
 ```tsx
 //MyComponent.tsx
-import {useReStateSelector} from '@raulpesilva/re-state'
+import { useReStateSelector } from '@raulpesilva/re-state'
 import type { Muted } from './mutedState'
 import { key } from './mutedState'
 
+type Store = { [key]: Muted }
+
 export const MyComponent = () => {
-  const muted = useReStateSelector<Muted>(({muted}=> muted))
+  const muted = useReStateSelector<Store, Boolean>(({ muted }) => muted)
 
   return (
     <div>
@@ -20,5 +22,9 @@ export const MyComponent = () => {
 ```
 
 ```ts
-const result: any = useReStateSelector(selector: Function, equalityFn?: Function)
+type Store = { MeyKey: Boolean }
+type DataToReturn = boolean
+type Selector<Store, DataToReturn = Store> = (store: Store) => DataToReturn
+
+const result: DataToReturn = useReStateSelector<Store,DataToReturn>(selector: Selector, equalityFn?: Function)
 ```

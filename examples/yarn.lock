@@ -1437,10 +1437,8 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@raulpesilva/re-state@^1.1.13":
-  version "1.1.13"
-  resolved "https://registry.yarnpkg.com/@raulpesilva/re-state/-/re-state-1.1.13.tgz#b1d36e72b5f84adba3c10c839f26839501f503df"
-  integrity sha512-0ZhD3qhJyuZMMZAYdCR98F4W0tuy71USSBiw/xi551RdEvXpXF9CplkZhPC0hkXwIu5eu3jG6DpeBeNRORKb4w==
+"@raulpesilva/re-state@file:../dist":
+  version "0.0.0"
 
 "@rollup/plugin-node-resolve@^7.1.1":
   version "7.1.3"
@@ -10953,8 +10951,10 @@ watchpack@^1.7.4:
   resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.7.5.tgz#1267e6c55e0b9b5be44c2023aed5437a2c26c453"
   integrity sha512-9P3MWk6SrKjHsGkLT2KHXdQ/9SNkyoJbabxnKOoJepsvJjJG8uYTR3yTPxPQvNDI3w4Nz1xnE0TLHK4RIVe/MQ==
   dependencies:
+    chokidar "^3.4.1"
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
+    watchpack-chokidar2 "^2.0.1"
   optionalDependencies:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"

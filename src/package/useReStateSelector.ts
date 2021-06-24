@@ -1,30 +1,25 @@
-import { useCallback, useDebugValue, useRef, useState } from 'react'
+import { useDebugValue, useState } from 'react'
 import store from './store'
-import { IStore } from './types'
+import { Selector } from './types'
 import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect'
 import { shallowEqual } from './utils'
 
-export const useReStateSelector = <T>(selector = (store: IStore<T>): any => store, isEquals = shallowEqual): T => {
-  const prevState = useRef(store.getMany(selector))
-  const [, setReRender] = useState({})
+export const useReStateSelector = <T, S = T>(selector: Selector<T, S>, isEquals = shallowEqual): S => {
+  const [selectorValue, setSelectorValue] = useState<S>(store.getMany(selector))
 
-  const reRender = useCallback(() => {
-    if (isEquals(prevState.current, store.getMany(selector))) {
-      return
-    }
-    setReRender({})
-  }, [isEquals, selector])
-
-  useDebugValue(store.getMany<T>(selector))
+  useDebugValue(selectorValue)
 
   useIsomorphicLayoutEffect(() => {
-    const unSub = store.subscribeSelector(() => {
-      store.getMany<T>(selector)
-      reRender()
+    const unSub = store.subscribeSelector((prevStore: T, newStore: T) => {
+      const prevSelection = selector(prevStore)
+      const newSelection = selector(newStore)
+      if (!isEquals(prevSelection, newSelection)) {
+        setSelectorValue(newSelection)
+      }
     })
 
     return unSub
-  }, [selector, reRender])
+  }, [selector])
 
-  return store.getMany<T>(selector)
+  return selectorValue
 }

@@ -1,7 +1,7 @@
 import { getBatch } from './batch'
 import Listener from './listener'
 import Observer from './observer'
-import { UniqueKey, FnVoid } from './types'
+import { FnVoid, UniqueKey } from './types'
 import { isFunction } from './utils'
 class Store {
   __store = new Map<UniqueKey, unknown>()
@@ -18,18 +18,21 @@ class Store {
   }
 
   set<S>(key: UniqueKey, newValue: S): void {
-    const prevValue = this.get<S>(key)
+    const prevState = this.get<S>(key)
+    const { ...prevStore } = Store.convertStoreToObject(this.__store)
 
     if (typeof newValue === 'function') {
-      this.__store.set(key, newValue(prevValue))
+      this.__store.set(key, newValue(prevState))
     } else {
       this.__store.set(key, newValue)
     }
 
+    const { ...newStore } = Store.convertStoreToObject(this.__store)
+
     const batch = getBatch()
     batch(() => {
       this.notify(key)
-      this.notifySelectors()
+      this.notifySelectors(prevStore, newStore)
     })
   }
 
@@ -57,11 +60,11 @@ class Store {
     return fn(objectStore)
   }
 
-  notifySelectors() {
-    this.__listener.notify()
+  notifySelectors(prevStore: any, newStore: any) {
+    this.__listener.notify(prevStore, newStore)
   }
 
-  subscribeSelector(listener: FnVoid) {
+  subscribeSelector(listener: (prevStore: any, newStore: any) => void) {
     return this.__listener.subscribe(listener)
   }
 

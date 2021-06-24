@@ -3,14 +3,14 @@ import { createReState, createReStateDispatch, createReStateSelect } from '@raul
 export type TodoItemProps = { task: string; id: string; finished: boolean }
 export type TodoList = TodoItemProps[]
 
-const TodoKey = 'todos'
+export const TodoKey = 'todos'
 
 export const useTodoState = createReState<TodoList>(TodoKey, [] as TodoList)
 export const dispatchTodoState = createReStateDispatch<TodoList>(TodoKey)
 
 export const addTodo = ({ task }: Omit<TodoItemProps, 'id' | 'finished'>) => {
   const newTodo = { id: `todo-${Math.floor(Math.random() * 1000000)}`, finished: false, task }
-  dispatchTodoState(prevTodos => [newTodo, ...prevTodos])
+  dispatchTodoState(prevTodos => [...prevTodos, newTodo])
   return newTodo
 }
 
