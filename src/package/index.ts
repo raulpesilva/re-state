@@ -5,4 +5,5 @@ export { createReStateDispatch } from './createReStateDispatch'
 export { createReStateSelect } from './createReStateSelect'
 export { useReState } from './useReState'
 export { useReStateSelector } from './useReStateSelector'
+export { createGetReState } from './createGetReState'
 setBatch(batch)
