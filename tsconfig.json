@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     // "noEmit": true,
-    "module": "esnext",
+    "module": "commonjs",
     "strict": true,
     // "allowJs": true,
     "target": "esnext",
