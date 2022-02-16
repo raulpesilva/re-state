@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    // "noEmit": true,
-    "module": "commonjs",
+    "module": "esnext",
     "strict": true,
-    // "allowJs": true,
     "target": "esnext",
     "sourceMap": true,
     "outDir": "dist",
@@ -19,8 +17,21 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "esnext"]
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "allowJs": true,
+    "noEmit": false
   },
-  "include": ["src/**/*", "./src/package/typings.d.ts"],
-  "exclude": ["node_modules", "dist", "examples", "assets"]
+  "include": [
+    "src/**/*",
+    "./src/package/typings.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "examples",
+    "assets"
+  ]
 }

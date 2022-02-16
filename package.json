@@ -43,11 +43,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "tsc:build": "tsc -b -v",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "tsc -b -v"
   },
   "eslintConfig": {
     "extends": [
