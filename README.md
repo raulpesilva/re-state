@@ -40,12 +40,6 @@ yarn add @raulpesilva/re-state
 
 ## See documentation - [![Docs](https://badgen.net/badge/Docs/latest/black)](https://restate.vercel.app/)
 
-## TODO
-
-- [x] - Examples
-- [x] - Docs
-- [ ] - Tests
-
 ## Simple Usage - [![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
 
 ```tsx
@@ -96,111 +90,151 @@ const styles = StyleSheet.create({
 
 # Advanced Usage
 
-## Create a global State
+# Hello ReState
 
-This method create a global state hook to use in any component
+## installing library
 
-```ts
-//mutedState.ts
-import { createReState } from '@raulpesilva/re-state'
-
-export type Muted = boolean
-export const key = 'muted'
-
-export const useMuted = createReState<Muted>(key, true)
+```sh
+npm install @raulpesilva/re-state
 ```
 
-## Example create re state
+or
+
+```sh
+yarn add @raulpesilva/re-state
+```
+
+## Creating new global state
+
+```ts
+// state/user/index.ts
+
+import { createReState, createReStateSelect, createReStateDispatch, createGetReState } from '@raulpesilva/re-state'
+
+type User = {
+  _id: string
+  name: string
+  email: string
+  iat: number
+  avatar: string
+}
+
+export const USER = 'user'
+export const userInitialValue = {}
+
+export const useUser = createReState<User>(USER, userInitialValue)
+export const useUserSelect = createReStateSelect<User>(USER)
+export const dispatchUser = createReStateDispatch<User>(USER)
+export const getUser = createGetReState<User>(USER)
+export const resetUser = () => dispatchUser(userInitialValue)
+```
 
 ```tsx
-//MyComponent.tsx
-import { useMuted } from './mutedState'
+// components/User.tsx
 
-export const MyComponent = () => {
-  const [muted, useMuted] = useMuted()
+import { useUser } from 'state/user'
+
+const User = () => {
+  const [user, setUser] = useUser()
 
   return (
     <div>
-      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
-      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
-      <span>or</span>
-      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
+      <h1>{user.name}</h1>
+      <img src={user.avatar} />
+      <p>{user.email}</p>
+      <button
+        onClick={() =>
+          setUser({
+            _id: '123',
+            name: 'Raul',
+            email: 'raul@email.com',
+            iat: 123,
+            avatar: 'https://github.com/raulpesilva.png',
+          })
+        }
+      >
+        Set User
+      </button>
     </div>
   )
 }
 ```
 
-## Create re-state selector
-
-This method select any data from store and update when change
+## Using previous state
 
 ```tsx
-import {useReStateSelector} from '@raulpesilva/re-state'
-import type { Muted } from './mutedState'
-import { key } from './mutedState'
-type Store = { [key]: Muted}
+// components/User.tsx
 
-export const MyComponent = () => {
-  const muted = useReStateSelector<Store, Muted>(({muted}=> muted))
+  import { useUser } from 'state/user'
+
+  const User = () => {
+    const [user, setUser] = useUser()
+
+    return (
+      <div>
+        <h1>{user.name}</h1>
+        <img src={user.avatar} />
+        <p>{user.email}</p>
+        <button onClick={() => setUser((prev) => {...prev, name: 'Raul P' })}>
+          Change name
+        </button>
+      </div>
+    )
+  }
+
+```
+
+or
+
+```tsx
+// components/User.tsx
+
+  import { useUserSelect, useUserDispatch } from 'state/user/index'
+
+  const User = () => {
+    const user = useUserSelect()
+
+    return (
+      <div>
+        <h1>{user.name}</h1>
+        <img src={user.avatar} />
+        <p>{user.email}</p>
+        <button onClick={() => useUserDispatch((prev) => {...prev, name: 'Raul P' })}>
+          Change name
+        </button>
+      </div>
+    )
+  }
+
+```
+
+## Adding changeName action
+
+```ts
+// state/user/index.ts
+...
+export const dispatchUser = createReStateDispatch<User>(USER)
+export const getUser = createGetReState<User>(USER)
+export const resetUser = () => dispatchUser(userInitialValue)
+// + adding changeName action
+export const changeName = (name: string) => dispatchUser((prev) => ({...prev, name}))
+
+```
+
+```tsx
+// components/User.tsx
+
+import { useUserSelect, changeName } from 'state/user/index'
+
+const User = () => {
+  const user = useUserSelect()
 
   return (
     <div>
-      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
-    </div>
-  )
-}
-```
-
-```ts
-const result: any = useReStateSelector(selector: Function, equalityFn?: Function)
-```
-
-## Create re-state select
-
-This method select any data from store
-
-```ts
-//mutedState.ts
-import { createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state'
-
-export type Muted = boolean
-export const key = 'muted'
-
-export const useMuted = createReState<Muted>(key, true)
-export const muteDispatch = createReStateDispatch<Muted>(key)
-export const toggleMute = () => muteDispatch(prev => !prev)
-
-export const getMutedValue = createReStateSelect<Muted>(key)
-```
-
-## Create re-state Dispatch
-
-This method update data on store
-
-```ts
-//mutedState.ts
-import { createReState, createReStateDispatch } from '@raulpesilva/re-state'
-
-export type Muted = boolean
-export const key = 'muted'
-
-export const useMuted = createReState<Muted>(key, true)
-export const muteDispatch = createReStateDispatch<Muted>(key)
-export const toggleMute = () => muteDispatch(prev => !prev)
-```
-
-```tsx
-import type { Muted,toggleMute } from './mutedState'
-import { key } from './mutedState'
-type Store = { [key]: Muted}
-
-export const MyComponent = () => {
-  const muted = useReStateSelector<Store,Muted>(({ muted }=> muted))
-
-  return (
-    <div>
-      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
-      <button onClick={toggleMute}>Toggle mute</button>
+      <h1>{user.name}</h1>
+      <img src={user.avatar} />
+      <p>{user.email}</p>
+      <button onClick={() => changeName('Raul P')}>Change name</button>
     </div>
   )
 }
