@@ -1,0 +1,149 @@
+# Hello ReState
+
+## installing library
+
+```sh
+npm install @raulpesilva/re-state
+```
+
+or
+
+```sh
+yarn add @raulpesilva/re-state
+```
+
+## Creating new global state
+
+```ts
+// state/user/index.ts
+
+import { createReState, createReStateSelect, createReStateDispatch, createGetReState } from '@raulpesilva/re-state'
+
+type User = {
+  _id: string
+  name: string
+  email: string
+  iat: number
+  avatar: string
+}
+
+export const USER = 'user'
+export const userInitialValue = {}
+
+export const useUser = createReState<User>(USER, userInitialValue)
+export const useUserSelect = createReStateSelect<User>(USER)
+export const dispatchUser = createReStateDispatch<User>(USER)
+export const getUser = createGetReState<User>(USER)
+export const resetUser = () => dispatchUser(userInitialValue)
+```
+
+```tsx
+// components/User.tsx
+
+import { useUser } from 'state/user'
+
+const User = () => {
+  const [user, setUser] = useUser()
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <img src={user.avatar} />
+      <p>{user.email}</p>
+      <button
+        onClick={() =>
+          setUser({
+            _id: '123',
+            name: 'Raul',
+            email: 'raul@email.com',
+            iat: 123,
+            avatar: 'https://github.com/raulpesilva.png',
+          })
+        }
+      >
+        Set User
+      </button>
+    </div>
+  )
+}
+```
+
+## Using previous state
+
+```tsx
+// components/User.tsx
+
+  import { useUser } from 'state/user'
+
+  const User = () => {
+    const [user, setUser] = useUser()
+
+    return (
+      <div>
+        <h1>{user.name}</h1>
+        <img src={user.avatar} />
+        <p>{user.email}</p>
+        <button onClick={() => setUser((prev) => {...prev, name: 'Raul P' })}>
+          Change name
+        </button>
+      </div>
+    )
+  }
+
+```
+
+or
+
+```tsx
+// components/User.tsx
+
+  import { useUserSelect, useUserDispatch } from 'state/user/index'
+
+  const User = () => {
+    const user = useUserSelect()
+
+    return (
+      <div>
+        <h1>{user.name}</h1>
+        <img src={user.avatar} />
+        <p>{user.email}</p>
+        <button onClick={() => useUserDispatch((prev) => {...prev, name: 'Raul P' })}>
+          Change name
+        </button>
+      </div>
+    )
+  }
+
+```
+
+## Adding changeName action
+
+```ts
+// state/user/index.ts
+...
+export const dispatchUser = createReStateDispatch<User>(USER)
+export const getUser = createGetReState<User>(USER)
+export const resetUser = () => dispatchUser(userInitialValue)
+// + adding changeName action
+export const changeName = (name: string) => dispatchUser((prev) => ({...prev, name}))
+
+```
+
+```tsx
+// components/User.tsx
+
+import { useUserSelect, changeName } from 'state/user/index'
+
+const User = () => {
+  const user = useUserSelect()
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <img src={user.avatar} />
+      <p>{user.email}</p>
+      <button onClick={() => changeName('Raul P')}>Change name</button>
+    </div>
+  )
+}
+```

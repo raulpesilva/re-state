@@ -1,0 +1,19 @@
+# Create re-state get
+
+This method update data on store
+
+```ts
+//mutedState.ts
+import { createReState, createGetReState } from '@raulpesilva/re-state'
+
+export type Muted = boolean
+export const key = 'muted'
+
+export const useMuted = createReState<Muted>(key, true)
+export const getMuted = createGetReState<Muted>(key)
+```
+
+```ts
+type MyType = boolean
+const getMyState: () => MyType  = createGetReState<MyType>(unicKey: String | Symbol)
+```
