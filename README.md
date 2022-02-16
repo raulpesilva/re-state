@@ -90,20 +90,6 @@ const styles = StyleSheet.create({
 
 # Advanced Usage
 
-# Hello ReState
-
-## installing library
-
-```sh
-npm install @raulpesilva/re-state
-```
-
-or
-
-```sh
-yarn add @raulpesilva/re-state
-```
-
 ## Creating new global state
 
 ```ts
