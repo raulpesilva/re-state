@@ -14,13 +14,17 @@
   padding: 4px;
   border-bottom: 1px solid #00000020;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+}
+
+.todoText {
+  margin-left: 10px;
 }
 
 .checkbox {
   height: 20px;
   width: 20px;
+  margin-left: auto;
 }
 
 .wrapperInput {
@@ -37,7 +41,7 @@
 }
 
 .input {
-  width: 79%;
+  width: 59%;
   height: 40px;
   font-size: 1rem;
   border-radius: 4px;
@@ -50,6 +54,19 @@
   width: 20%;
   height: 40px;
   background-color: #0099ff;
+  color: #ffffff;
+  text-transform: capitalize;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button_red {
+  width: 20%;
+  height: 40px;
+  background-color: #ff5200;
   color: #ffffff;
   text-transform: capitalize;
   font-weight: bold;
