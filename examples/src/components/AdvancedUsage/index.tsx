@@ -1,5 +1,5 @@
-import { useReStateSelector } from '@raulpesilva/re-state'
-import { memo, useCallback, useRef } from 'react'
+import { useReStateSelector } from '@raulpesilva/re-state';
+import { memo, useCallback, useRef } from 'react';
 import {
   addTodo,
   removeTodo,
@@ -9,17 +9,17 @@ import {
   todoFinishedCountSelector,
   toggleTodo,
   useTodoSelect,
-} from '../../states'
-import styles from './index.module.css'
+} from '../../states';
+import styles from './index.module.css';
 
 export const AdvancedUsage = () => {
-  const taskRef = useRef<HTMLInputElement>(null)
+  const taskRef = useRef<HTMLInputElement>(null);
 
   const handleAddTodo = useCallback(() => {
     if (taskRef.current?.value?.trim()) {
-      addTodo({ task: taskRef.current.value })
+      addTodo({ task: taskRef.current.value });
     }
-  }, [])
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -36,46 +36,46 @@ export const AdvancedUsage = () => {
       <TotalFinished />
       <TodoList />
     </div>
-  )
-}
+  );
+};
 
 const TotalFinished = () => {
-  const totalFinished = useReStateSelector(todoFinishedCountSelector)
+  const totalFinished = useReStateSelector(todoFinishedCountSelector);
   return (
     <div className={styles.wrapperCount}>
       <span>
         Total Finished: <strong>{totalFinished}</strong>
       </span>
     </div>
-  )
-}
+  );
+};
 
 const Total = () => {
-  const countTodo = useReStateSelector(todoCountSelector)
+  const countTodo = useReStateSelector(todoCountSelector);
   return (
     <div className={styles.wrapperCount}>
       <span>
         Total: <strong>{countTodo}</strong>
       </span>
     </div>
-  )
-}
+  );
+};
 
 const TodoList = () => {
-  const todos = useTodoSelect()
+  const todos = useTodoSelect();
   return (
     <div>
-      {todos.map(todo => (
+      {todos.map((todo) => (
         <TodoItem key={todo.id} {...todo} />
       ))}
     </div>
-  )
-}
+  );
+};
 
 const TodoItem = memo((props: Todo) => {
   const handleToggleFinished = useCallback(() => {
-    toggleTodo(props.id)
-  }, [props.id])
+    toggleTodo(props.id);
+  }, [props.id]);
   return (
     <div className={styles.todoItem}>
       <button className={styles.button_red} onClick={() => removeTodo(props.id)}>
@@ -84,5 +84,5 @@ const TodoItem = memo((props: Todo) => {
       <p className={styles.todoText}>{props.task}</p>
       <input type="checkbox" className={styles.checkbox} checked={props.finished} onChange={handleToggleFinished} />
     </div>
-  )
-})
+  );
+});
