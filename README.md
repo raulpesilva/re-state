@@ -13,7 +13,7 @@
     <img alt="Total downloads" src="https://badgen.net/npm/dt/@raulpesilva/re-state?color=blue" />
   </a>
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
-    <img alt="Weekly downloads" src="https://badgen.net/npm/dw/@raulpesilva/re-state?color=blue" />
+    <img alt="Monthly downloads" src="https://badgen.net/npm/dm/@raulpesilva/re-state?color=blue" />
   </a>
   <a href="https://bundlephobia.com/result?p=@raulpesilva/re-state@latest" target="\_parent">
     <img alt="Bundle size" src="https://img.shields.io/bundlephobia/min/@raulpesilva/re-state@latest" />
@@ -47,7 +47,7 @@ yarn add @raulpesilva/re-state
 
 ```tsx
 import * as React from 'react';
-import useReState from '@raulpesilva/re-state';
+import { useReState } from '@raulpesilva/re-state';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
 
