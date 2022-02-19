@@ -15,8 +15,11 @@
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
     <img alt="Weekly downloads" src="https://badgen.net/npm/dw/@raulpesilva/re-state?color=blue" />
   </a>
-  <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
-    <img alt="Bundle size" src="https://img.shields.io/bundlephobia/min/@raulpesilva/re-state" />
+  <a href="https://bundlephobia.com/result?p=@raulpesilva/re-state@latest" target="\_parent">
+    <img alt="Bundle size" src="https://img.shields.io/bundlephobia/min/@raulpesilva/re-state@latest" />
+  </a>
+  <a href="https://bundlephobia.com/result?p=@raulpesilva/re-state@latest" target="\_parent">
+    <img alt="Bundle size gzip" src="https://img.shields.io/bundlephobia/minzip/@raulpesilva/re-state@latest" />
   </a>
   <br/>
   <br/>
