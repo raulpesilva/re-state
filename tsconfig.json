@@ -1,37 +1,29 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "strict": true,
-    "target": "esnext",
-    "sourceMap": true,
-    "outDir": "dist",
-    "jsx": "react-jsx",
-    "declaration": true,
-    "skipLibCheck": true,
-    "removeComments": true,
-    "isolatedModules": true,
     "esModuleInterop": true,
-    "strictNullChecks": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "noFallthroughCasesInSwitch": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react",
     "lib": [
-      "dom",
-      "esnext"
+      "ESNext",
+      "dom"
     ],
-    "allowJs": true,
-    "noEmit": false
+    "target": "es5",
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "paths": {
+      "re-state": [
+        "./src/index.ts"
+      ]
+    }
   },
   "include": [
-    "src/**/*",
-    "./src/package/typings.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "examples",
-    "assets"
+    "./src"
   ]
 }
