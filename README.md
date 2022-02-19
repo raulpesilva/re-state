@@ -43,13 +43,13 @@ yarn add @raulpesilva/re-state
 ## Simple Usage - [![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
 
 ```tsx
-import * as React from 'react'
-import useReState from '@raulpesilva/re-state'
+import * as React from 'react';
+import useReState from '@raulpesilva/re-state';
 
-import { StyleSheet, View, Text, Button } from 'react-native'
+import { StyleSheet, View, Text, Button } from 'react-native';
 
 const Foo: React.FC = () => {
-  const [value, setValue] = useReState<number>('value', 0)
+  const [value, setValue] = useReState<number>('value', 0);
 
   return (
     <View style={styles.container}>
@@ -57,18 +57,18 @@ const Foo: React.FC = () => {
       <Text>State value: {value}</Text>
       <Button onPress={() => setValue(value > 0 ? value - 1 : 0)} title=" - " />
     </View>
-  )
-}
+  );
+};
 
 const Bar: React.FC = () => {
-  const [value] = useReState<number>('value', 0)
+  const [value] = useReState<number>('value', 0);
 
   return (
     <View style={styles.container}>
       <Text>State value: {value}</Text>
     </View>
-  )
-}
+  );
+};
 
 export default function App() {
   return (
@@ -76,7 +76,7 @@ export default function App() {
       <Foo />
       <Bar />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-})
+});
 ```
 
 # Advanced Usage
@@ -95,33 +95,33 @@ const styles = StyleSheet.create({
 ```ts
 // state/user/index.ts
 
-import { createReState, createReStateSelect, createReStateDispatch, createGetReState } from '@raulpesilva/re-state'
+import { createReState, createReStateSelect, createReStateDispatch, createGetReState } from '@raulpesilva/re-state';
 
 type User = {
-  _id: string
-  name: string
-  email: string
-  iat: number
-  avatar: string
-}
+  _id: string;
+  name: string;
+  email: string;
+  iat: number;
+  avatar: string;
+};
 
-export const USER = 'user'
-export const userInitialValue = {}
+export const USER = 'user';
+export const userInitialValue = {};
 
-export const useUser = createReState<User>(USER, userInitialValue)
-export const useUserSelect = createReStateSelect<User>(USER)
-export const dispatchUser = createReStateDispatch<User>(USER)
-export const getUser = createGetReState<User>(USER)
-export const resetUser = () => dispatchUser(userInitialValue)
+export const useUser = createReState<User>(USER, userInitialValue);
+export const useUserSelect = createReStateSelect<User>(USER);
+export const dispatchUser = createReStateDispatch<User>(USER);
+export const getUser = createGetReState<User>(USER);
+export const resetUser = () => dispatchUser(userInitialValue);
 ```
 
 ```tsx
 // components/User.tsx
 
-import { useUser } from 'state/user'
+import { useUser } from 'state/user';
 
 const User = () => {
-  const [user, setUser] = useUser()
+  const [user, setUser] = useUser();
 
   return (
     <div>
@@ -142,8 +142,8 @@ const User = () => {
         Set User
       </button>
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Using previous state
@@ -210,10 +210,10 @@ export const changeName = (name: string) => dispatchUser((prev) => ({...prev, na
 ```tsx
 // components/User.tsx
 
-import { useUserSelect, changeName } from 'state/user/index'
+import { useUserSelect, changeName } from 'state/user/index';
 
 const User = () => {
-  const user = useUserSelect()
+  const user = useUserSelect();
 
   return (
     <div>
@@ -222,8 +222,8 @@ const User = () => {
       <p>{user.email}</p>
       <button onClick={() => changeName('Raul P')}>Change name</button>
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Contributing
