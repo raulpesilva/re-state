@@ -1,0 +1,82 @@
+.container {
+  padding: 20px;
+  background-color: #fff;
+  margin-top: 20px;
+  box-sizing: border-box;
+  width: 728px;
+  border-radius: 4px;
+  box-shadow: 0 0 20px #00000002;
+  height: calc(100vh - 160px);
+}
+
+.todoItem {
+  width: 100%;
+  padding: 4px;
+  border-bottom: 1px solid #00000020;
+  display: flex;
+  align-items: center;
+}
+
+.todoText {
+  margin-left: 10px;
+}
+
+.checkbox {
+  height: 20px;
+  width: 20px;
+  margin-left: auto;
+}
+
+.wrapperInput {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.wrapperCount {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin: 1rem 0;
+}
+
+.input {
+  width: 59%;
+  height: 40px;
+  font-size: 1rem;
+  border-radius: 4px;
+  box-sizing: border-box;
+  border: 1px solid #00000020;
+  padding: 0 1rem;
+}
+
+.button {
+  width: 20%;
+  height: 40px;
+  background-color: #0099ff;
+  color: #ffffff;
+  text-transform: capitalize;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button_red {
+  width: 20%;
+  height: 40px;
+  background-color: #ff5200;
+  color: #ffffff;
+  text-transform: capitalize;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: #1086d4;
+}
