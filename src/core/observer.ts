@@ -1,9 +1,9 @@
-import type { UniqueKey, SetReStateAction, FnVoid } from './types';
+import type { FnVoid, UniqueKey } from './types';
 
 export class Observer {
   _listeners = new Map();
 
-  subscribe<T>(key: UniqueKey, listener: SetReStateAction<T>): FnVoid {
+  subscribe(key: UniqueKey, listener: FnVoid): FnVoid {
     if (this._listeners.has(key)) {
       const listeners = this._listeners.get(key);
       this._listeners.set(key, [...listeners, listener]);

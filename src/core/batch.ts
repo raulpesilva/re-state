@@ -1,9 +1,9 @@
 //inspired by react redux
 function defaultNoopBatch(callback: any) {
-  callback()
+  callback();
 }
 
-let batch = defaultNoopBatch
-export const setBatch = (newBatch: any) => (batch = newBatch)
+let batch = defaultNoopBatch;
+export const setBatch = (newBatch: any) => (batch = newBatch);
 
-export const getBatch = () => batch
+export const getBatch = () => batch;
