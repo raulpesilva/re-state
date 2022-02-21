@@ -15,6 +15,7 @@
     "lib/index.js"
   ],
   "scripts": {
+    "test:dev": "jest --watch",
     "build": "yarn build:commonjs && yarn build:es && yarn build:umd && yarn build:types",
     "build:commonjs": "rimraf ./lib && cross-env BABEL_ENV=commonjs babel --extensions .ts,.tsx --ignore ./src/**/tests/**/* ./src --out-dir lib",
     "build:es": "rimraf ./es && babel --extensions .ts,.tsx --ignore ./src/**/tests/**/* ./src --out-dir es",
@@ -40,11 +41,13 @@
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
     "@rollup/plugin-replace": "^3.1.0",
+    "@types/jest": "^27.4.0",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
     "babel-plugin-const-enum": "^1.2.0",
     "babel-plugin-transform-async-to-promises": "^0.8.18",
     "cross-env": "^7.0.3",
+    "jest": "^27.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
