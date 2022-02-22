@@ -16,11 +16,10 @@ export class Observer {
     return (): void => {
       const listenersCopy = [...this._listeners.get(key)];
       const index = this._listeners.get(key).indexOf(listener);
-      if (index > -1) {
-        listenersCopy[index] = listenersCopy[listenersCopy.length - 1];
-        listenersCopy.length--;
-        this._listeners.set(key, listenersCopy);
-      }
+      if (index < 0) return;
+      listenersCopy[index] = listenersCopy[listenersCopy.length - 1];
+      listenersCopy.length--;
+      this._listeners.set(key, listenersCopy);
     };
   }
 

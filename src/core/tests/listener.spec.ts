@@ -9,6 +9,10 @@ afterEach(() => {
 const noop = () => {};
 
 describe('Listener', () => {
+  test('should initiate without listeners', () => {
+    expect(listener._listeners).toEqual([]);
+  });
+
   test('should add an function to listeners', () => {
     listener.subscribe(noop);
     expect(listener._listeners.length).toBe(1);
@@ -30,6 +34,15 @@ describe('Listener', () => {
     expect(listener._listeners.length).toBe(1);
 
     unsubscribe3();
+    expect(listener._listeners.length).toBe(0);
+  });
+
+  test('should do nothing when try to remove 2 time the same listener', () => {
+    const unsubscribe1 = listener.subscribe(noop);
+    expect(listener._listeners.length).toBe(1);
+    unsubscribe1();
+    expect(listener._listeners.length).toBe(0);
+    unsubscribe1();
     expect(listener._listeners.length).toBe(0);
   });
 

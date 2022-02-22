@@ -1,5 +1,8 @@
-import {} from '../utils';
+import { isFunction } from '../utils';
 
 describe('Utils', () => {
-  test.todo('should ');
+  test('should return true if is type function', () => {
+    const fn = () => {};
+    expect(isFunction(fn)).toBe(true);
+  });
 });

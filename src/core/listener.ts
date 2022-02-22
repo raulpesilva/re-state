@@ -7,10 +7,9 @@ export class Listener {
     this._listeners.push(listener);
     return (): void => {
       const index = this._listeners.indexOf(listener);
-      if (index > -1) {
-        this._listeners[index] = this._listeners[this._listeners.length - 1] as CompareStore;
-        this._listeners.length--;
-      }
+      if (index < 0) return;
+      this._listeners[index] = this._listeners[this._listeners.length - 1] as CompareStore;
+      this._listeners.length--;
     };
   }
 
