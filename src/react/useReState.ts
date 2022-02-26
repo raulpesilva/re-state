@@ -36,10 +36,6 @@ export function useReState<S>(
       setReStateValue(store.get(key));
     });
 
-    if (!store.has(key) && initialValue) {
-      store.set<SetReStateAction<S>>(key, initialValue);
-    }
-
     return unSub;
   }, [initialValue, key]);
 
