@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.29] - 2022-06-10
+
+### Added
+
+- add onReStateChange
+- add test to onReStateChange
+
 ## [1.2.28] - 2022-02-19
 
 ### Added
