@@ -8,5 +8,6 @@ export * from './createReStateDispatch';
 export * from './createReStateSelect';
 export * from './useReStateSelector';
 export * from './onReStateChange';
+export { resetReState, setReStateInitialValue } from './store';
 
 setBatch(batch);

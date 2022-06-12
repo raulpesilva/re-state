@@ -218,6 +218,15 @@ describe('Store', () => {
     expect(obj).toEqual({ key1: 1, key2: 2 });
   });
 
+  test('should convert Map to array', () => {
+    const map = new Map([
+      ['key1', 1],
+      ['key2', 2],
+    ]);
+    const obj = Store.getStoreKeys(map);
+    expect(obj).toEqual(['key1', 'key2']);
+  });
+
   test('should batch set store', () => {
     const key1 = 'key1';
     const value1 = 1;
@@ -292,5 +301,38 @@ describe('Store', () => {
     expect(value1).toHaveBeenCalledTimes(1);
     expect(value1).toHaveBeenCalledWith(undefined);
     expect(store.get(key)).toBe(value);
+  });
+
+  test('should keep initial value when set store', () => {
+    const key = 'key';
+    const initialValue = 1;
+    store.set(key, initialValue);
+    expect(store.get(key)).toBe(initialValue);
+    expect(store.__initial_store.get(key)).toBe(initialValue);
+    store.set(key, 2);
+    expect(store.get(key)).toBe(2);
+    expect(store.__initial_store.get(key)).toBe(initialValue);
+  });
+
+  test('should reset store', () => {
+    const key = 'key';
+    const key2 = 'key2';
+    const value = 1;
+    const callback = jest.fn();
+    const callback2 = jest.fn();
+    store.subscribe(key, callback);
+    store.subscribe(key2, callback2);
+    store.set(key, value);
+    store.set(key2, value);
+    expect(store.get(key)).toBe(value);
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback2).toHaveBeenCalledTimes(1);
+    store.set(key, 2);
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(callback2).toHaveBeenCalledTimes(1);
+    store.reset();
+    expect(store.get(key)).toBe(value);
+    expect(callback).toHaveBeenCalledTimes(3);
+    expect(callback2).toHaveBeenCalledTimes(2);
   });
 });
