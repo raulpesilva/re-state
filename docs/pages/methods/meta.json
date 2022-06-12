@@ -5,5 +5,7 @@
   "createGetReState": "createGetReState",
   "createReStateSelect": "createReStateSelect",
   "useReStateSelector": "useReStateSelector",
-  "onReStateChange": "onReStateChange"
+  "onReStateChange": "onReStateChange",
+  "resetReState": "resetReState",
+  "setReStateInitialValue": "setReStateInitialValue"
 }
