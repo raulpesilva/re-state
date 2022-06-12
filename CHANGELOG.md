@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.30] - 2022-06-12
+
+### Added
+
+- add setReStateInitialValue
+- add resetReState
+
 ## [1.2.29] - 2022-06-10
 
 ### Added
