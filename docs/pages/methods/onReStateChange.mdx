@@ -1,0 +1,21 @@
+# onReStateChange
+
+This method is like an useEffect hook, but it is called when the state changes and lives outside of react.
+This method include an key dependency array, which is the state keys that you want to watch.
+
+```ts
+//mutedState.ts
+import { createReState, onReStateChange } from '@raulpesilva/re-state';
+
+export type Muted = boolean;
+export const key = 'muted';
+
+export const useMuted = createReState<Muted>(key, true);
+onReStateChange(() => {
+  // do something
+}, [key]);
+```
+
+```ts
+type onReStateChange = (callback: FnVoid, dependencies: UniqueKey[]) => void;
+```

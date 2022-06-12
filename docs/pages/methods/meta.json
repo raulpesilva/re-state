@@ -4,5 +4,6 @@
   "createReStateDispatch": "createReStateDispatch",
   "createGetReState": "createGetReState",
   "createReStateSelect": "createReStateSelect",
-  "useReStateSelector": "useReStateSelector"
+  "useReStateSelector": "useReStateSelector",
+  "onReStateChange": "onReStateChange"
 }
