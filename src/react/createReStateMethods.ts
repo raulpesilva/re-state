@@ -6,7 +6,7 @@ import { createReStateSelect } from './createReStateSelect';
 import { setReStateInitialValue } from './store';
 import { DispatchReState } from './types';
 
-type useReState<S extends string, V> = Record<`use${Capitalize<S>}`, [V, DispatchReState<SetReStateAction<V>>]>;
+type useReState<S extends string, V> = Record<`use${Capitalize<S>}`, () => [V, DispatchReState<SetReStateAction<V>>]>;
 type useReStateSelect<S extends string, V> = Record<`use${Capitalize<S>}Select`, () => V>;
 type dispatchReState<S extends string, V> = Record<`dispatch${Capitalize<S>}`, DispatchReState<SetReStateAction<V>>>;
 type getReState<S extends string, V> = Record<`get${Capitalize<S>}`, () => V>;
@@ -30,8 +30,8 @@ export const createReStateMethods = <S extends string = string, V extends any = 
   initialValue: V,
   valueOfReset?: V
 ): { [K in keyof ReStateMethods<S, V>]: ReStateMethods<S, V>[K] } => {
-  if (!name) throw new Error('Name is required');
-  if (!initialValue) throw new Error('Value is required');
+  if (name === undefined || name === null) throw new Error('Name is required');
+  if (initialValue === undefined || initialValue === null) throw new Error('InitialValue is required');
 
   const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -39,7 +39,7 @@ export const createReStateMethods = <S extends string = string, V extends any = 
   const useSelect = createReStateSelect<V>(name);
   const dispatch = createReStateDispatch<V>(name);
   const get = createGetReState<V>(name);
-  if (valueOfReset) setReStateInitialValue(name, valueOfReset);
+  if (valueOfReset === undefined || valueOfReset === null) setReStateInitialValue(name, valueOfReset);
 
   const methods = {
     [`use${capitalizedName}`]: use,
