@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### added
+- add createReStateMethods
+- add createReStateMethods tests
+
 ## [1.2.30] - 2022-06-12
 
 ### Added
