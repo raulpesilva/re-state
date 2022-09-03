@@ -1,0 +1,24 @@
+# Create re-state methods
+
+This method creates a set of methods to use with React
+
+```ts
+//mutedState.ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+export type Muted = boolean;
+export const key = 'muted';
+
+export const { useMuted, useMutedSelect, dispatchMuted, getMuted, resetMuted } = createReStateMethods(key, true);
+// the name os methods depends on the key passad to createReStateMethods
+// ex: key = 'muted' => useMuted, useMutedSelect, dispatchMuted, getMuted, resetMuted
+// ex: key = 'volume' => useVolume, useVolumeSelect, dispatchVolume, getVolume, resetVolume
+```
+
+```ts
+type createReStateMethods = <S extends string = string, V extends any = any>(
+  name: S,
+  initialValue: V,
+  valueOfReset?: V
+): { [K in keyof ReStateMethods<S, V>]: ReStateMethods<S, V>[K] };
+```

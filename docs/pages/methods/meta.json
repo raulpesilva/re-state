@@ -7,5 +7,6 @@
   "useReStateSelector": "useReStateSelector",
   "onReStateChange": "onReStateChange",
   "resetReState": "resetReState",
-  "setReStateInitialValue": "setReStateInitialValue"
+  "setReStateInitialValue": "setReStateInitialValue",
+  "createReStateMethods": "createReStateMethods"
 }
