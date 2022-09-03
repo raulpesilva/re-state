@@ -6,40 +6,48 @@ import { createReStateSelect } from './createReStateSelect';
 import { setReStateInitialValue } from './store';
 import { DispatchReState } from './types';
 
-type A = string;
-type useReState<T, S> = T extends A ? { [K in T as `use${T}`]: [S, DispatchReState<SetReStateAction<S>>] } : never;
-type useReStateSelect<T, S> = T extends A ? { [K in T as `use${T}Select`]: () => S } : never;
-type dispatchReState<T, S> = T extends A ? { [K in T as `dispatch${T}`]: DispatchReState<SetReStateAction<S>> } : never;
-type getReState<T, S> = T extends A ? { [K in T as `get${T}`]: () => S } : never;
-type resetReState<S> = S extends A ? { [K in S as `reset${S}`]: () => void } : never;
+type useReState<S extends string, V> = Record<`use${Capitalize<S>}`, [V, DispatchReState<SetReStateAction<V>>]>;
+type useReStateSelect<S extends string, V> = Record<`use${Capitalize<S>}Select`, () => V>;
+type dispatchReState<S extends string, V> = Record<`dispatch${Capitalize<S>}`, DispatchReState<SetReStateAction<V>>>;
+type getReState<S extends string, V> = Record<`get${Capitalize<S>}`, () => V>;
+type resetReState<S extends string> = Record<`reset${Capitalize<S>}`, () => void>;
 
-type ReState<T, S> = useReState<T, S> &
+type ReStateMethods<T extends string, S> = useReState<T, S> &
   useReStateSelect<T, S> &
   dispatchReState<T, S> &
   getReState<T, S> &
   resetReState<T>;
 
-export const createReStateMethods = <T extends any = any, S extends string = string, I extends S = S>(
+/**
+ * Creates a set of methods to use with React.
+ * @param name Unique name of the state
+ * @param initialValue initial value of the state
+ * @param valueOfReset value to reset when calling resetReState
+ * @returns a set of methods to use with React
+ */
+export const createReStateMethods = <S extends string = string, V extends any = any>(
   name: S,
-  value: T,
-  valueOfReset?: I
-) => {
+  initialValue: V,
+  valueOfReset?: V
+): { [K in keyof ReStateMethods<S, V>]: ReStateMethods<S, V>[K] } => {
   if (!name) throw new Error('Name is required');
-  if (!value) throw new Error('Value is required');
+  if (!initialValue) throw new Error('Value is required');
 
-  const use = createReState(name, value);
-  const useSelect = createReStateSelect<T>(name);
-  const dispatch = createReStateDispatch<T>(name);
-  const get = createGetReState<T>(name);
+  const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+
+  const use = createReState<V>(name, initialValue);
+  const useSelect = createReStateSelect<V>(name);
+  const dispatch = createReStateDispatch<V>(name);
+  const get = createGetReState<V>(name);
   if (valueOfReset) setReStateInitialValue(name, valueOfReset);
 
   const methods = {
-    [`use${name}`]: use,
-    [`use${name}Select`]: useSelect,
-    [`dispatch${name}`]: dispatch,
-    [`get${name}`]: get,
-    [`reset${name}`]: () => dispatch(value),
-  } as ReState<S, T>;
+    [`use${capitalizedName}`]: use,
+    [`use${capitalizedName}Select`]: useSelect,
+    [`dispatch${capitalizedName}`]: dispatch,
+    [`get${capitalizedName}`]: get,
+    [`reset${capitalizedName}`]: () => dispatch(valueOfReset ?? initialValue),
+  } as ReStateMethods<S, V>;
 
   return methods;
 };
