@@ -1,6 +1,6 @@
 {
   "name": "@raulpesilva/re-state",
-  "version": "1.2.30",
+  "version": "1.2.31",
   "author": "raulpesilva",
   "repository": "raulpesilva/re-state",
   "homepage": "https://restate.vercel.app/",
@@ -71,7 +71,7 @@
     "@babel/runtime": "^7.17.2"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "peerDependenciesMeta": {
     "react-dom": {
