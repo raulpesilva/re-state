@@ -27,11 +27,11 @@ type ReStateMethods<T extends string, S> = useReState<T, S> &
  */
 export const createReStateMethods = <S extends string = string, V extends any = any>(
   name: S,
-  initialValue: V,
-  valueOfReset?: V
+  initialValue?: V,
+  valueOfReset?: { value: V }
 ): { [K in keyof ReStateMethods<S, V>]: ReStateMethods<S, V>[K] } => {
-  if (name === undefined || name === null) throw new Error('Name is required');
-  if (initialValue === undefined || initialValue === null) throw new Error('InitialValue is required');
+  if (!name) throw new Error('Name is required');
+  if (typeof name !== 'string') throw new Error('Name need to be a string');
 
   const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -39,14 +39,14 @@ export const createReStateMethods = <S extends string = string, V extends any = 
   const useSelect = createReStateSelect<V>(name);
   const dispatch = createReStateDispatch<V>(name);
   const get = createGetReState<V>(name);
-  if (valueOfReset === undefined || valueOfReset === null) setReStateInitialValue(name, valueOfReset);
+  if (valueOfReset) setReStateInitialValue(name, valueOfReset.value);
 
   const methods = {
     [`use${capitalizedName}`]: use,
     [`use${capitalizedName}Select`]: useSelect,
     [`dispatch${capitalizedName}`]: dispatch,
     [`get${capitalizedName}`]: get,
-    [`reset${capitalizedName}`]: () => dispatch(valueOfReset ?? initialValue),
+    [`reset${capitalizedName}`]: () => dispatch(valueOfReset?.value ?? initialValue),
   } as ReStateMethods<S, V>;
 
   return methods;

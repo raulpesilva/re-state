@@ -61,7 +61,7 @@ describe('createReStateMethods', () => {
   it('should set valueOfReset', () => {
     const key = 'key';
     const valueOfReset = 1;
-    const { useKey, resetKey } = createReStateMethods(key, 0, valueOfReset);
+    const { useKey, resetKey } = createReStateMethods(key, 0, { value: valueOfReset });
     const { result } = renderHook(() => useKey());
     act(resetKey);
     expect(result.current[0]).toBe(valueOfReset);
@@ -69,11 +69,25 @@ describe('createReStateMethods', () => {
 
   it('should throw an error if name is not provided', () => {
     // @ts-expect-error
-    expect(() => createReStateMethods(undefined, 0)).toThrowError('Name is required');
+    expect(() => createReStateMethods(undefined)).toThrowError('Name is required');
+    // @ts-expect-error
+    expect(() => createReStateMethods(null)).toThrowError('Name is required');
+    expect(() => createReStateMethods('')).toThrowError('Name is required');
+    // @ts-expect-error
+    expect(() => createReStateMethods(NaN)).toThrowError('Name is required');
+    // @ts-expect-error
+    expect(() => createReStateMethods(12)).toThrowError('Name need to be a string');
+    // @ts-expect-error
+    expect(() => createReStateMethods(BigInt(123))).toThrowError('Name need to be a string');
+    // @ts-expect-error
+    expect(() => createReStateMethods([])).toThrowError('Name need to be a string');
+    // @ts-expect-error
+    expect(() => createReStateMethods({})).toThrowError('Name need to be a string');
+    // @ts-expect-error
+    expect(() => createReStateMethods(true)).toThrowError('Name need to be a string');
   });
 
-  it('should throw an error if initialValue is not provided', () => {
-    // @ts-expect-error
-    expect(() => createReStateMethods('key')).toThrowError('InitialValue is required');
+  it('should not throw an error if initialValue is not provided', () => {
+    expect(() => createReStateMethods('key')).not.toThrowError('InitialValue is required');
   });
 });
