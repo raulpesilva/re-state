@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.32] - 2022-09-07
+
+### Fix
+- error when create a state with createReStateMethods with initial value undefined or null
+
 ## [1.2.31] - 2022-09-03
 
 ### added
