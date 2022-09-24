@@ -1,9 +1,9 @@
-import { act, renderHook } from '@testing-library/react-hooks';
 import { jest } from '@jest/globals';
+import { act, renderHook } from '@testing-library/react-hooks';
 import { createReState } from '../createReState';
 import { onReStateChange } from '../onReStateChange';
 
-describe('onReStateEffect', () => {
+describe('onReStateChange', () => {
   it('should have been called when state change', () => {
     const key = 'key';
     const useTestHook = createReState(key, 0);
@@ -18,8 +18,8 @@ describe('onReStateEffect', () => {
   });
 
   it('should have been called only when key state change', () => {
-    const key1 = 'key1';
-    const key2 = 'key2';
+    const key1 = 't-key1';
+    const key2 = 't-key2';
     const useTestHook1 = createReState(key1, 0);
     const useTestHook2 = createReState(key2, 0);
     const { result: hook1 } = renderHook(() => useTestHook1());
@@ -35,10 +35,10 @@ describe('onReStateEffect', () => {
   });
 
   it('should have been called only when some dependency key state change', () => {
-    const key1 = 'key1';
-    const key2 = 'key2';
-    const key3 = 'key3';
-    const key4 = 'key4';
+    const key1 = 'change-key1';
+    const key2 = 'change-key2';
+    const key3 = 'change-key3';
+    const key4 = 'change-key4';
     const useTestHook1 = createReState(key1, 0);
     const useTestHook2 = createReState(key2, 0);
     const useTestHook3 = createReState(key3, 0);

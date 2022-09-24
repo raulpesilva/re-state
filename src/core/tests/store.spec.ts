@@ -1,5 +1,6 @@
 import { setBatch } from '../batch';
 import { Store } from '../store';
+import { convertMapToObj } from '../utils';
 
 let store = new Store();
 
@@ -9,14 +10,14 @@ afterEach(() => {
 
 describe('Store', () => {
   test('should initiate store without value', () => {
-    expect(store.__store.size).toBe(0);
+    expect(store.size).toBe(0);
   });
 
   test('should add a value to store', () => {
     const key = 'key';
     const value = 'value';
     store.set(key, value);
-    expect(store.__store.size).toBe(1);
+    expect(store.size).toBe(1);
   });
 
   test('should get store value', () => {
@@ -31,18 +32,18 @@ describe('Store', () => {
     const value1 = 'value1';
     const value2 = 'value2';
     store.set(key, value1);
-    expect(store.__store.size).toBe(1);
+    expect(store.size).toBe(1);
     expect(store.get(key)).toBe(value1);
     store.set(key, value2);
     expect(store.get(key)).toBe(value2);
-    expect(store.__store.size).toBe(1);
+    expect(store.size).toBe(1);
   });
 
   test('should set a value with function value', () => {
     const key = 'key';
     const value = () => 'value';
     store.set(key, value);
-    expect(store.__store.size).toBe(1);
+    expect(store.size).toBe(1);
     expect(store.get(key)).toBe(value());
   });
 
@@ -72,13 +73,13 @@ describe('Store', () => {
     const callback4 = jest.fn();
     store.subscribe(key, callback1);
     store.subscribe(key, callback2);
-    store.subscribeSelector(callback3);
-    store.subscribeSelector(callback4);
+    store.subscribe(callback3);
+    store.subscribe(callback4);
     store.set(key, value1);
     expect(callback1).toHaveBeenCalledTimes(1);
-    expect(callback1).toHaveBeenCalledTimes(1);
-    expect(callback2).toHaveBeenCalledWith();
-    expect(callback2).toHaveBeenCalledWith();
+    expect(callback2).toHaveBeenCalledTimes(1);
+    expect(callback1).toHaveBeenCalledWith(undefined, value1);
+    expect(callback2).toHaveBeenCalledWith(undefined, value1);
     expect(callback3).toHaveBeenCalledTimes(1);
     expect(callback3).toHaveBeenCalledWith({}, { [key]: value1 });
     expect(callback4).toHaveBeenCalledTimes(1);
@@ -86,25 +87,23 @@ describe('Store', () => {
     store.set(key, value2);
     expect(callback1).toHaveBeenCalledTimes(2);
     expect(callback1).toHaveBeenCalledTimes(2);
-    expect(callback2).toHaveBeenCalledWith();
-    expect(callback2).toHaveBeenCalledWith();
+    expect(callback2).toHaveBeenCalledWith(1, 2);
+    expect(callback2).toHaveBeenCalledWith(1, 2);
     expect(callback3).toHaveBeenCalledTimes(2);
     expect(callback3).toHaveBeenCalledWith({ [key]: value1 }, { [key]: value2 });
     expect(callback4).toHaveBeenCalledTimes(2);
     expect(callback4).toHaveBeenCalledWith({ [key]: value1 }, { [key]: value2 });
   });
 
-  test('should receive entire store to a function', () => {
+  test('should return entire store', () => {
     const key1 = 'key1';
     const key2 = 'key2';
     const value1 = 1;
     const value2 = 2;
     store.set(key1, value1);
     store.set(key2, value2);
-    const callback = jest.fn();
-    store.getMany(callback);
-    expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith({ [key1]: value1, [key2]: value2 });
+
+    expect(store.getStore()).toStrictEqual({ [key1]: value1, [key2]: value2 });
   });
 
   test('should return an error when not pass a function', () => {
@@ -112,60 +111,11 @@ describe('Store', () => {
     expect(() => store.getMany('test')).toThrowError();
   });
 
-  test('should initiate without listeners', () => {
-    expect(store.__listener._listeners.length).toBe(0);
-    expect(store.__observer._listeners.size).toBe(0);
-  });
-
-  test('should subscribe', () => {
-    const key = 'key';
-    store.subscribe(key, () => {});
-    expect(store.__observer._listeners.get(key).length).toBe(1);
-  });
-
-  test('should subscribeSelector', () => {
-    store.subscribeSelector(() => {});
-    expect(store.__listener._listeners.length).toBe(1);
-  });
-
-  test('should unsubscribe', () => {
-    const key = 'key';
-    const unsubscribe1 = store.subscribe(key, () => {});
-    const unsubscribe2 = store.subscribe(key, () => {});
-    const unsubscribe3 = store.subscribe(key, () => {});
-    expect(store.__observer._listeners.get(key).length).toBe(3);
-
-    unsubscribe1();
-    expect(store.__observer._listeners.get(key).length).toBe(2);
-
-    unsubscribe2();
-    expect(store.__observer._listeners.get(key).length).toBe(1);
-
-    unsubscribe3();
-    expect(store.__observer._listeners.get(key).length).toBe(0);
-  });
-
-  test('should unsubscribe selectors', () => {
-    const unsubscribe1 = store.subscribeSelector(() => {});
-    const unsubscribe2 = store.subscribeSelector(() => {});
-    const unsubscribe3 = store.subscribeSelector(() => {});
-    expect(store.__listener._listeners.length).toBe(3);
-
-    unsubscribe1();
-    expect(store.__listener._listeners.length).toBe(2);
-
-    unsubscribe2();
-    expect(store.__listener._listeners.length).toBe(1);
-
-    unsubscribe3();
-    expect(store.__listener._listeners.length).toBe(0);
-  });
-
   test('should notify', () => {
     const key = 'key';
     const callback = jest.fn();
     store.subscribe(key, callback);
-    store.notify(key);
+    store.set(key, undefined);
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
@@ -175,38 +125,42 @@ describe('Store', () => {
     const callback2 = jest.fn();
     store.subscribe(key, callback1);
     store.subscribe(key, callback2);
-    store.notify(key);
+    store.set(key, undefined);
     expect(callback1).toHaveBeenCalledTimes(1);
     expect(callback2).toHaveBeenCalledTimes(1);
   });
 
   test('should notifySelector with prevStore and newStore', () => {
+    const key = 'key';
     const callback = jest.fn();
-    store.subscribeSelector(callback);
-    store.notifySelectors(1, 2);
+    store.subscribe(callback);
+    store.set(key, 1);
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith(1, 2);
+    expect(callback).toHaveBeenCalledWith({}, { [key]: 1 });
   });
 
   test('should notifySelector with prevStore and newStore and remove listener', () => {
+    const key = 'key';
     const callback = jest.fn();
-    const unsubscribe = store.subscribeSelector(callback);
-    store.notifySelectors(1, 2);
+    const unsubscribe = store.subscribe(callback);
+    store.set(key, 1);
     unsubscribe();
     expect(callback).toHaveBeenCalledTimes(1);
-    expect(store.__listener._listeners.length).toBe(0);
+    expect(callback).toHaveBeenCalledWith({}, { [key]: 1 });
   });
 
   test('should notify all subscribed selectors', () => {
+    const key = 'key';
+
     const callback1 = jest.fn();
     const callback2 = jest.fn();
-    store.subscribeSelector(callback1);
-    store.subscribeSelector(callback2);
-    store.notifySelectors(1, 2);
+    store.subscribe(callback1);
+    store.subscribe(callback2);
+    store.set(key, 1);
     expect(callback1).toHaveBeenCalledTimes(1);
     expect(callback2).toHaveBeenCalledTimes(1);
-    expect(callback1).toHaveBeenCalledWith(1, 2);
-    expect(callback2).toHaveBeenCalledWith(1, 2);
+    expect(callback1).toHaveBeenCalledWith({}, { [key]: 1 });
+    expect(callback2).toHaveBeenCalledWith({}, { [key]: 1 });
   });
 
   test('should convert Map to object', () => {
@@ -214,17 +168,8 @@ describe('Store', () => {
       ['key1', 1],
       ['key2', 2],
     ]);
-    const obj = Store.convertStoreToObject(map);
+    const obj = convertMapToObj(map);
     expect(obj).toEqual({ key1: 1, key2: 2 });
-  });
-
-  test('should convert Map to array', () => {
-    const map = new Map([
-      ['key1', 1],
-      ['key2', 2],
-    ]);
-    const obj = Store.getStoreKeys(map);
-    expect(obj).toEqual(['key1', 'key2']);
   });
 
   test('should batch set store', () => {
@@ -285,7 +230,7 @@ describe('Store', () => {
     const value = 1;
     const callback = jest.fn();
     store.subscribe(key, callback);
-    store.setWithoutNotify(key, value);
+    store.update(key, value);
     expect(callback).toHaveBeenCalledTimes(0);
     expect(store.get(key)).toBe(value);
   });
@@ -293,13 +238,10 @@ describe('Store', () => {
   test('should set store without notify with value function', () => {
     const key = 'key';
     const value = 1;
-    const value1 = jest.fn(() => 1);
     const callback = jest.fn();
     store.subscribe(key, callback);
-    store.setWithoutNotify(key, value1);
+    store.update(key, 1);
     expect(callback).toHaveBeenCalledTimes(0);
-    expect(value1).toHaveBeenCalledTimes(1);
-    expect(value1).toHaveBeenCalledWith(undefined);
     expect(store.get(key)).toBe(value);
   });
 
@@ -308,10 +250,10 @@ describe('Store', () => {
     const initialValue = 1;
     store.set(key, initialValue);
     expect(store.get(key)).toBe(initialValue);
-    expect(store.__initial_store.get(key)).toBe(initialValue);
+    expect(store.getInitialValue(key)).toBe(initialValue);
     store.set(key, 2);
     expect(store.get(key)).toBe(2);
-    expect(store.__initial_store.get(key)).toBe(initialValue);
+    expect(store.getInitialValue(key)).toBe(initialValue);
   });
 
   test('should reset store', () => {
@@ -334,5 +276,27 @@ describe('Store', () => {
     expect(store.get(key)).toBe(value);
     expect(callback).toHaveBeenCalledTimes(3);
     expect(callback2).toHaveBeenCalledTimes(2);
+  });
+
+  test('should reset store key', () => {
+    const key = 'key';
+    const key2 = 'key2';
+    const value = 1;
+
+    store.set(key, value);
+    store.set(key2, value);
+    expect(store.get(key)).toBe(value);
+    store.set(key, 2);
+    store.set(key2, 2);
+    store.resetKey(key);
+    expect(store.get(key)).toBe(value);
+    expect(store.get(key2)).toBe(2);
+  });
+
+  test('should not crash when pass invalid subscribe', () => {
+    //@ts-expect-error
+    const unsubscribe = store.subscribe();
+    expect(unsubscribe).toBeTruthy();
+    expect(unsubscribe()).toBeUndefined();
   });
 });

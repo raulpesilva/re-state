@@ -1,103 +1,91 @@
-import type { UniqueKey, FnVoid } from './types';
-import { isFunction } from './utils';
 import { getBatch } from './batch';
 import { Listener } from './listener';
-import { Observer } from './observer';
+import { ListenerByKey } from './listenerByKey';
+import { convertMapToObj, isFunction } from './utils';
 
-export class Store {
-  __store = new Map<UniqueKey, unknown>();
-  __initial_store = new Map<UniqueKey, unknown>();
-  __observer = new Observer();
-  __listener = new Listener();
+type TListener<T> = (prev: T | undefined, next: T) => void;
 
-  static convertStoreToObject(receivedStore: Map<UniqueKey, unknown>) {
-    const obj = Object.fromEntries(receivedStore.entries());
-    return obj;
+export class Store<
+  T extends Record<string, unknown>,
+  Fields extends keyof T = keyof T,
+  Values extends T[keyof T] = T[keyof T]
+> {
+  private store = new Map<keyof T, T[keyof T]>();
+  private initialStore = new Map<keyof T, T[keyof T]>();
+  private listeners = new ListenerByKey<T>();
+  private watchAllListeners = new Listener<T>();
+
+  constructor(initialStore: T = {} as T) {
+    this.store = new Map<Fields, Values>(Object.entries(initialStore) as [Fields, Values][]);
   }
 
-  static getStoreKeys(store: Map<UniqueKey, unknown>): UniqueKey[] {
-    return Array.from(store.keys());
+  get size(): number {
+    return this.store.size;
   }
 
-  get<S = undefined>(key: UniqueKey) {
-    return this.__store.get(key) as S;
+  get<K extends Fields>(key: K): T[K] {
+    return this.store.get(key) as T[K];
   }
 
-  getMany<T>(fn: (state: any) => T) {
-    if (!isFunction(fn)) {
-      throw new TypeError(
-        'to select a value in the store it is necessary to pass a function - ex: (store) => store.myKey'
-      );
-    }
-    const objectStore = Store.convertStoreToObject(this.__store);
-    return fn(objectStore);
+  getInitialValue<K extends Fields>(key: K): T[K] {
+    return this.initialStore.get(key) as T[K];
   }
 
-  _set<S>(key: UniqueKey, newValue: S): void {
-    const hasKey = this.__store.has(key);
-    if (typeof newValue === 'function') {
-      const prevValue = this.get<S>(key);
-      const value = newValue(prevValue);
-      this.__store.set(key, value);
-      if (!hasKey) this.setInitialValue(key, value);
-    } else {
-      this.__store.set(key, newValue);
-      if (!hasKey) this.setInitialValue(key, newValue);
-    }
+  getStore(): T {
+    return convertMapToObj(this.store);
   }
 
-  set<S>(key: UniqueKey, newValue: S): void {
-    const { ...prevStore } = Store.convertStoreToObject(this.__store);
+  update<K extends Fields>(key: K, value: T[K]): void {
+    this.store.set(key, value);
+    if (!this.initialStore.has(key)) this.initialStore.set(key, value);
+  }
 
-    this._set(key, newValue);
+  setInitialValue<K extends Fields>(key: K, value: T[K]): void {
+    this.initialStore.set(key, value);
+    if (!this.store.has(key)) this.store.set(key, value);
+  }
 
-    const { ...newStore } = Store.convertStoreToObject(this.__store);
+  set<K extends Fields>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void {
+    const isFunction = typeof value === 'function';
+    const nextValue = isFunction ? (value as (prevState: T[K]) => T[K])(this.get(key)) : value;
+    const prevValue = this.get(key);
+    const prevStore = this.getStore();
 
     const batch = getBatch();
+
     batch(() => {
-      this.notify(key);
-      this.notifySelectors(prevStore, newStore);
+      this.update(key, nextValue);
+      this.listeners.notify(key, prevValue, nextValue);
+
+      const nextStore = this.getStore();
+      this.watchAllListeners.notify(prevStore, nextStore);
     });
   }
 
-  setWithoutNotify<S>(key: UniqueKey, newValue: S): void {
-    this._set(key, newValue);
+  subscribe(listener: TListener<T>): () => void;
+  subscribe<K extends Fields>(key: K, listener: TListener<T[K]>): () => void;
+  subscribe<K extends Fields>(keyOrListener: K | TListener<T>, listener?: TListener<T[K]>) {
+    if (typeof keyOrListener === 'function') return this.watchAllListeners.subscribe(keyOrListener);
+    if (!isFunction(listener) || !listener) return () => {};
+    return this.listeners.subscribe(keyOrListener, listener);
   }
 
-  setInitialValue<S>(key: UniqueKey, value: S) {
-    this.__initial_store.set(key, value);
+  has<K extends Fields>(key: K): boolean {
+    return this.store.has(key);
   }
 
-  has(key: UniqueKey) {
-    return this.__store.has(key);
-  }
-
-  notifySelectors(prevStore: any, newStore: any) {
-    this.__listener.notify(prevStore, newStore);
-  }
-
-  subscribeSelector(listener: (prevStore: any, newStore: any) => void) {
-    return this.__listener.subscribe(listener);
-  }
-
-  subscribe(key: UniqueKey, listener: FnVoid) {
-    return this.__observer.subscribe(key, listener);
-  }
-
-  notify(key: UniqueKey) {
-    this.__observer.notify(key);
-  }
-
-  reset() {
-    this.__store = new Map(this.__initial_store.entries());
-    const keys = Store.getStoreKeys(this.__store);
+  reset(): void {
+    this.store = new Map(this.initialStore);
+    const keys = Array.from(this.store.keys()) as Fields[];
     const batch = getBatch();
-    const newStore = Store.convertStoreToObject(this.__store);
     batch(() => {
-      keys.forEach((key) => {
-        this.notify(key);
-        this.notifySelectors(undefined, newStore);
-      });
+      keys.forEach((key) => this.listeners.notify(key, undefined, this.get(key)));
+      this.watchAllListeners.notify(undefined, this.getStore());
     });
+  }
+
+  resetKey<K extends Fields>(key: K): void {
+    const initialValue = this.initialStore.get(key) as T[K];
+    this.store.set(key, initialValue);
   }
 }

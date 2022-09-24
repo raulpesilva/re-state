@@ -28,9 +28,9 @@ describe('createReStateMethods', () => {
   });
 
   it('should render reState hook select', () => {
-    const key = 'key';
-    const { useKeySelect } = createReStateMethods(key, 0);
-    const { result } = renderHook(() => useKeySelect());
+    const key = 'keyRender';
+    const { useKeyRenderSelect } = createReStateMethods(key, 0);
+    const { result } = renderHook(() => useKeyRenderSelect());
     expect(result.current).toBe(0);
   });
 

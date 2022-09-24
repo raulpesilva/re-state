@@ -10,47 +10,48 @@ const noop = () => {};
 
 describe('Listener', () => {
   test('should initiate without listeners', () => {
-    expect(listener._listeners).toEqual([]);
+    expect(listener.size).toEqual(0);
   });
 
   test('should add an function to listeners', () => {
-    listener.subscribe(noop);
-    expect(listener._listeners.length).toBe(1);
-    listener.subscribe(noop);
-    listener.subscribe(noop);
-    expect(listener._listeners.length).toBe(3);
+    listener.subscribe(() => noop());
+    expect(listener.size).toBe(1);
+    listener.subscribe(() => noop());
+    listener.subscribe(() => noop());
+    expect(listener.size).toBe(3);
   });
 
   test('should remove an function from listeners', () => {
-    const unsubscribe1 = listener.subscribe(noop);
-    const unsubscribe2 = listener.subscribe(noop);
-    const unsubscribe3 = listener.subscribe(noop);
-    expect(listener._listeners.length).toBe(3);
+    const unsubscribe1 = listener.subscribe(() => noop());
+    const unsubscribe2 = listener.subscribe(() => noop());
+    const unsubscribe3 = listener.subscribe(() => noop());
+    expect(listener.size).toBe(3);
 
     unsubscribe1();
-    expect(listener._listeners.length).toBe(2);
+    expect(listener.size).toBe(2);
 
     unsubscribe2();
-    expect(listener._listeners.length).toBe(1);
+    expect(listener.size).toBe(1);
 
     unsubscribe3();
-    expect(listener._listeners.length).toBe(0);
+    expect(listener.size).toBe(0);
   });
 
   test('should do nothing when try to remove 2 time the same listener', () => {
     const unsubscribe1 = listener.subscribe(noop);
-    expect(listener._listeners.length).toBe(1);
+    expect(listener.size).toBe(1);
     unsubscribe1();
-    expect(listener._listeners.length).toBe(0);
+    expect(listener.size).toBe(0);
     unsubscribe1();
-    expect(listener._listeners.length).toBe(0);
+    expect(listener.size).toBe(0);
   });
 
   test('should notify listeners', () => {
     const callback = jest.fn();
     listener.subscribe(callback);
-    listener.notify(null, 1);
+    listener.notify(undefined, { value: 1 });
     expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(undefined, { value: 1 });
   });
 
   test('should notify listeners with prevStore and newStore', () => {

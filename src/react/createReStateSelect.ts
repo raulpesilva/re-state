@@ -1,19 +1,15 @@
 import { useDebugValue, useState } from 'react';
-import type { UniqueKey } from '../core/types';
 import { store } from './store';
 import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect';
 
-export function createReStateSelect<S>(key: UniqueKey) {
+export function createReStateSelect<S>(key: string) {
   return function useReStateSelect() {
-    const [reStateValue, setReStateValue] = useState<S>(store.get(key));
+    const [reStateValue, setReStateValue] = useState<S>(store.get(key) as S);
 
     useDebugValue(reStateValue);
 
     useIsomorphicLayoutEffect(() => {
-      const unSub = store.subscribe(key, () => {
-        setReStateValue(store.get(key));
-      });
-
+      const unSub = store.subscribe(key, (_prev, next) => setReStateValue(next as S));
       return unSub;
     }, [key]);
 
