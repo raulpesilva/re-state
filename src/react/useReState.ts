@@ -14,7 +14,7 @@ export function useReState<S>(
   key: string,
   initialValue?: SetReStateAction<S>
 ): [S, DispatchReState<SetReStateAction<S>>] {
-  const [reStateValue, setReStateValue] = useState<S>(upSetState(key, initialValue));
+  const [reStateValue, setReStateValue] = useState<S>(() => upSetState(key, initialValue));
   const setState = useCallback((newValue: SetReStateAction<S>) => store.set(key, newValue), [key]);
 
   useDebugValue(reStateValue);

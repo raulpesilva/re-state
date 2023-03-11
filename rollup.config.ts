@@ -1,13 +1,13 @@
-import babel from 'rollup-plugin-babel';
-import { terser } from 'rollup-plugin-terser';
-import size from 'rollup-plugin-size';
-import externalDeps from 'rollup-plugin-peer-deps-external';
-import resolve from 'rollup-plugin-node-resolve';
-import commonJS from 'rollup-plugin-commonjs';
-import visualizer from 'rollup-plugin-visualizer';
 import replace from '@rollup/plugin-replace';
+import babel from 'rollup-plugin-babel';
+import commonJS from 'rollup-plugin-commonjs';
+import resolve from 'rollup-plugin-node-resolve';
+import externalDeps from 'rollup-plugin-peer-deps-external';
+import size from 'rollup-plugin-size';
+import { terser } from 'rollup-plugin-terser';
+import visualizer from 'rollup-plugin-visualizer';
 
-const external = ['react', 'react-dom'];
+const external = ['react', 'react-dom', 'use-sync-external-store/shim'];
 
 const globals = {
   react: 'React',
