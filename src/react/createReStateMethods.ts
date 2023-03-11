@@ -4,7 +4,7 @@ import { createReState } from './createReState';
 import { createReStateDispatch } from './createReStateDispatch';
 import { createReStateSelect } from './createReStateSelect';
 import { setReStateInitialValue } from './store';
-import { DispatchReState } from './types';
+import type { DispatchReState } from './types';
 
 type useReState<S extends string, V> = Record<`use${Capitalize<S>}`, () => [V, DispatchReState<SetReStateAction<V>>]>;
 type useReStateSelect<S extends string, V> = Record<`use${Capitalize<S>}Select`, () => V>;
