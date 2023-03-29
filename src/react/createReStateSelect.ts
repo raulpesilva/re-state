@@ -7,7 +7,7 @@ export function createReStateSelect<S>(key: string) {
     const reStateValue = useSyncExternalStore(
       (fn) => store.subscribe(key, fn),
       () => store.get(key),
-      () => undefined
+      () => store.get(key)
     );
 
     useDebugValue(reStateValue);

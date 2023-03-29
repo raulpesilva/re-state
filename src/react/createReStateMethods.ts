@@ -1,22 +1,9 @@
-import { SetReStateAction } from '../core';
 import { createGetReState } from './createGetReState';
 import { createReState } from './createReState';
 import { createReStateDispatch } from './createReStateDispatch';
 import { createReStateSelect } from './createReStateSelect';
 import { setReStateInitialValue } from './store';
-import { DispatchReState } from './types';
-
-type useReState<S extends string, V> = Record<`use${Capitalize<S>}`, () => [V, DispatchReState<SetReStateAction<V>>]>;
-type useReStateSelect<S extends string, V> = Record<`use${Capitalize<S>}Select`, () => V>;
-type dispatchReState<S extends string, V> = Record<`dispatch${Capitalize<S>}`, DispatchReState<SetReStateAction<V>>>;
-type getReState<S extends string, V> = Record<`get${Capitalize<S>}`, () => V>;
-type resetReState<S extends string> = Record<`reset${Capitalize<S>}`, () => void>;
-
-type ReStateMethods<T extends string, S> = useReState<T, S> &
-  useReStateSelect<T, S> &
-  dispatchReState<T, S> &
-  getReState<T, S> &
-  resetReState<T>;
+import type { ReStateMethods } from './types';
 
 /**
  * Creates a set of methods to use with React.
