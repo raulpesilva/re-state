@@ -1,5 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { createReState } from '../createReState';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('createReState', () => {
   it('should return the initial state', () => {

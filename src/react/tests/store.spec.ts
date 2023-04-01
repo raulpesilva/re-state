@@ -1,4 +1,6 @@
-import { resetReState, setReStateInitialValue, store } from '../store';
+import { resetHardStore, resetReState, setReStateInitialValue, store } from '../store';
+
+afterEach(resetHardStore);
 
 describe('store', () => {
   it('should set initial value with set', () => {

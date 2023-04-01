@@ -1,7 +1,7 @@
-import { SetReStateAction } from '../core';
+import type { SetReStateAction } from '../core';
 
 export type DispatchReState<A> = (value: A) => void;
-export type Selector<T, S = T> = (store: T) => S;
+export type Selector<T, S = unknown> = (store: T) => S;
 type useReState<S extends string, V> = Record<`use${Capitalize<S>}`, () => [V, DispatchReState<SetReStateAction<V>>]>;
 type useReStateSelect<S extends string, V> = Record<`use${Capitalize<S>}Select`, () => V>;
 type dispatchReState<S extends string, V> = Record<`dispatch${Capitalize<S>}`, DispatchReState<SetReStateAction<V>>>;

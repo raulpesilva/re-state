@@ -1,25 +1,20 @@
-import { useDebugValue, useState } from 'react';
+import { useDebugValue } from 'react';
+import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import { store } from './store';
-import type { Selector } from './types';
-import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect';
 import { shallowEqual } from './utils';
 
-export function useReStateSelector<T, S = T>(selector: Selector<T, S>, isEquals = shallowEqual): S {
-  const [selectorValue, setSelectorValue] = useState<S>(selector(store.getStore() as T));
+export function useReStateSelector<Store, Selection = unknown>(
+  selector: (store: Store) => Selection,
+  isEquals: (storeA: Selection, storeB: Selection) => boolean = shallowEqual
+) {
+  const selectorValue = useSyncExternalStoreWithSelector<Store, Selection>(
+    (onStoreChange) => store.subscribe(onStoreChange),
+    () => store.getStore() as Store,
+    () => store.getStore() as Store,
+    selector,
+    isEquals
+  );
 
   useDebugValue(selectorValue);
-
-  useIsomorphicLayoutEffect(() => {
-    const unSub = store.subscribe((prevStore, newStore) => {
-      const prevSelection = selector(prevStore as T);
-      const newSelection = selector(newStore as T);
-      if (!isEquals(prevSelection, newSelection)) {
-        setSelectorValue(newSelection);
-      }
-    });
-
-    return unSub;
-  }, [selector]);
-
   return selectorValue;
 }

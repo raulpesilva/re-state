@@ -65,6 +65,7 @@ export class Store<
   subscribe(listener: TListener<T>): () => void;
   subscribe<K extends Fields>(key: K, listener: TListener<T[K]>): () => void;
   subscribe<K extends Fields>(keyOrListener: K | TListener<T>, listener?: TListener<T[K]>) {
+    console.log({ keyOrListener, listener });
     if (typeof keyOrListener === 'function') return this.watchAllListeners.subscribe(keyOrListener);
     if (!isFunction(listener) || !listener) return () => {};
     return this.listeners.subscribe(keyOrListener, listener);

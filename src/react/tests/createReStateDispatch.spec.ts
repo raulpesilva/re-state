@@ -1,6 +1,9 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import { createReState } from '../createReState';
 import { createReStateDispatch } from '../createReStateDispatch';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('createReStateDispatch', () => {
   it('should return the current state', () => {

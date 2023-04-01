@@ -1,5 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { createReStateMethods } from '../createReStateMethods';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('createReStateMethods', () => {
   it('should return all methods', () => {

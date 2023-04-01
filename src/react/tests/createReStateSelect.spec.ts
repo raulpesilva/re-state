@@ -1,6 +1,9 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import { createReState } from '../createReState';
 import { createReStateSelect } from '../createReStateSelect';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('createReStateSelect', () => {
   it('should return the initial state', () => {
@@ -20,6 +23,7 @@ describe('createReStateSelect', () => {
     const { result } = renderHook(() => useTestHookSelect());
     expect(result.current).toBe(0);
     act(() => resultState.current[1](1));
+    expect(resultState.current[0]).toBe(1);
     expect(result.current).toBe(1);
   });
 });

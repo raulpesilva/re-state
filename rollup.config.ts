@@ -7,7 +7,7 @@ import size from 'rollup-plugin-size';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 
-const external = ['react', 'react-dom', 'use-sync-external-store/shim'];
+const external = ['react', 'react-dom', 'use-sync-external-store/shim', 'use-sync-external-store/shim/with-selector'];
 
 const globals = {
   react: 'React',

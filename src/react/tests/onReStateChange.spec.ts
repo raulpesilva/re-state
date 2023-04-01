@@ -2,6 +2,9 @@ import { jest } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { createReState } from '../createReState';
 import { onReStateChange } from '../onReStateChange';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('onReStateChange', () => {
   it('should have been called when state change', () => {
@@ -94,5 +97,5 @@ describe('onReStateChange', () => {
     expect(hook3.current[0]).toBe(0);
     expect(hook4.current[0]).toBe(0);
     expect(fn).toHaveBeenCalledTimes(0);
-  })
+  });
 });
