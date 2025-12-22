@@ -1,12 +1,12 @@
 {
-  "useReState": "useReState",
-  "createRestate": "createReState",
-  "createReStateDispatch": "createReStateDispatch",
-  "createGetReState": "createGetReState",
-  "createReStateSelect": "createReStateSelect",
+  "createReStateMethods": "createReStateMethods",
   "useReStateSelector": "useReStateSelector",
   "onReStateChange": "onReStateChange",
   "resetReState": "resetReState",
   "setReStateInitialValue": "setReStateInitialValue",
-  "createReStateMethods": "createReStateMethods"
+  "useReState": "useReState",
+  "createRestate": "createReState",
+  "createReStateDispatch": "createReStateDispatch",
+  "createGetReState": "createGetReState",
+  "createReStateSelect": "createReStateSelect"
 }

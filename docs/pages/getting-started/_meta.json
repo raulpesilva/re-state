@@ -1,6 +1,6 @@
 {
   "install": "Install",
-  "simple-usage": "Simple Usage",
+  "hello-re-state": "Hello re-state",
   "recommended": "Recommended Usage",
-  "hello-re-state": "Hello ReState"
+  "simple-usage": "Simple Usage"
 }
