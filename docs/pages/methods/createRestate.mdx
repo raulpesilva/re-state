@@ -1,65 +1,206 @@
-# Create a global State
+# createReState
 
-This method create a global state hook to use in any component
+Creates a reusable hook for a specific global state. Unlike `useReState` where you pass the key every time, `createReState` binds the key once and returns a ready-to-use hook.
+
+## Why use createReState?
+
+- **Encapsulation**: Define state key and type in one place
+- **Reusability**: Export a named hook that's easy to import
+- **Type safety**: TypeScript types are defined once, not repeated
+- **Cleaner imports**: Components import `useMuted()` instead of `useReState('muted', false)`
+
+## Basic Usage
 
 ```ts
-//mutedState.ts
-import { createReState } from '@raulpesilva/re-state'
+// states/muted.ts
+import { createReState } from '@raulpesilva/re-state';
 
-export type Muted = boolean
-export const key = 'muted'
-
-export const useMuted = createReState<Muted>(key, true)
+export const useMuted = createReState<boolean>('muted', false);
 ```
-
-```ts
-const [muted, useMuted] = useMuted()
-```
-
-## Using created reState
 
 ```tsx
-//MyComponent.tsx
-import { useMuted } from './mutedState'
+// components/MuteButton.tsx
+import { useMuted } from '../states/muted';
 
-export const MyComponent = () => {
-  const [muted, useMuted] = useMuted()
+function MuteButton() {
+  const [muted, setMuted] = useMuted();
 
   return (
-    <div>
-      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
-      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
-      <span>or</span>
-      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
-    </div>
-  )
+    <button onClick={() => setMuted(!muted)}>
+      {muted ? 'Unmute' : 'Mute'}
+    </button>
+  );
+}
+```
+
+## Examples
+
+### Sharing State Across Components
+
+```ts
+// states/volume.ts
+import { createReState } from '@raulpesilva/re-state';
+
+export const useVolume = createReState<number>('volume', 50);
+```
+
+```tsx
+// components/VolumeSlider.tsx
+import { useVolume } from '../states/volume';
+
+function VolumeSlider() {
+  const [volume, setVolume] = useVolume();
+
+  return (
+    <input
+      type="range"
+      min="0"
+      max="100"
+      value={volume}
+      onChange={e => setVolume(Number(e.target.value))}
+    />
+  );
 }
 ```
 
 ```tsx
-//MyOtherComponent.tsx
-import { useMuted } from './mutedState'
+// components/VolumeDisplay.tsx
+import { useVolume } from '../states/volume';
 
-export const MyOtherComponent = () => {
-  const [muted, useMuted] = useMuted()
-
-  return (
-    <div>
-      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
-      <button onClick={() => setMuted(prevState => !prevState)}>Toggle mute</button>
-      <span>or</span>
-      <button onClick={() => setMuted(!muted)}>Toggle mute</button>
-    </div>
-  )
+function VolumeDisplay() {
+  const [volume] = useVolume();
+  return <p>Volume: {volume}%</p>;
 }
 ```
 
-## Behavior
+Both components share the same volume state.
+
+### Complex State Types
 
 ```ts
-export type MyType = boolean
+// states/user.ts
+import { createReState } from '@raulpesilva/re-state';
 
-type MyCustomState = ()=> [MyType, (newValue: S | ((prevState: S) => S) | undefined ) => void]
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+}
 
-const useMyCustomState: MyCustomState = createReState<MyType>(unicKey: String | symbol, initialValue?: MyType)
+const initialUser: User = {
+  id: '',
+  name: '',
+  email: '',
+  avatar: '',
+};
+
+export const useUser = createReState<User>('user', initialUser);
 ```
+
+```tsx
+// components/UserCard.tsx
+import { useUser } from '../states/user';
+
+function UserCard() {
+  const [user, setUser] = useUser();
+
+  const updateName = (name: string) => {
+    setUser(prev => ({ ...prev, name }));
+  };
+
+  return (
+    <div>
+      <img src={user.avatar} alt={user.name} />
+      <input
+        value={user.name}
+        onChange={e => updateName(e.target.value)}
+      />
+    </div>
+  );
+}
+```
+
+### Multiple States in One File
+
+```ts
+// states/audio.ts
+import { createReState } from '@raulpesilva/re-state';
+
+export const useVolume = createReState<number>('volume', 50);
+export const useMuted = createReState<boolean>('muted', false);
+export const usePlaying = createReState<boolean>('playing', false);
+```
+
+```tsx
+// components/AudioControls.tsx
+import { useVolume, useMuted, usePlaying } from '../states/audio';
+
+function AudioControls() {
+  const [volume, setVolume] = useVolume();
+  const [muted, setMuted] = useMuted();
+  const [playing, setPlaying] = usePlaying();
+
+  return (
+    <div>
+      <button onClick={() => setPlaying(!playing)}>
+        {playing ? 'Pause' : 'Play'}
+      </button>
+      <button onClick={() => setMuted(!muted)}>
+        {muted ? 'Unmute' : 'Mute'}
+      </button>
+      <input
+        type="range"
+        value={volume}
+        onChange={e => setVolume(Number(e.target.value))}
+        disabled={muted}
+      />
+    </div>
+  );
+}
+```
+
+## API Reference
+
+```ts
+function createReState<S>(
+  key: string,
+  initialValue?: S
+): () => [S, (value: S | ((prev: S) => S)) => void]
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | `string` | Yes | Unique identifier for the state |
+| `initialValue` | `S` | No | Initial value of the state |
+
+### Returns
+
+A hook function that returns a tuple:
+
+| Index | Type | Description |
+|-------|------|-------------|
+| `[0]` | `S` | Current state value |
+| `[1]` | `(value: S \| ((prev: S) => S)) => void` | Function to update the state |
+
+## Comparison
+
+| Feature | `useReState` | `createReState` |
+|---------|--------------|-----------------|
+| Key passed at | Call site | Definition |
+| Best for | Quick prototyping | Reusable state modules |
+| Type defined at | Each usage | Once |
+| Import style | `useReState('key', value)` | `useMyState()` |
+
+## When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Single state, need just the hook | `createReState` |
+| Need dispatch/get/reset utilities | [`createReStateMethods`](/methods/createReStateMethods) |
+| Quick inline state | [`useReState`](/methods/useReState) |
+| Full state management solution | [`createReStateMethods`](/methods/createReStateMethods) |
+
+For most production use cases, consider [`createReStateMethods`](/methods/createReStateMethods) which gives you all utilities (`useX`, `useXSelect`, `dispatchX`, `getX`, `resetX`) in one call.

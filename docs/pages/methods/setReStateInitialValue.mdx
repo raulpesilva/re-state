@@ -1,11 +1,253 @@
 # setReStateInitialValue
 
-This method set/update the initial value of the state.
+Sets or updates the initial value for a specific state key. This value is used when calling `resetReState()` to restore the state to its initial condition.
+
+## Why use setReStateInitialValue?
+
+- **Custom reset values**: Define what value a state should reset to
+- **Dynamic initialization**: Set initial values based on runtime conditions
+- **Persisted state**: Restore state from localStorage/sessionStorage on app load
+- **Override defaults**: Change the reset value after state creation
+
+## Basic Usage
 
 ```ts
+import { setReStateInitialValue, resetReState } from '@raulpesilva/re-state';
+
+// Set the initial value for 'theme'
+setReStateInitialValue('theme', 'dark');
+
+// Later, when resetReState() is called, 'theme' will reset to 'dark'
+resetReState();
+```
+
+## Examples
+
+### Restoring from localStorage
+
+Load persisted state on app startup:
+
+```ts
+// app/init.ts
 import { setReStateInitialValue } from '@raulpesilva/re-state';
+
+interface UserSettings {
+  theme: 'light' | 'dark';
+  language: string;
+  notifications: boolean;
+}
+
+const defaultSettings: UserSettings = {
+  theme: 'light',
+  language: 'en',
+  notifications: true,
+};
+
+export function initializeApp() {
+  // Try to load from localStorage
+  const saved = localStorage.getItem('settings');
+  const settings = saved ? JSON.parse(saved) : defaultSettings;
+  
+  // Set as the initial value
+  setReStateInitialValue('settings', settings);
+}
 ```
 
-```ts
-type setReStateInitialValue = (key: UniqueKey, value: any) => void;
+```tsx
+// app/App.tsx
+import { useEffect } from 'react';
+import { initializeApp } from './init';
+
+function App() {
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  return <MainContent />;
+}
 ```
+
+### Custom Reset Values
+
+Set a different reset value than the creation value:
+
+```ts
+// states/cart.ts
+import { 
+  createReStateMethods, 
+  setReStateInitialValue 
+} from '@raulpesilva/re-state';
+
+interface CartItem {
+  id: string;
+  name: string;
+  quantity: number;
+}
+
+// Created with empty cart
+export const {
+  useCart,
+  dispatchCart,
+  resetCart,
+} = createReStateMethods<'cart', CartItem[]>('cart', []);
+
+// On checkout completion, set a "thank you" state as the reset value
+export function completeCheckout() {
+  // Process checkout...
+  
+  // After reset, cart will have this welcome message state
+  setReStateInitialValue('cart', []);
+  resetCart();
+}
+```
+
+### Environment-Based Initialization
+
+Set different initial values based on environment:
+
+```ts
+// states/config.ts
+import { setReStateInitialValue } from '@raulpesilva/re-state';
+
+interface Config {
+  apiUrl: string;
+  debugMode: boolean;
+  maxRetries: number;
+}
+
+const devConfig: Config = {
+  apiUrl: 'http://localhost:3000/api',
+  debugMode: true,
+  maxRetries: 1,
+};
+
+const prodConfig: Config = {
+  apiUrl: 'https://api.example.com',
+  debugMode: false,
+  maxRetries: 3,
+};
+
+// Set initial value based on environment
+const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+setReStateInitialValue('config', config);
+```
+
+### User Session Initialization
+
+Set user data as the reset value after login:
+
+```ts
+// utils/auth.ts
+import { 
+  setReStateInitialValue, 
+  resetReState 
+} from '@raulpesilva/re-state';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export async function login(credentials: { email: string; password: string }) {
+  const response = await fetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
+  
+  const user: User = await response.json();
+  
+  // Set user as the initial value
+  // Now resetReState() will restore to this logged-in state
+  setReStateInitialValue('user', user);
+  
+  return user;
+}
+
+export function logout() {
+  // Clear the initial value
+  setReStateInitialValue('user', null);
+  
+  // Reset all state
+  resetReState();
+}
+```
+
+### Testing with Different Initial Values
+
+```ts
+// tests/settings.spec.ts
+import { renderHook, act } from '@testing-library/react-hooks';
+import { 
+  setReStateInitialValue, 
+  resetReState 
+} from '@raulpesilva/re-state';
+import { useSettings, dispatchSettings } from '../states/settings';
+
+describe('Settings', () => {
+  beforeEach(() => {
+    // Set a known initial state for tests
+    setReStateInitialValue('settings', {
+      theme: 'light',
+      language: 'en',
+    });
+    resetReState();
+  });
+
+  it('should reset to initial value', () => {
+    const { result } = renderHook(() => useSettings());
+    
+    // Change the value
+    act(() => {
+      dispatchSettings({ theme: 'dark', language: 'es' });
+    });
+    
+    expect(result.current[0].theme).toBe('dark');
+    
+    // Reset
+    act(() => resetReState());
+    
+    // Back to initial value
+    expect(result.current[0].theme).toBe('light');
+  });
+});
+```
+
+## API Reference
+
+```ts
+function setReStateInitialValue<T>(
+  key: string,
+  value: T
+): void
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | `string` | Yes | The state key to set the initial value for |
+| `value` | `T` | Yes | The value to use when resetting this state |
+
+### Behavior
+
+- If the state key doesn't exist yet, it will be created with this value
+- If the state key already exists, only the initial value is updated (current value is unchanged)
+- When `resetReState()` is called, this key will be restored to this value
+- This is a synchronous operation
+
+## Related
+
+| Method | Description |
+|--------|-------------|
+| [`resetReState`](/methods/resetReState) | Reset all states to their initial values |
+| [`createReStateMethods`](/methods/createReStateMethods) | Accepts a `valueOfReset` option for the same purpose |
+
+## When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Set reset value at creation time | `createReStateMethods` with `valueOfReset` option |
+| Set reset value dynamically at runtime | `setReStateInitialValue` |
+| Restore from persisted storage | `setReStateInitialValue` |
+| Different reset value than creation value | `setReStateInitialValue` |

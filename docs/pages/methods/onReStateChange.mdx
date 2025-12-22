@@ -1,21 +1,177 @@
 # onReStateChange
 
-This method is like an useEffect hook, but it is called when the state changes and lives outside of react.
-This method include an key dependency array, which is the state keys that you want to watch.
+Subscribe to state changes outside of React components. This function lets you run side effects whenever specific state keys change, similar to `useEffect` but without requiring a React component.
+
+## Why use onReStateChange?
+
+- **Side effects outside React**: Sync state with localStorage, analytics, or external APIs
+- **Selective subscriptions**: Only trigger when specific state keys change
+- **No component required**: Run logic in plain JavaScript/TypeScript files
+- **Multiple dependencies**: Watch multiple state keys with a single subscription
+
+## Basic Usage
 
 ```ts
-//mutedState.ts
-import { createReState, onReStateChange } from '@raulpesilva/re-state';
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
 
-export type Muted = boolean;
-export const key = 'muted';
+const { dispatchTheme } = createReStateMethods('theme', 'light');
 
-export const useMuted = createReState<Muted>(key, true);
+// Subscribe to theme changes
 onReStateChange(() => {
-  // do something
-}, [key]);
+  console.log('Theme changed!');
+}, ['theme']);
+
+// Later, when theme changes, the callback runs
+dispatchTheme('dark'); // Logs: "Theme changed!"
 ```
 
+## Examples
+
+### Syncing with localStorage
+
+Persist state changes to localStorage automatically:
+
 ```ts
-type onReStateChange = (callback: FnVoid, dependencies: UniqueKey[]) => void;
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { getUser, dispatchUser } = createReStateMethods('user', { 
+  name: '', 
+  token: '' 
+});
+
+// Save user to localStorage whenever it changes
+onReStateChange(() => {
+  const user = getUser();
+  localStorage.setItem('user', JSON.stringify(user));
+}, ['user']);
+
+// Restore on app load
+const savedUser = localStorage.getItem('user');
+if (savedUser) {
+  dispatchUser(JSON.parse(savedUser));
+}
 ```
+
+### Analytics Tracking
+
+Track state changes for analytics:
+
+```ts
+import { onReStateChange } from '@raulpesilva/re-state';
+import { analytics } from './analytics';
+
+onReStateChange(() => {
+  analytics.track('cart_updated');
+}, ['cart']);
+
+onReStateChange(() => {
+  analytics.track('user_preferences_changed');
+}, ['preferences']);
+```
+
+### Watching Multiple Keys
+
+Subscribe to multiple state keys with a single callback:
+
+```ts
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { getVolume } = createReStateMethods('volume', 50);
+const { getMuted } = createReStateMethods('muted', false);
+
+// Called when either volume OR muted changes
+onReStateChange(() => {
+  const volume = getVolume();
+  const muted = getMuted();
+  
+  // Update audio element
+  const audio = document.querySelector('audio');
+  if (audio) {
+    audio.volume = muted ? 0 : volume / 100;
+  }
+}, ['volume', 'muted']);
+```
+
+### Syncing with External APIs
+
+Push state changes to a server:
+
+```ts
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { getSettings } = createReStateMethods('settings', {
+  notifications: true,
+  theme: 'light',
+});
+
+onReStateChange(() => {
+  const settings = getSettings();
+  
+  fetch('/api/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(settings),
+  });
+}, ['settings']);
+```
+
+### Logging and Debugging
+
+Log state changes during development:
+
+```ts
+import { onReStateChange } from '@raulpesilva/re-state';
+
+if (process.env.NODE_ENV === 'development') {
+  onReStateChange(() => {
+    console.log('[ReState] Auth state changed');
+  }, ['user', 'token', 'permissions']);
+}
+```
+
+### DOM Updates Outside React
+
+Update DOM elements that aren't managed by React:
+
+```ts
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { getTheme } = createReStateMethods('theme', 'light');
+
+onReStateChange(() => {
+  const theme = getTheme();
+  document.documentElement.setAttribute('data-theme', theme);
+}, ['theme']);
+```
+
+## API Reference
+
+```ts
+function onReStateChange(
+  callback: () => void,
+  dependencies: string[]
+): void
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `callback` | `() => void` | Yes | Function to call when any dependency changes |
+| `dependencies` | `string[]` | Yes | Array of state keys to watch |
+
+### Behavior
+
+- The callback is **not** called on initial subscription, only on subsequent changes
+- The callback runs once per state change, even if multiple dependencies change simultaneously
+- Subscriptions are permanent; there is no built-in unsubscribe mechanism
+
+## When to Use
+
+| Use Case | Recommended |
+|----------|-------------|
+| Persist state to localStorage | `onReStateChange` |
+| Sync state with server | `onReStateChange` |
+| Analytics tracking | `onReStateChange` |
+| Update non-React DOM elements | `onReStateChange` |
+| React component side effects | `useEffect` with hooks from `createReStateMethods` |

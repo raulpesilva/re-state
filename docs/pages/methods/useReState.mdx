@@ -1,57 +1,184 @@
-# Create a simple global state
+# useReState
 
-[![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
+A hook for sharing state between React components. Works like `useState`, but the state is global and accessible from any component using the same key.
+
+## Why use useReState?
+
+- **Familiar API**: Same `[value, setValue]` pattern as `useState`
+- **Zero setup**: No providers, no context, no boilerplate
+- **Instant sharing**: Any component with the same key shares the same state
+- **Quick prototyping**: Perfect for simple shared states
+
+## Basic Usage
 
 ```tsx
-import * as React from 'react';
 import { useReState } from '@raulpesilva/re-state';
 
-const Foo = () => {
-  const [value, setValue] = useReState<number>('value', 0);
+function Counter() {
+  const [count, setCount] = useReState('count', 0);
 
   return (
-    <div style={styles.container}>
-      <button onPress={() => setValue(value + 1)}> + </button>
-      <p>State value: {value}</p>
-      <button onPress={() => setValue(value > 0 ? value - 1 : 0)}> - </button>
-    </div>
-  );
-};
-
-const Bar = () => {
-  const [value] = useReState<number>('value', 0);
-
-  return (
-    <div style={styles.container}>
-      <p>State value: {value}</p>
-    </div>
-  );
-};
-
-export default function App() {
-  return (
-    <div style={styles.container}>
-      <Foo />
-      <Bar />
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>+</button>
+      <button onClick={() => setCount(count - 1)}>-</button>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-};
 ```
 
-## Behavior of useReState
+## Examples
+
+### Sharing State Between Components
+
+Components using the same key automatically share state:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function IncrementButton() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount(count + 1)}>Add +1</button>;
+}
+
+function DecrementButton() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount(count - 1)}>Remove -1</button>;
+}
+
+function Display() {
+  const [count] = useReState('count', 0);
+  return <p>Current count: {count}</p>;
+}
+
+function App() {
+  return (
+    <div>
+      <Display />
+      <IncrementButton />
+      <DecrementButton />
+    </div>
+  );
+}
+```
+
+All three components share the same `count` state. Clicking either button updates the display.
+
+### Using Previous State
+
+Update state based on the previous value using a callback:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function Counter() {
+  const [count, setCount] = useReState('count', 0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(prev => prev + 1)}>+</button>
+      <button onClick={() => setCount(prev => prev - 1)}>-</button>
+    </div>
+  );
+}
+```
+
+### Typed State
+
+Use TypeScript generics for type safety:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+interface User {
+  name: string;
+  email: string;
+}
+
+function UserProfile() {
+  const [user, setUser] = useReState<User>('user', {
+    name: '',
+    email: '',
+  });
+
+  return (
+    <div>
+      <input
+        value={user.name}
+        onChange={e => setUser(prev => ({ ...prev, name: e.target.value }))}
+        placeholder="Name"
+      />
+      <input
+        value={user.email}
+        onChange={e => setUser(prev => ({ ...prev, email: e.target.value }))}
+        placeholder="Email"
+      />
+    </div>
+  );
+}
+```
+
+### Toggle State
+
+Common pattern for boolean states:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function ThemeToggle() {
+  const [isDark, setIsDark] = useReState('theme-dark', false);
+
+  return (
+    <button onClick={() => setIsDark(prev => !prev)}>
+      {isDark ? 'Switch to Light' : 'Switch to Dark'}
+    </button>
+  );
+}
+
+function App() {
+  const [isDark] = useReState('theme-dark', false);
+
+  return (
+    <div className={isDark ? 'dark' : 'light'}>
+      <ThemeToggle />
+      <p>Current theme: {isDark ? 'Dark' : 'Light'}</p>
+    </div>
+  );
+}
+```
+
+## API Reference
 
 ```ts
-export type MyType = boolean
-
-type MyCustomState = [MyType, (newValue: S | ((prevState: S) => S) | undefined ) => void]
-
-const [myCustomState, setMyCustomState]: MyCustomState = useReState<MyType>(unicKey: String | symbol, initialValue?: MyType)
+function useReState<S>(
+  key: string,
+  initialValue?: S
+): [S, (value: S | ((prev: S) => S)) => void]
 ```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | `string` | Yes | Unique identifier for the state |
+| `initialValue` | `S` | No | Initial value (used only if state doesn't exist) |
+
+### Returns
+
+A tuple with two elements:
+
+| Index | Type | Description |
+|-------|------|-------------|
+| `[0]` | `S` | Current state value |
+| `[1]` | `(value: S \| ((prev: S) => S)) => void` | Function to update the state |
+
+## When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Quick prototyping | `useReState` |
+| Simple shared state | `useReState` |
+| Production app with many states | [`createReStateMethods`](/methods/createReStateMethods) |
+| Need dispatch/get outside components | [`createReStateMethods`](/methods/createReStateMethods) |
+| Type-safe reusable state modules | [`createReStateMethods`](/methods/createReStateMethods) |

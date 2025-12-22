@@ -1,47 +1,138 @@
 # Simple Usage
 
-[![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
+re-state makes global state as simple as `useState`. No providers, no context, no boilerplate.
 
-```js
-import * as React from 'react';
+## The Simplest Example
+
+```tsx
 import { useReState } from '@raulpesilva/re-state';
 
-const Foo = () => {
-  const [value, setValue] = useReState('value', 0);
+function Counter() {
+  const [count, setCount] = useReState('count', 0);
 
   return (
-    <div style={styles.container}>
-      <button onPress={() => setValue(value + 1)}> + </button>
-      <p>State value: {value}</p>
-      <button onPress={() => setValue(value > 0 ? value - 1 : 0)}> - </button>
-    </div>
-  );
-};
-
-const Bar = () => {
-  const [value] = useReState('value', 0);
-
-  return (
-    <div style={styles.container}>
-      <p>State value: {value}</p>
-    </div>
-  );
-};
-
-export default function App() {
-  return (
-    <div style={styles.container}>
-      <Foo />
-      <Bar />
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>+</button>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-};
 ```
+
+That's it. The state is now global.
+
+## Sharing State Between Components
+
+Any component using the same key shares the same state automatically:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function IncrementButton() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount(count + 1)}>Add +1</button>;
+}
+
+function DecrementButton() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount(count - 1)}>Remove -1</button>;
+}
+
+function Display() {
+  const [count] = useReState('count', 0);
+  return <p>Current count: {count}</p>;
+}
+
+function App() {
+  return (
+    <div>
+      <Display />
+      <IncrementButton />
+      <DecrementButton />
+    </div>
+  );
+}
+```
+
+Click any button and `Display` updates instantly. No prop drilling, no context providers.
+
+## How It Works
+
+1. **Same key = same state**: Components using `useReState('count', 0)` all share the same `count` value
+2. **First value wins**: The initial value (`0`) is only used when the state is first created
+3. **Updates are global**: When any component calls `setCount`, all components re-render with the new value
+
+## Compare to Traditional React
+
+### Before (with Context)
+
+```tsx
+// Create context
+const CountContext = createContext();
+
+// Create provider
+function CountProvider({ children }) {
+  const [count, setCount] = useState(0);
+  return (
+    <CountContext.Provider value={{ count, setCount }}>
+      {children}
+    </CountContext.Provider>
+  );
+}
+
+// Wrap your app
+function App() {
+  return (
+    <CountProvider>
+      <Counter />
+    </CountProvider>
+  );
+}
+
+// Use in components
+function Counter() {
+  const { count, setCount } = useContext(CountContext);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```
+
+### After (with re-state)
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function Counter() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```
+
+No context, no provider, no wrapper. Just use it.
+
+## Next Steps
+
+Once you're comfortable with `useReState`, explore more powerful patterns:
+
+| When you need... | Use |
+|------------------|-----|
+| Reusable typed state modules | [`createReStateMethods`](/methods/createReStateMethods) |
+| Update state outside components | [`createReStateDispatch`](/methods/createReStateDispatch) |
+| Read state without re-rendering | [`createGetReState`](/methods/createGetReState) |
+| Select derived data from store | [`useReStateSelector`](/methods/useReStateSelector) |
+
+For production apps, we recommend [`createReStateMethods`](/methods/createReStateMethods) which gives you all utilities in one call:
+
+```ts
+// states/counter.ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+export const {
+  useCounter,        // Hook: [value, setValue]
+  useCounterSelect,  // Hook: value only
+  dispatchCounter,   // Update from anywhere
+  getCounter,        // Read without subscribing
+  resetCounter,      // Reset to initial value
+} = createReStateMethods('counter', 0);
+```
+
+Learn more in the [Hello ReState](/getting-started/hello-re-state) guide.

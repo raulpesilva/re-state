@@ -1,11 +1,204 @@
 # resetReState
 
-This method resets the state of the entire store with the first state of the store or initialState setted by setReStgateInitialValue.
+Resets the entire global store to its initial state. All state keys are restored to the values set when they were first initialized or configured via `setReStateInitialValue`.
+
+## Why use resetReState?
+
+- **Clean slate**: Reset all application state at once
+- **Logout flows**: Clear all user data when signing out
+- **Testing**: Reset state between test cases
+- **Error recovery**: Return to a known good state after errors
+
+## Basic Usage
 
 ```ts
 import { resetReState } from '@raulpesilva/re-state';
+
+// Reset all states to their initial values
+resetReState();
+```
+
+## Examples
+
+### User Logout
+
+```ts
+// utils/auth.ts
+import { resetReState } from '@raulpesilva/re-state';
+
+export function logout() {
+  // Clear session
+  localStorage.removeItem('token');
+  
+  // Reset all application state
+  resetReState();
+  
+  // Redirect to login
+  window.location.href = '/login';
+}
+```
+
+```tsx
+// components/LogoutButton.tsx
+import { logout } from '../utils/auth';
+
+function LogoutButton() {
+  return <button onClick={logout}>Sign Out</button>;
+}
+```
+
+### Error Boundary Recovery
+
+```tsx
+import { resetReState } from '@raulpesilva/re-state';
+import { Component, ReactNode } from 'react';
+
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  handleReset = () => {
+    resetReState();
+    this.setState({ hasError: false });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div>
+          <h1>Something went wrong</h1>
+          <button onClick={this.handleReset}>
+            Reset Application
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+### Testing Setup
+
+```ts
+// tests/setup.ts
+import { resetReState } from '@raulpesilva/re-state';
+
+beforeEach(() => {
+  resetReState();
+});
 ```
 
 ```ts
-type resetReState = () => void;
+// tests/counter.spec.ts
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useCounter, increment } from '../states/counter';
+
+describe('Counter', () => {
+  it('should increment', () => {
+    const { result } = renderHook(() => useCounter());
+    
+    act(() => increment());
+    
+    expect(result.current[0]).toBe(1);
+  });
+
+  it('should start fresh (reset between tests)', () => {
+    const { result } = renderHook(() => useCounter());
+    
+    // Starts at 0, not 1 from previous test
+    expect(result.current[0]).toBe(0);
+  });
+});
 ```
+
+### Development Tools
+
+```tsx
+// components/DevTools.tsx (development only)
+import { resetReState } from '@raulpesilva/re-state';
+
+function DevTools() {
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
+
+  return (
+    <div className="dev-tools">
+      <button onClick={resetReState}>
+        Reset All State
+      </button>
+    </div>
+  );
+}
+```
+
+### With Initial Values
+
+Use `setReStateInitialValue` to control what values are restored on reset:
+
+```ts
+// states/settings.ts
+import { 
+  createReStateMethods, 
+  setReStateInitialValue 
+} from '@raulpesilva/re-state';
+
+const defaultSettings = {
+  theme: 'light',
+  language: 'en',
+  notifications: true,
+};
+
+// Set the value that resetReState will restore
+setReStateInitialValue('settings', defaultSettings);
+
+export const {
+  useSettings,
+  dispatchSettings,
+} = createReStateMethods('settings', defaultSettings);
+```
+
+```ts
+// After calling resetReState(), settings will be:
+// { theme: 'light', language: 'en', notifications: true }
+```
+
+## API Reference
+
+```ts
+function resetReState(): void
+```
+
+### Parameters
+
+None.
+
+### Behavior
+
+- Resets **all** state keys in the store
+- Each key is restored to its initial value (set when first created or via `setReStateInitialValue`)
+- All subscribed components will re-render with the initial values
+- This is a synchronous operation
+
+## Related
+
+| Method | Description |
+|--------|-------------|
+| [`setReStateInitialValue`](/methods/setReStateInitialValue) | Set the initial value for a specific key |
+| [`createReStateMethods`](/methods/createReStateMethods) | Includes a `reset*` function for individual states |
+
+## When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Reset all application state | `resetReState` |
+| Reset a single state key | Use `reset*` from [`createReStateMethods`](/methods/createReStateMethods) |
+| Set custom reset value for a key | [`setReStateInitialValue`](/methods/setReStateInitialValue) |

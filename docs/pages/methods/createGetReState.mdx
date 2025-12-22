@@ -1,19 +1,174 @@
-# Create re-state get
+# createGetReState
 
-This method update data on store
+Creates a function to read a specific global state synchronously without subscribing to updates. The component or function calling this getter will **not** re-render when the state changes.
+
+## Why use createGetReState?
+
+- **Read without subscribing**: Get current value without triggering re-renders
+- **Use outside React**: Access state in utility functions, event handlers, or async code
+- **Snapshot access**: Get the current value at a specific moment in time
+- **Performance**: Avoid unnecessary subscriptions when you only need to read once
+
+## Basic Usage
 
 ```ts
-//mutedState.ts
-import { createReState, createGetReState } from '@raulpesilva/re-state'
+// states/user.ts
+import { createReState, createGetReState } from '@raulpesilva/re-state';
 
-export type Muted = boolean
-export const key = 'muted'
-
-export const useMuted = createReState<Muted>(key, true)
-export const getMuted = createGetReState<Muted>(key)
+export const useUser = createReState<{ name: string }>('user', { name: '' });
+export const getUser = createGetReState<{ name: string }>('user');
 ```
 
 ```ts
-type MyType = boolean
-const getMyState: () => MyType  = createGetReState<MyType>(unicKey: String | Symbol)
+// Anywhere in your app
+import { getUser } from './states/user';
+
+const currentUser = getUser();
+console.log(currentUser.name);
 ```
+
+## Examples
+
+### Reading State in Utility Functions
+
+```ts
+// states/auth.ts
+import { createReState, createGetReState } from '@raulpesilva/re-state';
+
+interface AuthState {
+  token: string | null;
+  userId: string | null;
+}
+
+export const useAuth = createReState<AuthState>('auth', { 
+  token: null, 
+  userId: null 
+});
+export const getAuth = createGetReState<AuthState>('auth');
+```
+
+```ts
+// utils/api.ts
+import { getAuth } from '../states/auth';
+
+export async function fetchWithAuth(url: string) {
+  const { token } = getAuth();
+  
+  return fetch(url, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+  });
+}
+```
+
+### Logging and Debugging
+
+```ts
+import { createGetReState } from '@raulpesilva/re-state';
+
+const getCart = createGetReState<{ items: any[]; total: number }>('cart');
+
+export function logCartState() {
+  const cart = getCart();
+  console.log('Cart items:', cart.items.length);
+  console.log('Cart total:', cart.total);
+}
+```
+
+### Conditional Logic Outside Components
+
+```ts
+import { createGetReState, createReStateDispatch } from '@raulpesilva/re-state';
+
+const getUser = createGetReState<{ role: string } | null>('user');
+const dispatchNotification = createReStateDispatch<string>('notification');
+
+export function checkAdminAccess(): boolean {
+  const user = getUser();
+  
+  if (!user || user.role !== 'admin') {
+    dispatchNotification('Access denied: Admin privileges required');
+    return false;
+  }
+  
+  return true;
+}
+```
+
+### Syncing with External Services
+
+```ts
+import { createGetReState } from '@raulpesilva/re-state';
+
+interface Settings {
+  analyticsEnabled: boolean;
+  userId: string;
+}
+
+const getSettings = createGetReState<Settings>('settings');
+
+export function trackEvent(event: string, data: Record<string, any>) {
+  const settings = getSettings();
+  
+  if (!settings.analyticsEnabled) return;
+  
+  // Send to analytics service
+  analytics.track(event, {
+    ...data,
+    userId: settings.userId,
+  });
+}
+```
+
+### Combining with Dispatch
+
+```ts
+import { createGetReState, createReStateDispatch } from '@raulpesilva/re-state';
+
+interface Counter {
+  value: number;
+  max: number;
+}
+
+const getCounter = createGetReState<Counter>('counter');
+const dispatchCounter = createReStateDispatch<Counter>('counter');
+
+export function incrementIfAllowed() {
+  const { value, max } = getCounter();
+  
+  if (value < max) {
+    dispatchCounter(prev => ({ ...prev, value: prev.value + 1 }));
+    return true;
+  }
+  
+  return false;
+}
+```
+
+## API Reference
+
+```ts
+function createGetReState<S>(
+  key: string
+): () => S
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | `string` | Yes | The state key to read |
+
+### Returns
+
+A function that returns the current state value. Calling this function does **not** subscribe to updates.
+
+## When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Read state in utility functions | `createGetReState` |
+| Read state once (no subscription) | `createGetReState` |
+| Read and react to changes in components | `createReState` or `createReStateSelect` |
+| Need all utilities at once | [`createReStateMethods`](/methods/createReStateMethods) |
