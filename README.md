@@ -41,193 +41,297 @@ or
 yarn add @raulpesilva/re-state
 ```
 
-## See documentation - [![Docs](https://badgen.net/badge/Docs/latest/black)](https://restate.vercel.app/)
+## Documentation
 
-## Simple Usage - [![Demo](https://badgen.net/badge/Demo/CodeSandbox/black)](https://codesandbox.io/s/basic-usage-re-state-86l06?file=/src/App.js)
+[![Docs](https://badgen.net/badge/Docs/latest/black)](https://restate.vercel.app/)
+
+## Quick Start
+
+re-state offers two main approaches to manage global state:
+
+| Approach | Best For |
+|----------|----------|
+| `useReState` | Quick prototyping, simple states |
+| `createReStateMethods` | Production apps, typed states, reusable logic |
+
+---
+
+## Approach 1: useReState Hook
+
+The simplest way to share state between components. Works like `useState`, but the state is global.
 
 ```tsx
-import * as React from 'react';
 import { useReState } from '@raulpesilva/re-state';
 
-import { StyleSheet, View, Text, Button } from 'react-native';
-
-const Foo: React.FC = () => {
-  const [value, setValue] = useReState<number>('value', 0);
+function Counter() {
+  const [count, setCount] = useReState('count', 0);
 
   return (
-    <View style={styles.container}>
-      <Button onPress={() => setValue(value + 1)} title=" + " />
-      <Text>State value: {value}</Text>
-      <Button onPress={() => setValue(value > 0 ? value - 1 : 0)} title=" - " />
-    </View>
-  );
-};
-
-const Bar: React.FC = () => {
-  const [value] = useReState<number>('value', 0);
-
-  return (
-    <View style={styles.container}>
-      <Text>State value: {value}</Text>
-    </View>
-  );
-};
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Foo />
-      <Bar />
-    </View>
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={() => setCount(prev => prev - 1)}>Decrement</button>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 ```
 
-# Advanced Usage
+Any component using the same key (`'count'`) will share the same state:
 
-## Creating new global state
+```tsx
+function CounterDisplay() {
+  const [count] = useReState('count', 0);
+  return <p>Current count: {count}</p>;
+}
+
+function App() {
+  return (
+    <div>
+      <Counter />
+      <CounterDisplay /> {/* Updates when Counter changes */}
+    </div>
+  );
+}
+```
+
+**When to use:** Quick experiments, simple shared states, or when you want minimal setup.
+
+---
+
+## Approach 2: createReStateMethods (Recommended)
+
+For production apps, `createReStateMethods` provides a complete, type-safe API with all the utilities you need.
+
+### Step 1: Define your state
 
 ```ts
-// state/user/index.ts
+// states/counter.ts
+import { createReStateMethods } from '@raulpesilva/re-state';
 
-import { createReState, createReStateSelect, createReStateDispatch, createGetReState } from '@raulpesilva/re-state';
+export const {
+  useCounter,        // Hook: [value, setValue]
+  useCounterSelect,  // Hook: value only (read-only)
+  dispatchCounter,   // Update from anywhere
+  getCounter,        // Get value without subscribing
+  resetCounter,      // Reset to initial value
+} = createReStateMethods('counter', 0);
+```
 
-type User = {
-  _id: string;
+### Step 2: Use in components
+
+```tsx
+// components/Counter.tsx
+import { useCounter, resetCounter } from './states/counter';
+
+function Counter() {
+  const [count, setCount] = useCounter();
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(prev => prev + 1)}>+</button>
+      <button onClick={() => setCount(prev => prev - 1)}>-</button>
+      <button onClick={resetCounter}>Reset</button>
+    </div>
+  );
+}
+```
+
+```tsx
+// components/CounterDisplay.tsx
+import { useCounterSelect } from './states/counter';
+
+function CounterDisplay() {
+  const count = useCounterSelect(); // Read-only, simpler API
+  return <p>Current count: {count}</p>;
+}
+```
+
+**When to use:** Production applications, when you need type safety, or when you want to update state from outside components.
+
+---
+
+## Working with Complex State
+
+re-state works with any value type: primitives, objects, arrays, or custom types.
+
+```ts
+// states/user.ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+interface User {
+  id: string;
   name: string;
   email: string;
-  iat: number;
   avatar: string;
+}
+
+const initialUser: User = {
+  id: '',
+  name: '',
+  email: '',
+  avatar: '',
 };
 
-export const USER = 'user';
-export const userInitialValue = {};
-
-export const useUser = createReState<User>(USER, userInitialValue);
-export const useUserSelect = createReStateSelect<User>(USER);
-export const dispatchUser = createReStateDispatch<User>(USER);
-export const getUser = createGetReState<User>(USER);
-export const resetUser = () => dispatchUser(userInitialValue);
+export const {
+  useUser,
+  useUserSelect,
+  dispatchUser,
+  getUser,
+  resetUser,
+} = createReStateMethods('user', initialUser);
 ```
 
 ```tsx
-// components/User.tsx
+import { useUser } from './states/user';
 
-import { useUser } from 'state/user';
-
-const User = () => {
+function UserProfile() {
   const [user, setUser] = useUser();
 
+  const updateName = (name: string) => {
+    setUser(prev => ({ ...prev, name }));
+  };
+
   return (
     <div>
+      <img src={user.avatar} alt={user.name} />
       <h1>{user.name}</h1>
-      <img src={user.avatar} />
-      <p>{user.email}</p>
-      <button
-        onClick={() =>
-          setUser({
-            _id: '123',
-            name: 'Raul',
-            email: 'raul@email.com',
-            iat: 123,
-            avatar: 'https://github.com/raulpesilva.png',
-          })
-        }
-      >
-        Set User
-      </button>
+      <input
+        value={user.name}
+        onChange={e => updateName(e.target.value)}
+      />
     </div>
   );
-};
+}
 ```
 
-## Using previous state
+---
 
-```tsx
-// components/User.tsx
+## Creating Actions
 
-  import { useUser } from 'state/user'
-
-  const User = () => {
-    const [user, setUser] = useUser()
-
-    return (
-      <div>
-        <h1>{user.name}</h1>
-        <img src={user.avatar} />
-        <p>{user.email}</p>
-        <button onClick={() => setUser((prev) => {...prev, name: 'Raul P' })}>
-          Change name
-        </button>
-      </div>
-    )
-  }
-
-```
-
-or
-
-```tsx
-// components/User.tsx
-
-  import { useUserSelect, useUserDispatch } from 'state/user/index'
-
-  const User = () => {
-    const user = useUserSelect()
-
-    return (
-      <div>
-        <h1>{user.name}</h1>
-        <img src={user.avatar} />
-        <p>{user.email}</p>
-        <button onClick={() => useUserDispatch((prev) => {...prev, name: 'Raul P' })}>
-          Change name
-        </button>
-      </div>
-    )
-  }
-
-```
-
-## Adding changeName action
+For reusable logic, define actions alongside your state:
 
 ```ts
-// state/user/index.ts
-...
-export const dispatchUser = createReStateDispatch<User>(USER)
-export const getUser = createGetReState<User>(USER)
-export const resetUser = () => dispatchUser(userInitialValue)
-// + adding changeName action
-export const changeName = (name: string) => dispatchUser((prev) => ({...prev, name}))
+// states/user.ts
+import { createReStateMethods } from '@raulpesilva/re-state';
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const initialUser: User = { id: '', name: '', email: '' };
+
+export const {
+  useUser,
+  useUserSelect,
+  dispatchUser,
+  getUser,
+  resetUser,
+} = createReStateMethods('user', initialUser);
+
+// Custom actions
+export const updateName = (name: string) => {
+  dispatchUser(prev => ({ ...prev, name }));
+};
+
+export const updateEmail = (email: string) => {
+  dispatchUser(prev => ({ ...prev, email }));
+};
+
+export const fetchUser = async (userId: string) => {
+  const response = await fetch(`/api/users/${userId}`);
+  const user = await response.json();
+  dispatchUser(user);
+};
 ```
 
 ```tsx
-// components/User.tsx
+import { useUserSelect, updateName, fetchUser, resetUser } from './states/user';
+import { useEffect } from 'react';
 
-import { useUserSelect, changeName } from 'state/user/index';
-
-const User = () => {
+function UserProfile({ userId }: { userId: string }) {
   const user = useUserSelect();
+
+  useEffect(() => {
+    fetchUser(userId);
+  }, [userId]);
 
   return (
     <div>
       <h1>{user.name}</h1>
-      <img src={user.avatar} />
-      <p>{user.email}</p>
-      <button onClick={() => changeName('Raul P')}>Change name</button>
+      <button onClick={() => updateName('New Name')}>Change Name</button>
+      <button onClick={resetUser}>Logout</button>
     </div>
   );
-};
+}
 ```
+
+---
+
+## Updating State Outside React
+
+Use `dispatch*` and `get*` to work with state outside of React components:
+
+```ts
+import { dispatchCounter, getCounter } from './states/counter';
+
+// In an event handler
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowUp') {
+    dispatchCounter(prev => prev + 1);
+  }
+  if (event.key === 'ArrowDown') {
+    dispatchCounter(prev => prev - 1);
+  }
+});
+
+// In a utility function
+function logCurrentCount() {
+  console.log('Current count:', getCounter());
+}
+
+// In an async function
+async function syncWithServer() {
+  const count = getCounter();
+  await fetch('/api/count', {
+    method: 'POST',
+    body: JSON.stringify({ count }),
+  });
+}
+```
+
+---
+
+## Available APIs
+
+### Hooks
+
+| Method | Description |
+|--------|-------------|
+| `useReState` | Simple hook with key and initial value |
+| `useReStateSelector` | Subscribe to state with a selector function |
+
+### Factory Functions
+
+| Method | Description |
+|--------|-------------|
+| `createReStateMethods` | Creates all methods at once (recommended) |
+| `createReState` | Creates a typed hook for a key |
+| `createReStateSelect` | Creates a read-only hook |
+| `createReStateDispatch` | Creates a dispatch function |
+| `createGetReState` | Creates a getter function |
+
+### Utilities
+
+| Method | Description |
+|--------|-------------|
+| `onReStateChange` | Subscribe to state changes outside React |
+| `resetReState` | Reset all states to initial values |
+| `setReStateInitialValue` | Set the initial value for a key |
+
+---
 
 ## Contributing
 
