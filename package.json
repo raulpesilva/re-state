@@ -15,6 +15,7 @@
     "lib/index.js"
   ],
   "scripts": {
+    "test": "jest ",
     "test:dev": "jest --watch",
     "build": "yarn build:commonjs && yarn build:es && yarn build:umd && yarn build:types",
     "build:commonjs": "rimraf ./lib && cross-env BABEL_ENV=commonjs babel --extensions .ts,.tsx --ignore ./src/**/tests/**/* ./src --out-dir lib",
@@ -30,7 +31,7 @@
     "types"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=22"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.3",
