@@ -32,4 +32,88 @@
 
 ## Motivation
 
-simplify global state and new people joining the project
+Global state management in React shouldn't be complicated. Yet most solutions require extensive boilerplate: creating contexts, wrapping your app in providers, defining reducers, or learning new paradigms.
+
+re-state was built with two goals in mind:
+
+1. **Make global state as simple as `useState`** - If you know how to use React's `useState`, you already know how to use re-state. No new concepts to learn.
+
+2. **Lower the barrier for new team members** - New developers joining a project should be productive immediately, not spend hours understanding the state management architecture.
+
+### The Problem
+
+Traditional approaches require significant setup:
+
+```tsx
+// Context approach: ~20 lines just to share a counter
+const CountContext = createContext();
+
+function CountProvider({ children }) {
+  const [count, setCount] = useState(0);
+  return (
+    <CountContext.Provider value={{ count, setCount }}>
+      {children}
+    </CountContext.Provider>
+  );
+}
+
+function App() {
+  return (
+    <CountProvider>
+      <Counter />
+    </CountProvider>
+  );
+}
+
+function Counter() {
+  const { count, setCount } = useContext(CountContext);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```
+
+### The Solution
+
+With re-state, the same functionality is achieved in 4 lines:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function Counter() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```
+
+No providers. No context. No boilerplate. Just use it.
+
+## Key Features
+
+- **Zero configuration** - Works out of the box, no setup required
+- **Familiar API** - Same `[value, setValue]` pattern as `useState`
+- **TypeScript first** - Full type safety with auto-generated method names
+- **Tiny bundle** - Minimal impact on your application size
+- **React & React Native** - Works seamlessly on both platforms
+- **No providers** - No need to wrap your app in context providers
+- **Scalable** - From simple prototypes to production applications
+
+## Quick Start
+
+```bash
+npm install @raulpesilva/re-state
+```
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+function App() {
+  const [count, setCount] = useReState('count', 0);
+
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Clicked {count} times
+    </button>
+  );
+}
+```
+
+Ready to learn more? Check out the [Simple Usage](/getting-started/simple-usage) guide or dive into [Hello ReState](/getting-started/hello-re-state) for a complete overview.
