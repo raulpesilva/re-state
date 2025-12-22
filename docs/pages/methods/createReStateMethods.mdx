@@ -1,24 +1,204 @@
-# Create re-state methods
+# createReStateMethods
 
-This method creates a set of methods to use with React
+Creates a complete set of named methods for managing a global state in React. This is the **recommended** way to work with re-state as it provides all the tools you need in a single call with intuitive, auto-generated method names.
+
+## Why use createReStateMethods?
+
+- **All-in-one**: Get hooks, dispatchers, getters, and reset functions from a single call
+- **Type-safe**: Full TypeScript support with auto-generated method names
+- **Readable API**: Method names are derived from your state key (e.g., `useMuted`, `dispatchMuted`)
+- **Less boilerplate**: No need to import and configure multiple functions separately
+
+## Basic Usage
 
 ```ts
-//mutedState.ts
+// states/muted.ts
 import { createReStateMethods } from '@raulpesilva/re-state';
 
-export type Muted = boolean;
-export const key = 'muted';
-
-export const { useMuted, useMutedSelect, dispatchMuted, getMuted, resetMuted } = createReStateMethods(key, true);
-// the name os methods depends on the key passad to createReStateMethods
-// ex: key = 'muted' => useMuted, useMutedSelect, dispatchMuted, getMuted, resetMuted
-// ex: key = 'volume' => useVolume, useVolumeSelect, dispatchVolume, getVolume, resetVolume
+export const {
+  useMuted,        // Hook: returns [value, setter]
+  useMutedSelect,  // Hook: returns value only (read-only)
+  dispatchMuted,   // Function: update state from anywhere
+  getMuted,        // Function: get current value without subscribing
+  resetMuted,      // Function: reset to initial value
+} = createReStateMethods('muted', false);
 ```
+
+## Generated Methods
+
+When you call `createReStateMethods('volume', 50)`, you get:
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `useVolume` | Hook | Returns `[value, setValue]` tuple, like `useState` |
+| `useVolumeSelect` | Hook | Returns value only (optimized for read-only components) |
+| `dispatchVolume` | Function | Update state from anywhere (components, utils, event handlers) |
+| `getVolume` | Function | Get current value synchronously without subscribing |
+| `resetVolume` | Function | Reset state to the initial value |
+
+## Examples
+
+### Reading and Writing State
+
+```tsx
+import { useMuted, dispatchMuted } from './states/muted';
+
+function MuteButton() {
+  const [muted, setMuted] = useMuted();
+
+  return (
+    <button onClick={() => setMuted(!muted)}>
+      {muted ? 'Unmute' : 'Mute'}
+    </button>
+  );
+}
+
+// Update from outside a component
+function handleKeyPress(event: KeyboardEvent) {
+  if (event.key === 'm') {
+    dispatchMuted(prev => !prev);
+  }
+}
+```
+
+### Read-Only Components
+
+Use the `Select` hook when a component only needs to read the state:
+
+```tsx
+import { useMutedSelect } from './states/muted';
+
+function MuteIndicator() {
+  const muted = useMutedSelect();
+
+  return <span>{muted ? 'Sound Off' : 'Sound On'}</span>;
+}
+```
+
+### Getting State Outside React
+
+Use `get*` when you need the current value without subscribing:
 
 ```ts
-type createReStateMethods = <S extends string = string, V extends any = any>(
-  name: S,
-  initialValue: V,
-  valueOfReset?: V
-): { [K in keyof ReStateMethods<S, V>]: ReStateMethods<S, V>[K] };
+import { getMuted } from './states/muted';
+
+function logMuteState() {
+  console.log('Currently muted:', getMuted());
+}
 ```
+
+### Resetting State
+
+```tsx
+import { useMuted, resetMuted } from './states/muted';
+
+function MuteControls() {
+  const [muted, setMuted] = useMuted();
+
+  return (
+    <div>
+      <button onClick={() => setMuted(!muted)}>Toggle</button>
+      <button onClick={resetMuted}>Reset to Default</button>
+    </div>
+  );
+}
+```
+
+### Custom Reset Value
+
+By default, `reset*` restores the `initialValue`. You can specify a different reset value:
+
+```ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+const {
+  useVolume,
+  resetVolume,
+} = createReStateMethods('volume', 100, { value: 50 });
+
+// resetVolume() will set volume to 50, not 100
+```
+
+### Complex State
+
+Works with any value type:
+
+```ts
+interface User {
+  name: string;
+  email: string;
+  preferences: { theme: 'light' | 'dark' };
+}
+
+const initialUser: User = {
+  name: '',
+  email: '',
+  preferences: { theme: 'light' },
+};
+
+export const {
+  useUser,
+  useUserSelect,
+  dispatchUser,
+  getUser,
+  resetUser,
+} = createReStateMethods('user', initialUser);
+```
+
+```tsx
+function UserProfile() {
+  const [user, setUser] = useUser();
+
+  const updateTheme = (theme: 'light' | 'dark') => {
+    setUser(prev => ({
+      ...prev,
+      preferences: { ...prev.preferences, theme },
+    }));
+  };
+
+  return (
+    <div>
+      <p>Welcome, {user.name}</p>
+      <button onClick={() => updateTheme('dark')}>Dark Mode</button>
+    </div>
+  );
+}
+```
+
+## API Reference
+
+```ts
+function createReStateMethods<S extends string, V>(
+  name: S,
+  initialValue?: V,
+  valueOfReset?: { value: V }
+): ReStateMethods<S, V>
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `string` | Yes | Unique identifier for the state. Determines generated method names. |
+| `initialValue` | `V` | No | Initial value of the state |
+| `valueOfReset` | `{ value: V }` | No | Value to use when calling `reset*`. Defaults to `initialValue`. |
+
+### Returns
+
+An object containing five methods with names derived from `name`:
+
+- `use{Name}(): [V, (value: V | ((prev: V) => V)) => void]`
+- `use{Name}Select(): V`
+- `dispatch{Name}(value: V | ((prev: V) => V)): void`
+- `get{Name}(): V`
+- `reset{Name}(): void`
+
+### Naming Convention
+
+The method names are generated by capitalizing the first letter of your key:
+
+| Key | Generated Methods |
+|-----|-------------------|
+| `'count'` | `useCount`, `useCountSelect`, `dispatchCount`, `getCount`, `resetCount` |
+| `'userName'` | `useUserName`, `useUserNameSelect`, `dispatchUserName`, `getUserName`, `resetUserName` |
+| `'isOpen'` | `useIsOpen`, `useIsOpenSelect`, `dispatchIsOpen`, `getIsOpen`, `resetIsOpen` |
