@@ -132,6 +132,30 @@ const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 setReStateInitialValue('config', config);
 ```
 
+### Computed Initial Values
+
+Pass a function to compute the initial value based on the current state:
+
+```ts
+import { setReStateInitialValue } from '@raulpesilva/re-state';
+
+// Merge with existing settings instead of replacing them
+setReStateInitialValue('settings', (prev) => ({
+  ...prev,
+  theme: 'dark',
+  updatedAt: Date.now(),
+}));
+```
+
+The function receives the previous value, allowing conditional updates:
+
+```ts
+import { setReStateInitialValue } from '@raulpesilva/re-state';
+
+// Only set if not already initialized
+setReStateInitialValue('counter', (prev) => prev ?? 0);
+```
+
 ### User Session Initialization
 
 Set user data as the reset value after login:
@@ -218,7 +242,7 @@ describe('Settings', () => {
 ```ts
 function setReStateInitialValue<T>(
   key: string,
-  value: T
+  value: T | ((prev: T | undefined) => T)
 ): void
 ```
 
@@ -227,7 +251,7 @@ function setReStateInitialValue<T>(
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `key` | `string` | Yes | The state key to set the initial value for |
-| `value` | `T` | Yes | The value to use when resetting this state |
+| `value` | `T \| ((prev: T \| undefined) => T)` | Yes | The value to use when resetting this state, or a function that computes it |
 
 ### Behavior
 

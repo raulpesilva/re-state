@@ -160,12 +160,41 @@ function AudioControls() {
 }
 ```
 
+### Lazy Initial Value
+
+Pass a function to compute the initial value lazily. This is useful when the initial value is expensive to compute or depends on runtime conditions:
+
+```ts
+// states/settings.ts
+import { createReState } from '@raulpesilva/re-state';
+
+interface Settings {
+  theme: 'light' | 'dark';
+  language: string;
+}
+
+// Function is called once to compute the initial value
+export const useSettings = createReState<Settings>('settings', () => {
+  const saved = localStorage.getItem('settings');
+  return saved ? JSON.parse(saved) : { theme: 'light', language: 'en' };
+});
+```
+
+The function receives the previous value (or `undefined` if no value exists):
+
+```ts
+import { createReState } from '@raulpesilva/re-state';
+
+// Only initialize if not already set
+export const useCounter = createReState<number>('counter', (prev) => prev ?? 0);
+```
+
 ## API Reference
 
 ```ts
 function createReState<S>(
   key: string,
-  initialValue?: S
+  initialValue?: S | ((prev: S | undefined) => S)
 ): () => [S, (value: S | ((prev: S) => S)) => void]
 ```
 
@@ -174,7 +203,7 @@ function createReState<S>(
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `key` | `string` | Yes | Unique identifier for the state |
-| `initialValue` | `S` | No | Initial value of the state |
+| `initialValue` | `S \| ((prev: S \| undefined) => S)` | No | Initial value of the state, or a function that returns the initial value |
 
 ### Returns
 

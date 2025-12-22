@@ -17,12 +17,15 @@ import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
 const { dispatchTheme } = createReStateMethods('theme', 'light');
 
 // Subscribe to theme changes
-onReStateChange(() => {
+const unsubscribe = onReStateChange(() => {
   console.log('Theme changed!');
 }, ['theme']);
 
 // Later, when theme changes, the callback runs
 dispatchTheme('dark'); // Logs: "Theme changed!"
+
+// Stop listening when no longer needed
+unsubscribe();
 ```
 
 ## Examples
@@ -34,9 +37,15 @@ Persist state changes to localStorage automatically:
 ```ts
 import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
 
-const { getUser, dispatchUser } = createReStateMethods('user', { 
-  name: '', 
-  token: '' 
+interface User {
+  name: string;
+  token: string;
+}
+
+// Restore from localStorage on creation using a function initialValue
+const { getUser } = createReStateMethods<'user', User>('user', () => {
+  const saved = localStorage.getItem('user');
+  return saved ? JSON.parse(saved) : { name: '', token: '' };
 });
 
 // Save user to localStorage whenever it changes
@@ -44,12 +53,6 @@ onReStateChange(() => {
   const user = getUser();
   localStorage.setItem('user', JSON.stringify(user));
 }, ['user']);
-
-// Restore on app load
-const savedUser = localStorage.getItem('user');
-if (savedUser) {
-  dispatchUser(JSON.parse(savedUser));
-}
 ```
 
 ### Analytics Tracking
@@ -144,13 +147,59 @@ onReStateChange(() => {
 }, ['theme']);
 ```
 
+### Cleanup with Unsubscribe
+
+Stop listening when a subscription is no longer needed:
+
+```ts
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { dispatchStatus } = createReStateMethods('connectionStatus', 'disconnected');
+
+// Subscribe to connection status changes
+const unsubscribe = onReStateChange(() => {
+  console.log('Connection status changed');
+}, ['connectionStatus']);
+
+// Start monitoring
+dispatchStatus('connected'); // Logs: "Connection status changed"
+
+// Later, stop monitoring
+unsubscribe();
+
+// This will NOT trigger the callback
+dispatchStatus('disconnected');
+```
+
+### React useEffect Integration
+
+Clean up subscriptions when a component unmounts:
+
+```tsx
+import { useEffect } from 'react';
+import { onReStateChange } from '@raulpesilva/re-state';
+
+function ConnectionMonitor() {
+  useEffect(() => {
+    const unsubscribe = onReStateChange(() => {
+      console.log('Connection changed');
+    }, ['connectionStatus']);
+
+    // Cleanup on unmount
+    return unsubscribe;
+  }, []);
+
+  return <div>Monitoring connection...</div>;
+}
+```
+
 ## API Reference
 
 ```ts
 function onReStateChange(
   callback: () => void,
   dependencies: string[]
-): void
+): () => void
 ```
 
 ### Parameters
@@ -160,11 +209,17 @@ function onReStateChange(
 | `callback` | `() => void` | Yes | Function to call when any dependency changes |
 | `dependencies` | `string[]` | Yes | Array of state keys to watch |
 
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `() => void` | Unsubscribe function that stops listening to changes |
+
 ### Behavior
 
 - The callback is **not** called on initial subscription, only on subsequent changes
 - The callback runs once per state change, even if multiple dependencies change simultaneously
-- Subscriptions are permanent; there is no built-in unsubscribe mechanism
+- Call the returned function to unsubscribe and stop receiving updates
 
 ## When to Use
 

@@ -119,6 +119,36 @@ const {
 // resetVolume() will set volume to 50, not 100
 ```
 
+### Lazy Initial Value
+
+Pass a function to compute the initial value lazily. This is useful when the initial value is expensive to compute or depends on runtime conditions:
+
+```ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+// Function is called once to compute the initial value
+const {
+  useSettings,
+  getSettings,
+} = createReStateMethods('settings', () => {
+  const saved = localStorage.getItem('settings');
+  return saved ? JSON.parse(saved) : { theme: 'light', lang: 'en' };
+});
+```
+
+The function receives the previous value (or `undefined` if no value exists), allowing conditional initialization:
+
+```ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+const {
+  useCounter,
+} = createReStateMethods('counter', (prev) => {
+  // Only initialize if not already set
+  return prev ?? 0;
+});
+```
+
 ### Complex State
 
 Works with any value type:
@@ -170,7 +200,7 @@ function UserProfile() {
 ```ts
 function createReStateMethods<S extends string, V>(
   name: S,
-  initialValue?: V,
+  initialValue?: V | ((prev: V | undefined) => V),
   valueOfReset?: { value: V }
 ): ReStateMethods<S, V>
 ```
@@ -180,7 +210,7 @@ function createReStateMethods<S extends string, V>(
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `name` | `string` | Yes | Unique identifier for the state. Determines generated method names. |
-| `initialValue` | `V` | No | Initial value of the state |
+| `initialValue` | `V \| ((prev: V \| undefined) => V)` | No | Initial value of the state, or a function that returns the initial value |
 | `valueOfReset` | `{ value: V }` | No | Value to use when calling `reset*`. Defaults to `initialValue`. |
 
 ### Returns
