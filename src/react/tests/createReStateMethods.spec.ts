@@ -1,4 +1,6 @@
+import { jest } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { SetReStateAction } from '../../core';
 import { createReStateMethods } from '../createReStateMethods';
 import { resetHardStore } from '../store';
 
@@ -92,5 +94,39 @@ describe('createReStateMethods', () => {
 
   it('should not throw an error if initialValue is not provided', () => {
     expect(() => createReStateMethods('key')).not.toThrowError('InitialValue is required');
+  });
+
+  it('should accept function as initialValue', () => {
+    const key = 'funcInit';
+    const initFn: SetReStateAction<number> = () => 42;
+    const { useFuncInit, getFuncInit } = createReStateMethods(key, initFn);
+    const { result } = renderHook(() => useFuncInit());
+    expect(result.current[0]).toBe(42);
+    expect(getFuncInit()).toBe(42);
+  });
+
+  it('should compute initialValue from function only once', () => {
+    const key = 'funcOnce';
+    const initFn = jest.fn(() => 100) as SetReStateAction<number>;
+    const { useFuncOnce } = createReStateMethods(key, initFn);
+    const { result: result1 } = renderHook(() => useFuncOnce());
+    const { result: result2 } = renderHook(() => useFuncOnce());
+    expect(result1.current[0]).toBe(100);
+    expect(result2.current[0]).toBe(100);
+    expect(initFn).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not override existing state when called with function initialValue', () => {
+    const key = 'noOverride';
+    const initFn1: SetReStateAction<number> = () => 10;
+    const { useNoOverride, dispatchNoOverride } = createReStateMethods(key, initFn1);
+    const { result } = renderHook(() => useNoOverride());
+    expect(result.current[0]).toBe(10);
+    act(() => dispatchNoOverride(20));
+    expect(result.current[0]).toBe(20);
+    const initFn2: SetReStateAction<number> = () => 30;
+    const { useNoOverride: useNoOverride2 } = createReStateMethods(key, initFn2);
+    const { result: result2 } = renderHook(() => useNoOverride2());
+    expect(result2.current[0]).toBe(20);
   });
 });

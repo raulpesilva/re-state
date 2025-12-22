@@ -299,4 +299,94 @@ describe('Store', () => {
     expect(unsubscribe).toBeTruthy();
     expect(unsubscribe()).toBeUndefined();
   });
+
+  describe('initiateState', () => {
+    test('should set initial value if key does not exist', () => {
+      const key = 'initKey';
+      const value = 'initValue';
+      store.initiateState(key, value);
+      expect(store.get(key)).toBe(value);
+      expect(store.getInitialValue(key)).toBe(value);
+    });
+
+    test('should not override existing initial value', () => {
+      const key = 'initKey';
+      const value1 = 'value1';
+      const value2 = 'value2';
+      store.initiateState(key, value1);
+      store.initiateState(key, value2);
+      expect(store.get(key)).toBe(value1);
+      expect(store.getInitialValue(key)).toBe(value1);
+    });
+
+    test('should accept function value and compute initial value', () => {
+      const key = 'initFuncKey';
+      const getValue = jest.fn(() => 42);
+      store.initiateState(key, getValue);
+      expect(store.get(key)).toBe(42);
+      expect(store.getInitialValue(key)).toBe(42);
+      expect(getValue).toHaveBeenCalledTimes(1);
+      expect(getValue).toHaveBeenCalledWith(undefined);
+    });
+
+    test('should not override with function value if key exists', () => {
+      const key = 'initFuncKey';
+      const value1 = 10;
+      const getValue = jest.fn((prev: number) => prev + 5);
+      store.initiateState(key, value1);
+      store.initiateState(key, getValue);
+      expect(store.get(key)).toBe(value1);
+      expect(store.getInitialValue(key)).toBe(value1);
+      expect(getValue).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setInitialValue', () => {
+    test('should set initial value with plain value', () => {
+      const key = 'setInitKey';
+      const value = 'setValue';
+      store.setInitialValue(key, value);
+      expect(store.get(key)).toBe(value);
+      expect(store.getInitialValue(key)).toBe(value);
+    });
+
+    test('should override initial value even if it exists', () => {
+      const key = 'setInitKey';
+      const value1 = 'value1';
+      const value2 = 'value2';
+      store.setInitialValue(key, value1);
+      store.setInitialValue(key, value2);
+      expect(store.getInitialValue(key)).toBe(value2);
+    });
+
+    test('should accept function value and compute initial value', () => {
+      const key = 'setInitFuncKey';
+      const getValue = jest.fn(() => 100);
+      store.setInitialValue(key, getValue);
+      expect(store.get(key)).toBe(100);
+      expect(store.getInitialValue(key)).toBe(100);
+      expect(getValue).toHaveBeenCalledTimes(1);
+      expect(getValue).toHaveBeenCalledWith(undefined);
+    });
+
+    test('should pass previous value to function when key exists', () => {
+      const key = 'setInitFuncKey';
+      const value1 = 50;
+      const getValue = jest.fn((prev: number) => prev + 25);
+      store.set(key, value1);
+      store.setInitialValue(key, getValue);
+      expect(store.getInitialValue(key)).toBe(75);
+      expect(getValue).toHaveBeenCalledWith(value1);
+    });
+
+    test('should not override store value if it already exists', () => {
+      const key = 'setInitKey';
+      const value1 = 'storeValue';
+      const value2 = 'newInitValue';
+      store.set(key, value1);
+      store.setInitialValue(key, value2);
+      expect(store.get(key)).toBe(value1);
+      expect(store.getInitialValue(key)).toBe(value2);
+    });
+  });
 });
