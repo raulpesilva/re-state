@@ -1,3 +1,4 @@
+import { SetReStateAction } from '../core';
 import { createGetReState } from './createGetReState';
 import { createReState } from './createReState';
 import { createReStateDispatch } from './createReStateDispatch';
@@ -14,7 +15,7 @@ import type { ReStateMethods } from './types';
  */
 export const createReStateMethods = <S extends string = string, V extends any = any>(
   name: S,
-  initialValue?: V,
+  initialValue?: SetReStateAction<V>,
   valueOfReset?: { value: V }
 ): { [K in keyof ReStateMethods<S, V>]: ReStateMethods<S, V>[K] } => {
   if (!name) throw new Error('Name is required');

@@ -6,7 +6,7 @@ import type { DispatchReState } from './types';
 
 const upSetState = <S>(key: string, value: SetReStateAction<S>): S => {
   if (store.has(key)) return store.get(key) as S;
-  store.setInitialValue(key, value);
+  store.initiateState(key, value);
   return store.get(key) as S;
 };
 

@@ -40,9 +40,18 @@ export class Store<
     if (!this.initialStore.has(key)) this.initialStore.set(key, value);
   }
 
-  setInitialValue<K extends Fields>(key: K, value: T[K]): void {
-    this.initialStore.set(key, value);
-    if (!this.store.has(key)) this.store.set(key, value);
+  setInitialValue<K extends Fields>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void {
+    const isFunction = typeof value === 'function';
+    const nextValue = isFunction ? (value as (prevState: T[K]) => T[K])(this.get(key)) : value;
+    this.initialStore.set(key, nextValue);
+    if (!this.store.has(key)) this.store.set(key, nextValue);
+  }
+
+  initiateState<K extends Fields>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void {
+    const isFunction = typeof value === 'function';
+    const nextValue = isFunction ? (value as (prevState: T[K]) => T[K])(this.get(key)) : value;
+    if (!this.initialStore.has(key)) this.initialStore.set(key, nextValue);
+    if (!this.store.has(key)) this.store.set(key, nextValue);
   }
 
   set<K extends Fields>(key: K, value: T[K] | ((prev: T[K]) => T[K])): void {
