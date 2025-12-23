@@ -97,4 +97,14 @@ export class Store<
     const initialValue = this.initialStore.get(key) as T[K];
     this.store.set(key, initialValue);
   }
+
+  clear(): void {
+    this.store.clear();
+    this.initialStore.clear();
+    const batch = getBatch();
+    batch(() => {
+      this.listeners.clear();
+      this.watchAllListeners.notify(undefined, this.getStore());
+    });
+  }
 }

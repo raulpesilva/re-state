@@ -41,4 +41,8 @@ export class ListenerByKey<
       listeners!.forEach((listener) => listener(prev, next));
     }
   }
+
+  clear(): void {
+    this.listeners.clear();
+  }
 }
