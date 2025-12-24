@@ -27,8 +27,7 @@ resetReState();
 
 Load persisted state on app startup:
 
-```ts
-// app/init.ts
+```ts filename="app/init.ts"
 import { setReStateInitialValue } from '@raulpesilva/re-state';
 
 interface UserSettings {
@@ -53,8 +52,7 @@ export function initializeApp() {
 }
 ```
 
-```tsx
-// app/App.tsx
+```tsx filename="app/App.tsx"
 import { useEffect } from 'react';
 import { initializeApp } from './init';
 
@@ -71,8 +69,7 @@ function App() {
 
 Set a different reset value than the creation value:
 
-```ts
-// states/cart.ts
+```ts filename="states/cart.ts"
 import { 
   createReStateMethods, 
   setReStateInitialValue 
@@ -105,8 +102,7 @@ export function completeCheckout() {
 
 Set different initial values based on environment:
 
-```ts
-// states/config.ts
+```ts filename="states/config.ts"
 import { setReStateInitialValue } from '@raulpesilva/re-state';
 
 interface Config {
@@ -160,8 +156,7 @@ setReStateInitialValue('counter', (prev) => prev ?? 0);
 
 Set user data as the reset value after login:
 
-```ts
-// utils/auth.ts
+```ts filename="utils/auth.ts"
 import { 
   setReStateInitialValue, 
   resetReState 
@@ -199,8 +194,7 @@ export function logout() {
 
 ### Testing with Different Initial Values
 
-```ts
-// tests/settings.spec.ts
+```ts filename="tests/settings.spec.ts"
 import { renderHook, act } from '@testing-library/react-hooks';
 import { 
   setReStateInitialValue, 

@@ -11,8 +11,7 @@ Creates a function to read a specific global state synchronously without subscri
 
 ## Basic Usage
 
-```ts
-// states/user.ts
+```ts filename="states/user.ts"
 import { createReState, createGetReState } from '@raulpesilva/re-state';
 
 export const useUser = createReState<{ name: string }>('user', { name: '' });
@@ -31,8 +30,7 @@ console.log(currentUser.name);
 
 ### Reading State in Utility Functions
 
-```ts
-// states/auth.ts
+```ts filename="states/auth.ts"
 import { createReState, createGetReState } from '@raulpesilva/re-state';
 
 interface AuthState {
@@ -47,8 +45,7 @@ export const useAuth = createReState<AuthState>('auth', {
 export const getAuth = createGetReState<AuthState>('auth');
 ```
 
-```ts
-// utils/api.ts
+```ts filename="utils/api.ts"
 import { getAuth } from '../states/auth';
 
 export async function fetchWithAuth(url: string) {

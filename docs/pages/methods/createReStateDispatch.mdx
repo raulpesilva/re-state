@@ -11,16 +11,14 @@ Creates a function to update a specific global state from anywhere in your appli
 
 ## Basic Usage
 
-```ts
-// states/counter.ts
+```ts filename="states/counter.ts"
 import { createReState, createReStateDispatch } from '@raulpesilva/re-state';
 
 export const useCounter = createReState<number>('counter', 0);
 export const dispatchCounter = createReStateDispatch<number>('counter');
 ```
 
-```tsx
-// Anywhere in your app
+```tsx filename="Anywhere in your app"
 import { dispatchCounter } from './states/counter';
 
 // Set a value directly
@@ -36,8 +34,7 @@ dispatchCounter(prev => prev + 1);
 
 Define reusable actions alongside your state:
 
-```ts
-// states/counter.ts
+```ts filename="states/counter.ts"
 import { createReState, createReStateDispatch } from '@raulpesilva/re-state';
 
 export const useCounter = createReState<number>('counter', 0);
@@ -50,8 +47,7 @@ export const reset = () => dispatchCounter(0);
 export const setCounter = (value: number) => dispatchCounter(value);
 ```
 
-```tsx
-// components/Counter.tsx
+```tsx filename="components/Counter.tsx"
 import { useCounter, increment, decrement, reset } from '../states/counter';
 
 function Counter() {

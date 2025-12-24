@@ -11,8 +11,7 @@ Creates a read-only hook that subscribes to a specific global state. Unlike `cre
 
 ## Basic Usage
 
-```ts
-// states/muted.ts
+```ts filename="states/muted.ts"
 import { createReState, createReStateSelect, createReStateDispatch } from '@raulpesilva/re-state';
 
 export const useMuted = createReState<boolean>('muted', false);
@@ -20,8 +19,7 @@ export const useMutedSelect = createReStateSelect<boolean>('muted');
 export const dispatchMuted = createReStateDispatch<boolean>('muted');
 ```
 
-```tsx
-// components/MuteIndicator.tsx
+```tsx filename="components/MuteIndicator.tsx"
 import { useMutedSelect } from '../states/muted';
 
 function MuteIndicator() {
@@ -35,8 +33,7 @@ function MuteIndicator() {
 
 ### Display-Only Components
 
-```ts
-// states/user.ts
+```ts filename="states/user.ts"
 import { createReState, createReStateSelect } from '@raulpesilva/re-state';
 
 interface User {
@@ -48,8 +45,7 @@ export const useUser = createReState<User>('user', { name: '', avatar: '' });
 export const useUserSelect = createReStateSelect<User>('user');
 ```
 
-```tsx
-// components/UserAvatar.tsx
+```tsx filename="components/UserAvatar.tsx"
 import { useUserSelect } from '../states/user';
 
 function UserAvatar() {
@@ -59,8 +55,7 @@ function UserAvatar() {
 }
 ```
 
-```tsx
-// components/UserGreeting.tsx
+```tsx filename="components/UserGreeting.tsx"
 import { useUserSelect } from '../states/user';
 
 function UserGreeting() {
@@ -72,8 +67,7 @@ function UserGreeting() {
 
 ### Separating Read and Write
 
-```ts
-// states/theme.ts
+```ts filename="states/theme.ts"
 import { 
   createReState, 
   createReStateSelect, 
@@ -91,8 +85,7 @@ export const toggleTheme = () => dispatchTheme(prev =>
 );
 ```
 
-```tsx
-// components/ThemeDisplay.tsx (read-only)
+```tsx filename="components/ThemeDisplay.tsx"
 import { useThemeSelect } from '../states/theme';
 
 function ThemeDisplay() {
@@ -101,8 +94,7 @@ function ThemeDisplay() {
 }
 ```
 
-```tsx
-// components/ThemeToggle.tsx (read + write)
+```tsx filename="components/ThemeToggle.tsx"
 import { useTheme } from '../states/theme';
 
 function ThemeToggle() {
@@ -118,8 +110,7 @@ function ThemeToggle() {
 
 ### Multiple Read-Only Consumers
 
-```ts
-// states/cart.ts
+```ts filename="states/cart.ts"
 import { createReState, createReStateSelect } from '@raulpesilva/re-state';
 
 interface CartState {
@@ -131,8 +122,7 @@ export const useCart = createReState<CartState>('cart', { items: [], total: 0 })
 export const useCartSelect = createReStateSelect<CartState>('cart');
 ```
 
-```tsx
-// components/CartBadge.tsx
+```tsx filename="components/CartBadge.tsx"
 import { useCartSelect } from '../states/cart';
 
 function CartBadge() {
@@ -141,8 +131,7 @@ function CartBadge() {
 }
 ```
 
-```tsx
-// components/CartTotal.tsx
+```tsx filename="components/CartTotal.tsx"
 import { useCartSelect } from '../states/cart';
 
 function CartTotal() {
@@ -151,8 +140,7 @@ function CartTotal() {
 }
 ```
 
-```tsx
-// components/CartSummary.tsx
+```tsx filename="components/CartSummary.tsx"
 import { useCartSelect } from '../states/cart';
 
 function CartSummary() {

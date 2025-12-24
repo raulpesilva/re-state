@@ -11,15 +11,13 @@ Creates a reusable hook for a specific global state. Unlike `useReState` where y
 
 ## Basic Usage
 
-```ts
-// states/muted.ts
+```ts filename="states/muted.ts"
 import { createReState } from '@raulpesilva/re-state';
 
 export const useMuted = createReState<boolean>('muted', false);
 ```
 
-```tsx
-// components/MuteButton.tsx
+```tsx filename="components/MuteButton.tsx"
 import { useMuted } from '../states/muted';
 
 function MuteButton() {
@@ -37,15 +35,13 @@ function MuteButton() {
 
 ### Sharing State Across Components
 
-```ts
-// states/volume.ts
+```ts filename="states/volume.ts"
 import { createReState } from '@raulpesilva/re-state';
 
 export const useVolume = createReState<number>('volume', 50);
 ```
 
-```tsx
-// components/VolumeSlider.tsx
+```tsx filename="components/VolumeSlider.tsx"
 import { useVolume } from '../states/volume';
 
 function VolumeSlider() {
@@ -63,8 +59,7 @@ function VolumeSlider() {
 }
 ```
 
-```tsx
-// components/VolumeDisplay.tsx
+```tsx filename="components/VolumeDisplay.tsx"
 import { useVolume } from '../states/volume';
 
 function VolumeDisplay() {
@@ -77,8 +72,7 @@ Both components share the same volume state.
 
 ### Complex State Types
 
-```ts
-// states/user.ts
+```ts filename="states/user.ts"
 import { createReState } from '@raulpesilva/re-state';
 
 interface User {
@@ -98,8 +92,7 @@ const initialUser: User = {
 export const useUser = createReState<User>('user', initialUser);
 ```
 
-```tsx
-// components/UserCard.tsx
+```tsx filename="components/UserCard.tsx"
 import { useUser } from '../states/user';
 
 function UserCard() {
@@ -123,8 +116,7 @@ function UserCard() {
 
 ### Multiple States in One File
 
-```ts
-// states/audio.ts
+```ts filename="states/audio.ts"
 import { createReState } from '@raulpesilva/re-state';
 
 export const useVolume = createReState<number>('volume', 50);
@@ -132,8 +124,7 @@ export const useMuted = createReState<boolean>('muted', false);
 export const usePlaying = createReState<boolean>('playing', false);
 ```
 
-```tsx
-// components/AudioControls.tsx
+```tsx filename="components/AudioControls.tsx"
 import { useVolume, useMuted, usePlaying } from '../states/audio';
 
 function AudioControls() {
@@ -164,8 +155,7 @@ function AudioControls() {
 
 Pass a function to compute the initial value lazily. This is useful when the initial value is expensive to compute or depends on runtime conditions:
 
-```ts
-// states/settings.ts
+```ts filename="states/settings.ts"
 import { createReState } from '@raulpesilva/re-state';
 
 interface Settings {

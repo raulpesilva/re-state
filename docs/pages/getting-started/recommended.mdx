@@ -16,8 +16,7 @@ For production applications, we recommend using **factory functions** to create 
 
 The simplest way to get a complete state management solution. One call gives you everything:
 
-```ts
-// states/cart.ts
+```ts filename="states/cart.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
 interface CartItem {
@@ -68,8 +67,7 @@ export const removeItem = (id: string) => {
 export const clearCart = () => resetCart();
 ```
 
-```tsx
-// components/Cart.tsx
+```tsx filename="components/Cart.tsx"
 import { useCartSelect, addItem, removeItem, clearCart } from '../states/cart';
 
 function Cart() {
@@ -99,8 +97,7 @@ function Cart() {
 
 For more control, use individual factory functions. This is useful when you only need specific utilities or want to customize naming.
 
-```ts
-// states/theme.ts
+```ts filename="states/theme.ts"
 import {
   createReState,
   createReStateSelect,
@@ -148,8 +145,7 @@ src/
   ...
 ```
 
-```ts
-// states/index.ts
+```ts filename="states/index.ts"
 export * from './user';
 export * from './cart';
 export * from './theme';
@@ -188,8 +184,7 @@ src/
 
 Keep actions in the same file as the state they modify:
 
-```ts
-// states/counter.ts
+```ts filename="states/counter.ts"
 export const { useCounter, dispatchCounter, resetCounter } = 
   createReStateMethods('counter', 0);
 
@@ -215,8 +210,7 @@ function CounterBadge() {
 
 Keep side effects in actions, not components:
 
-```ts
-// states/user.ts
+```ts filename="states/user.ts"
 export const login = async (credentials: Credentials) => {
   dispatchLoading(true);
   try {
@@ -232,8 +226,7 @@ export const login = async (credentials: Credentials) => {
 };
 ```
 
-```tsx
-// components/LoginForm.tsx
+```tsx filename="components/LoginForm.tsx"
 import { login } from '../states/user';
 
 function LoginForm() {
@@ -249,8 +242,7 @@ function LoginForm() {
 
 Use `onReStateChange` for side effects that don't belong in components:
 
-```ts
-// states/theme.ts
+```ts filename="states/theme.ts"
 import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
 
 export const { useTheme, dispatchTheme, getTheme } = 

@@ -22,8 +22,7 @@ resetReState();
 
 ### User Logout
 
-```ts
-// utils/auth.ts
+```ts filename="utils/auth.ts"
 import { resetReState } from '@raulpesilva/re-state';
 
 export function logout() {
@@ -38,8 +37,7 @@ export function logout() {
 }
 ```
 
-```tsx
-// components/LogoutButton.tsx
+```tsx filename="components/LogoutButton.tsx"
 import { logout } from '../utils/auth';
 
 function LogoutButton() {
@@ -87,8 +85,7 @@ class ErrorBoundary extends Component<
 
 ### Testing Setup
 
-```ts
-// tests/setup.ts
+```ts filename="tests/setup.ts"
 import { resetReState } from '@raulpesilva/re-state';
 
 beforeEach(() => {
@@ -96,8 +93,7 @@ beforeEach(() => {
 });
 ```
 
-```ts
-// tests/counter.spec.ts
+```ts filename="tests/counter.spec.ts"
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useCounter, increment } from '../states/counter';
 
@@ -121,8 +117,7 @@ describe('Counter', () => {
 
 ### Development Tools
 
-```tsx
-// components/DevTools.tsx (development only)
+```tsx filename="components/DevTools.tsx"
 import { resetReState } from '@raulpesilva/re-state';
 
 function DevTools() {
@@ -144,8 +139,7 @@ function DevTools() {
 
 Use `setReStateInitialValue` to control what values are restored on reset:
 
-```ts
-// states/settings.ts
+```ts filename="states/settings.ts"
 import { 
   createReStateMethods, 
   setReStateInitialValue 
