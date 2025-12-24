@@ -67,8 +67,7 @@ For production apps, `createReStateMethods` provides a complete, type-safe API w
 
 ### Step 1: Define your state
 
-```ts
-// states/counter.ts
+```ts filename="states/counter.ts" 
 import { createReStateMethods } from '@raulpesilva/re-state';
 
 export const {
@@ -82,8 +81,7 @@ export const {
 
 ### Step 2: Use in components
 
-```tsx
-// components/Counter.tsx
+```tsx filename="components/Counter.tsx"
 import { useCounter, resetCounter } from '../states/counter';
 
 function Counter() {
@@ -100,8 +98,7 @@ function Counter() {
 }
 ```
 
-```tsx
-// components/CounterDisplay.tsx
+```tsx filename="components/CounterDisplay.tsx"
 import { useCounterSelect } from '../states/counter';
 
 function CounterDisplay() {
@@ -120,8 +117,7 @@ re-state works with any value type: primitives, objects, arrays, or custom types
 
 ### Defining typed state
 
-```ts
-// states/user.ts
+```ts filename="states/user.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
 interface User {
@@ -207,8 +203,7 @@ function EditName() {
 
 For reusable logic, define actions alongside your state:
 
-```ts
-// states/user.ts
+```ts filename="states/user.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
 interface User {
