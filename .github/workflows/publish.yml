@@ -1,0 +1,216 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - master
+
+permissions: {}
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      should_publish: ${{ steps.version.outputs.should_publish }}
+      npm_tag: ${{ steps.version.outputs.npm_tag }}
+      package_version: ${{ steps.version.outputs.package_version }}
+      tarball_sha256: ${{ steps.package.outputs.tarball_sha256 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Check package version
+        id: version
+        shell: bash
+        run: |
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+
+          if [[ "$package_version" == *-* ]]; then
+            npm_tag='next'
+          else
+            npm_tag='latest'
+          fi
+
+          set +e
+          lookup_output="$(
+            npm view "${package_name}@${package_version}" version \
+              --registry=https://registry.npmjs.org/ 2>&1
+          )"
+          lookup_status=$?
+          set -e
+
+          if [ "$lookup_status" -eq 0 ]; then
+            echo "${package_name}@${package_version} already exists; publication will be skipped."
+            echo 'should_publish=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! grep -q 'E404' <<< "$lookup_output"; then
+            echo "$lookup_output"
+            exit "$lookup_status"
+          fi
+
+          if [ "$npm_tag" = 'latest' ]; then
+            current_latest="$(
+              npm view "$package_name" dist-tags.latest \
+                --registry=https://registry.npmjs.org/
+            )"
+
+            node - "$package_version" "$current_latest" <<'NODE'
+          const [candidate, current] = process.argv.slice(2);
+          const parseStableVersion = (version) => {
+            const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
+
+            if (!match) {
+              throw new Error(`Expected a stable semantic version, received: ${version}`);
+            }
+
+            return match.slice(1).map(Number);
+          };
+
+          const candidateParts = parseStableVersion(candidate);
+          const currentParts = parseStableVersion(current);
+          const comparison = candidateParts.findIndex((part, index) => part !== currentParts[index]);
+
+          if (comparison === -1 || candidateParts[comparison] < currentParts[comparison]) {
+            throw new Error(`${candidate} must be greater than the current latest version ${current}`);
+          }
+          NODE
+          fi
+
+          echo "${package_name}@${package_version} will be published with the ${npm_tag} tag."
+          echo 'should_publish=true' >> "$GITHUB_OUTPUT"
+          echo "npm_tag=${npm_tag}" >> "$GITHUB_OUTPUT"
+          echo "package_version=${package_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Enable pnpm
+        if: steps.version.outputs.should_publish == 'true'
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.7.0 --activate
+
+      - name: Install dependencies
+        if: steps.version.outputs.should_publish == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Check, test, and build
+        if: steps.version.outputs.should_publish == 'true'
+        run: pnpm check
+
+      - name: Create package tarball
+        if: steps.version.outputs.should_publish == 'true'
+        id: package
+        shell: bash
+        run: |
+          mkdir release
+          npm pack --ignore-scripts --pack-destination release
+
+          mapfile -t tarballs < <(find release -maxdepth 1 -type f -name '*.tgz' | sort)
+
+          if [ "${#tarballs[@]}" -ne 1 ]; then
+            echo "Expected exactly one package tarball, found ${#tarballs[@]}."
+            exit 1
+          fi
+
+          tarball_sha256="$(sha256sum "${tarballs[0]}" | cut -d ' ' -f 1)"
+          echo "Created ${tarballs[0]} with SHA-256 ${tarball_sha256}."
+          echo "tarball_sha256=${tarball_sha256}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload verified package
+        if: steps.version.outputs.should_publish == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: npm-package
+          path: release/*.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish
+    needs: verify
+    if: needs.verify.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@raulpesilva/re-state/v/${{ needs.verify.outputs.package_version }}
+    permissions:
+      id-token: write
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Download verified package
+        uses: actions/download-artifact@v8
+        with:
+          name: npm-package
+          path: release
+
+      - name: Verify npm supports trusted publishing
+        shell: bash
+        run: |
+          npm_version="$(npm --version)"
+
+          node - "$npm_version" <<'NODE'
+          const current = process.argv[2].split('.').map(Number);
+          const minimum = [11, 5, 1];
+          const comparison = current.findIndex((part, index) => part !== minimum[index]);
+
+          if (comparison !== -1 && current[comparison] < minimum[comparison]) {
+            throw new Error(`Trusted publishing requires npm >= ${minimum.join('.')}; found ${current.join('.')}`);
+          }
+          NODE
+
+      - name: Verify package integrity
+        id: artifact
+        shell: bash
+        env:
+          EXPECTED_SHA256: ${{ needs.verify.outputs.tarball_sha256 }}
+        run: |
+          mapfile -t tarballs < <(find release -maxdepth 1 -type f -name '*.tgz' | sort)
+
+          if [ "${#tarballs[@]}" -ne 1 ]; then
+            echo "Expected exactly one package tarball, found ${#tarballs[@]}."
+            exit 1
+          fi
+
+          actual_sha256="$(sha256sum "${tarballs[0]}" | cut -d ' ' -f 1)"
+
+          if [ "$actual_sha256" != "$EXPECTED_SHA256" ]; then
+            echo 'The downloaded package does not match the verified package.'
+            exit 1
+          fi
+
+          echo "Verified ${tarballs[0]} with SHA-256 ${actual_sha256}."
+          echo "tarball=${tarballs[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to npm
+        env:
+          NPM_TAG: ${{ needs.verify.outputs.npm_tag }}
+          TARBALL: ${{ steps.artifact.outputs.tarball }}
+        run: >-
+          npm publish "$TARBALL"
+          --ignore-scripts
+          --access public
+          --tag "$NPM_TAG"
+          --registry=https://registry.npmjs.org/
