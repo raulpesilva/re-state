@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "plugins": ["typescript", "react", "unicorn", "import", "oxc"],
+  "ignorePatterns": [
+    "node_modules/**",
+    "macos/**",
+    "build/**",
+    "coverage/**",
+    "vendor/**",
+    "pnpm-lock.yaml",
+    "yarn.lock"
+  ],
+  "settings": {
+    "react": {
+      "version": "19.1.4"
+    }
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
