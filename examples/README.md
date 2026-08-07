@@ -1,17 +1,17 @@
 # Examples
 
-The examples are private workspace packages that demonstrate `@raulpesilva/re-state` across the currently supported
-React toolchains. They consume the library from this repository through `workspace:*`; the shared lockfile is managed
-at the repository root.
+The six private workspace packages demonstrate `@raulpesilva/re-state` across the currently maintained React web and
+native toolchains. Each package consumes the library from this repository through `workspace:*`; dependencies are
+installed once from the repository root and recorded in the shared root lockfile.
 
-| Example | Stack | Purpose |
+| Example | Stack | Demonstrates |
 | --- | --- | --- |
-| [`vite-js`](./vite-js) | React 19 + Vite 8 | JavaScript examples for shared state, actions, and selectors |
-| [`vite-ts`](./vite-ts) | React 19 + Vite 8 + TypeScript | Typed examples plus the retained Vitest coverage |
-| [`nextjs`](./nextjs) | Next.js 16 App Router | Client-side state usage inside a modern Next.js application |
-| [`expo`](./expo) | Expo SDK 57 | Cross-platform React Native example with web export support |
-| [`react-native-windows`](./react-native-windows) | React Native Windows 0.84 | Windows example using the current New Architecture scaffold |
-| [`react-native-macos`](./react-native-macos) | React Native macOS 0.81 | macOS example using the matching React Native toolchain |
+| [`vite-js`](./vite-js) | React 19 + Vite 8 | Direct keyed state, reusable actions, and selectors in JavaScript |
+| [`vite-ts`](./vite-ts) | React 19 + Vite 8 + TypeScript | Typed state modules, selectors, and Vitest coverage |
+| [`nextjs`](./nextjs) | Next.js 16 App Router | Shared client state in a modern Next.js application |
+| [`expo`](./expo) | Expo SDK 57 + React Native 0.86 | One shared counter on Android, iOS, and web |
+| [`react-native-windows`](./react-native-windows) | React Native Windows 0.84 | Native Windows shared state with the New Architecture scaffold |
+| [`react-native-macos`](./react-native-macos) | React Native macOS 0.81 | Native macOS shared state with the matching React Native toolchain |
 
 ## Install
 
@@ -21,15 +21,59 @@ From the repository root:
 pnpm install
 ```
 
-Run an example command with a workspace filter, for example:
+Do not run an independent install inside an example when working in this repository: the examples rely on the root
+workspace link to the local library.
+
+## Run web examples
 
 ```sh
 pnpm --filter vite-js dev
-pnpm --filter vite-ts check
-pnpm --filter nextjs build
-pnpm --filter expo-example start
+pnpm --filter vite-ts dev
+pnpm --filter nextjs dev
 ```
 
-The Windows example requires the React Native Windows native toolchain. The macOS example requires macOS and Xcode
-for native builds; its portable lint, formatting, TypeScript, and React Native configuration checks can still run on
-other hosts.
+## Run Expo
+
+```sh
+pnpm --filter expo-example start
+pnpm --filter expo-example android
+pnpm --filter expo-example ios
+pnpm --filter expo-example web
+```
+
+Android and iOS commands require their normal Expo native development environments. The iOS command requires macOS.
+
+## Run native desktop examples
+
+```sh
+pnpm --filter ReStateWindows start
+pnpm --filter ReStateWindows windows
+```
+
+The Windows build requires Windows, Visual Studio, and the React Native Windows prerequisites.
+
+```sh
+pnpm --filter ReStateMacOS start
+pnpm --filter ReStateMacOS macos
+```
+
+The macOS build requires macOS, Xcode, CocoaPods, and the React Native macOS prerequisites.
+
+## Validate
+
+Run all portable example checks from the repository root:
+
+```sh
+pnpm examples:check
+```
+
+Or target one package:
+
+```sh
+pnpm --filter vite-ts check
+pnpm --filter nextjs check
+pnpm --filter expo-example check
+```
+
+The aggregate check covers formatting, linting, TypeScript, tests, builds, or configuration validation when each
+example exposes those scripts. It intentionally does not launch device emulators or build Windows/macOS binaries.
