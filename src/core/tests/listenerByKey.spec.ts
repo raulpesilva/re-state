@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { ListenerByKey } from '../listenerByKey';
 
 let listenerByKey = new ListenerByKey();
@@ -36,7 +37,7 @@ describe('listenerByKey', () => {
 
   test('should notify listeners', () => {
     const key = 'key';
-    const callback = jest.fn();
+    const callback = vi.fn();
     listenerByKey.subscribe(key, callback);
     listenerByKey.notify(key, undefined, undefined);
     expect(callback).toHaveBeenCalledTimes(1);
@@ -46,8 +47,8 @@ describe('listenerByKey', () => {
   test('should only notify listeners with the same key', () => {
     const key1 = 'key1';
     const key2 = 'key2';
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
     listenerByKey.subscribe(key1, callback1);
     listenerByKey.subscribe(key2, callback2);
     listenerByKey.notify(key1, undefined, undefined);
@@ -58,8 +59,8 @@ describe('listenerByKey', () => {
 
   test('should add 2 listener to one key', () => {
     const key = 'key';
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
     listenerByKey.subscribe(key, callback1);
     listenerByKey.subscribe(key, callback2);
     expect(listenerByKey.getListeners(key).size).toBe(2);
@@ -67,8 +68,8 @@ describe('listenerByKey', () => {
 
   test('should notify all listener in a key', () => {
     const key = 'key';
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
     listenerByKey.subscribe(key, callback1);
     listenerByKey.subscribe(key, callback2);
     listenerByKey.notify(key, undefined, undefined);

@@ -1,5 +1,5 @@
-import { jest } from '@jest/globals';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import { createReState } from '../createReState';
 import { onReStateChange } from '../onReStateChange';
 import { resetHardStore } from '../store';
@@ -11,7 +11,7 @@ describe('onReStateChange', () => {
     const key = 'key';
     const useTestHook = createReState(key, 0);
     const { result } = renderHook(() => useTestHook());
-    const fn = jest.fn();
+    const fn = vi.fn();
     onReStateChange(fn, [key]);
     expect(result.current[0]).toBe(0);
     expect(fn).toHaveBeenCalledTimes(0);
@@ -27,7 +27,7 @@ describe('onReStateChange', () => {
     const useTestHook2 = createReState(key2, 0);
     const { result: hook1 } = renderHook(() => useTestHook1());
     const { result: hook2 } = renderHook(() => useTestHook2());
-    const fn = jest.fn();
+    const fn = vi.fn();
     onReStateChange(fn, [key1]);
     expect(hook1.current[0]).toBe(0);
     expect(hook2.current[0]).toBe(0);
@@ -50,7 +50,7 @@ describe('onReStateChange', () => {
     const { result: hook2 } = renderHook(() => useTestHook2());
     const { result: hook3 } = renderHook(() => useTestHook3());
     const { result: hook4 } = renderHook(() => useTestHook4());
-    const fn = jest.fn();
+    const fn = vi.fn();
     onReStateChange(fn, [key1, key3]);
     expect(hook1.current[0]).toBe(0);
     expect(hook2.current[0]).toBe(0);
@@ -84,7 +84,7 @@ describe('onReStateChange', () => {
     const { result: hook2 } = renderHook(() => useTestHook2());
     const { result: hook3 } = renderHook(() => useTestHook3());
     const { result: hook4 } = renderHook(() => useTestHook4());
-    const fn = jest.fn();
+    const fn = vi.fn();
     onReStateChange(fn, [key1, key3]);
     expect(hook1.current[0]).toBe(0);
     expect(hook2.current[0]).toBe(0);
@@ -103,7 +103,7 @@ describe('onReStateChange', () => {
     const key = 'unsubKey';
     const useTestHook = createReState(key, 0);
     const { result } = renderHook(() => useTestHook());
-    const fn = jest.fn();
+    const fn = vi.fn();
     const unsubscribe = onReStateChange(fn, [key]);
     expect(result.current[0]).toBe(0);
     expect(fn).toHaveBeenCalledTimes(0);
@@ -123,7 +123,7 @@ describe('onReStateChange', () => {
     const useTestHook2 = createReState(key2, 0);
     const { result: hook1 } = renderHook(() => useTestHook1());
     const { result: hook2 } = renderHook(() => useTestHook2());
-    const fn = jest.fn();
+    const fn = vi.fn();
     const unsubscribe = onReStateChange(fn, [key1, key2]);
     expect(fn).toHaveBeenCalledTimes(0);
     act(() => hook1.current[1](1));
@@ -140,7 +140,7 @@ describe('onReStateChange', () => {
     const key = 'multiUnsub';
     const useTestHook = createReState(key, 0);
     renderHook(() => useTestHook());
-    const fn = jest.fn();
+    const fn = vi.fn();
     const unsubscribe = onReStateChange(fn, [key]);
     expect(() => {
       unsubscribe();

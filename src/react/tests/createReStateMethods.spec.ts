@@ -1,6 +1,6 @@
-import { jest } from '@jest/globals';
-import { act, renderHook } from '@testing-library/react-hooks';
-import { SetReStateAction } from '../../core';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import type { SetReStateAction } from '../../core';
 import { createReStateMethods } from '../createReStateMethods';
 import { resetHardStore } from '../store';
 
@@ -107,7 +107,7 @@ describe('createReStateMethods', () => {
 
   it('should compute initialValue from function only once', () => {
     const key = 'funcOnce';
-    const initFn = jest.fn(() => 100) as SetReStateAction<number>;
+    const initFn = vi.fn(() => 100) as SetReStateAction<number>;
     const { useFuncOnce } = createReStateMethods(key, initFn);
     const { result: result1 } = renderHook(() => useFuncOnce());
     const { result: result2 } = renderHook(() => useFuncOnce());

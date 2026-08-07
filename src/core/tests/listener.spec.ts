@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { Listener } from '../listener';
 
 let listener = new Listener();
@@ -47,7 +48,7 @@ describe('Listener', () => {
   });
 
   test('should notify listeners', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     listener.subscribe(callback);
     listener.notify(undefined, { value: 1 });
     expect(callback).toHaveBeenCalledTimes(1);
@@ -55,7 +56,7 @@ describe('Listener', () => {
   });
 
   test('should notify listeners with prevStore and newStore', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     listener.subscribe(callback);
     listener.notify(1, 2);
     expect(callback).toHaveBeenCalledTimes(1);
@@ -63,7 +64,7 @@ describe('Listener', () => {
   });
 
   test('should notify listeners with prevStore and newStore and remove listener', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     const unsubscribe = listener.subscribe(callback);
     listener.notify(1, 2);
     unsubscribe();

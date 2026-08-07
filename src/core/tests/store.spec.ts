@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { setBatch } from '../batch';
 import { Store } from '../store';
 import { convertMapToObj } from '../utils';
@@ -51,8 +52,8 @@ describe('Store', () => {
     const key = 'key';
     const value1 = 1;
     const value2 = 2;
-    const setValue1 = jest.fn(() => 1);
-    const setValue2 = jest.fn((prev: number) => prev + 2);
+    const setValue1 = vi.fn(() => 1);
+    const setValue2 = vi.fn((prev: number) => prev + 2);
     store.set(key, setValue1);
     expect(store.get(key)).toBe(value1);
     expect(setValue1).toHaveBeenCalledTimes(1);
@@ -67,10 +68,10 @@ describe('Store', () => {
     const key = 'key';
     const value1 = 1;
     const value2 = 2;
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
-    const callback3 = jest.fn();
-    const callback4 = jest.fn();
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
+    const callback3 = vi.fn();
+    const callback4 = vi.fn();
     store.subscribe(key, callback1);
     store.subscribe(key, callback2);
     store.subscribe(callback3);
@@ -113,7 +114,7 @@ describe('Store', () => {
 
   test('should notify', () => {
     const key = 'key';
-    const callback = jest.fn();
+    const callback = vi.fn();
     store.subscribe(key, callback);
     store.set(key, undefined);
     expect(callback).toHaveBeenCalledTimes(1);
@@ -121,8 +122,8 @@ describe('Store', () => {
 
   test('should notify all listeners in a key', () => {
     const key = 'key';
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
     store.subscribe(key, callback1);
     store.subscribe(key, callback2);
     store.set(key, undefined);
@@ -132,7 +133,7 @@ describe('Store', () => {
 
   test('should notifySelector with prevStore and newStore', () => {
     const key = 'key';
-    const callback = jest.fn();
+    const callback = vi.fn();
     store.subscribe(callback);
     store.set(key, 1);
     expect(callback).toHaveBeenCalledTimes(1);
@@ -141,7 +142,7 @@ describe('Store', () => {
 
   test('should notifySelector with prevStore and newStore and remove listener', () => {
     const key = 'key';
-    const callback = jest.fn();
+    const callback = vi.fn();
     const unsubscribe = store.subscribe(callback);
     store.set(key, 1);
     unsubscribe();
@@ -152,8 +153,8 @@ describe('Store', () => {
   test('should notify all subscribed selectors', () => {
     const key = 'key';
 
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
     store.subscribe(callback1);
     store.subscribe(callback2);
     store.set(key, 1);
@@ -175,8 +176,8 @@ describe('Store', () => {
   test('should batch set store', () => {
     const key1 = 'key1';
     const value1 = 1;
-    const callback = jest.fn();
-    const batch = jest.fn((fn) => fn());
+    const callback = vi.fn();
+    const batch = vi.fn((fn) => fn());
     store.subscribe(key1, callback);
     setBatch(batch);
     store.set(key1, value1);
@@ -189,8 +190,8 @@ describe('Store', () => {
     const key2 = 'key2';
     const value1 = 1;
     const value2 = 2;
-    const callback = jest.fn();
-    const batch = jest.fn((fn) => fn());
+    const callback = vi.fn();
+    const batch = vi.fn((fn) => fn());
     store.subscribe(key1, callback);
     store.subscribe(key2, callback);
     setBatch(batch);
@@ -203,7 +204,7 @@ describe('Store', () => {
   test('should update store when value is undefined', () => {
     const key = 'key';
     const value = 1;
-    const callback = jest.fn();
+    const callback = vi.fn();
     store.subscribe(key, callback);
     store.set(key, value);
     store.set(key, undefined);
@@ -228,7 +229,7 @@ describe('Store', () => {
   test('should set store without notify', () => {
     const key = 'key';
     const value = 1;
-    const callback = jest.fn();
+    const callback = vi.fn();
     store.subscribe(key, callback);
     store.update(key, value);
     expect(callback).toHaveBeenCalledTimes(0);
@@ -238,7 +239,7 @@ describe('Store', () => {
   test('should set store without notify with value function', () => {
     const key = 'key';
     const value = 1;
-    const callback = jest.fn();
+    const callback = vi.fn();
     store.subscribe(key, callback);
     store.update(key, 1);
     expect(callback).toHaveBeenCalledTimes(0);
@@ -260,8 +261,8 @@ describe('Store', () => {
     const key = 'key';
     const key2 = 'key2';
     const value = 1;
-    const callback = jest.fn();
-    const callback2 = jest.fn();
+    const callback = vi.fn();
+    const callback2 = vi.fn();
     store.subscribe(key, callback);
     store.subscribe(key2, callback2);
     store.set(key, value);
@@ -321,7 +322,7 @@ describe('Store', () => {
 
     test('should accept function value and compute initial value', () => {
       const key = 'initFuncKey';
-      const getValue = jest.fn(() => 42);
+      const getValue = vi.fn(() => 42);
       store.initiateState(key, getValue);
       expect(store.get(key)).toBe(42);
       expect(store.getInitialValue(key)).toBe(42);
@@ -332,7 +333,7 @@ describe('Store', () => {
     test('should not override with function value if key exists', () => {
       const key = 'initFuncKey';
       const value1 = 10;
-      const getValue = jest.fn((prev: number) => prev + 5);
+      const getValue = vi.fn((prev: number) => prev + 5);
       store.initiateState(key, value1);
       store.initiateState(key, getValue);
       expect(store.get(key)).toBe(value1);
@@ -361,7 +362,7 @@ describe('Store', () => {
 
     test('should accept function value and compute initial value', () => {
       const key = 'setInitFuncKey';
-      const getValue = jest.fn(() => 100);
+      const getValue = vi.fn(() => 100);
       store.setInitialValue(key, getValue);
       expect(store.get(key)).toBe(100);
       expect(store.getInitialValue(key)).toBe(100);
@@ -372,7 +373,7 @@ describe('Store', () => {
     test('should pass previous value to function when key exists', () => {
       const key = 'setInitFuncKey';
       const value1 = 50;
-      const getValue = jest.fn((prev: number) => prev + 25);
+      const getValue = vi.fn((prev: number) => prev + 25);
       store.set(key, value1);
       store.setInitialValue(key, getValue);
       expect(store.getInitialValue(key)).toBe(75);

@@ -1,4 +1,5 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { afterEach, describe, expect, it } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import { createReState } from '../createReState';
 import { createReStateDispatch } from '../createReStateDispatch';
 import { resetHardStore } from '../store';
