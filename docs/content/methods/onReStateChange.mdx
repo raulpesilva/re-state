@@ -5,10 +5,7 @@ Subscribes a callback to one or more state keys without using a React hook. It i
 ```ts filename="state-effects.ts"
 import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
 
-const { getTheme, dispatchTheme } = createReStateMethods<'theme', 'light' | 'dark'>(
-  'theme',
-  'light'
-);
+const { getTheme, dispatchTheme } = createReStateMethods<'theme', 'light' | 'dark'>('theme', 'light');
 
 const unsubscribe = onReStateChange(() => {
   document.documentElement.dataset.theme = getTheme();
@@ -18,7 +15,8 @@ dispatchTheme('dark');
 unsubscribe();
 ```
 
-The callback receives no arguments. Read the latest values with a getter inside the callback:
+The public callback type exposes no parameters. Read the latest values with a getter inside the callback rather than
+depending on internal notification arguments:
 
 ```ts
 const stop = onReStateChange(() => {
@@ -48,16 +46,13 @@ export function Monitor() {
 ## API
 
 ```ts
-function onReStateChange(
-  callback: () => void,
-  dependencies: string[]
-): () => void
+function onReStateChange(callback: () => void, dependencies: string[]): () => void;
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `callback` | `() => void` | Function invoked for a matching notification. |
-| `dependencies` | `string[]` | Keys to watch. Unknown keys may be watched before they are initialized. |
+| Parameter      | Type         | Description                                                             |
+| -------------- | ------------ | ----------------------------------------------------------------------- |
+| `callback`     | `() => void` | Function invoked for a matching notification.                           |
+| `dependencies` | `string[]`   | Keys to watch. Unknown keys may be watched before they are initialized. |
 
 Returns an unsubscribe function. Calling it more than once is safe.
 

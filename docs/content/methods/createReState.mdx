@@ -14,11 +14,7 @@ import { useCounter } from '../states/counter';
 export function Counter() {
   const [count, setCount] = useCounter();
 
-  return (
-    <button onClick={() => setCount((previous) => previous + 1)}>
-      Count: {count}
-    </button>
-  );
+  return <button onClick={() => setCount((previous) => previous + 1)}>Count: {count}</button>;
 }
 ```
 
@@ -32,15 +28,12 @@ Every hook created for the same key shares the same value. If that key is alread
 function createReState<S>(
   key: string,
   initialValue?: S | ((previous: S) => S)
-): () => [
-  S,
-  (value: S | ((previous: S) => S) | undefined) => void
-]
+): () => [S, (value: S | ((previous: S) => S) | undefined) => void];
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `key` | `string` | Shared state key. |
+| Parameter      | Type                        | Description                                               |
+| -------------- | --------------------------- | --------------------------------------------------------- |
+| `key`          | `string`                    | Shared state key.                                         |
 | `initialValue` | `S \| ((previous: S) => S)` | Value or initializer used when the key is not registered. |
 
 The hook returns the current value and a setter. The setter accepts a value or an updater function that receives the current value.

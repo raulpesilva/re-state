@@ -5,13 +5,13 @@ state shape, actions, and reset behavior; components only import the methods the
 
 ## Why use a state module?
 
-| Benefit | What it provides |
-| --- | --- |
-| Clear ownership | The state key and initial value live in one file |
-| Type inference | The generated methods use the type of the initial value |
+| Benefit          | What it provides                                                   |
+| ---------------- | ------------------------------------------------------------------ |
+| Clear ownership  | The state key and initial value live in one file                   |
+| Type inference   | The generated methods use the type of the initial value            |
 | Reusable actions | Updates can be shared by components, event handlers, and utilities |
-| Read-only views | use*Select exposes state without a setter |
-| Testable logic | Actions can be tested without mounting every consumer |
+| Read-only views  | use\*Select exposes state without a setter                         |
+| Testable logic   | Actions can be tested without mounting every consumer              |
 
 ## Define state and actions together
 
@@ -37,13 +37,7 @@ const initialCart: CartState = {
   total: 0,
 };
 
-export const {
-  useCart,
-  useCartSelect,
-  dispatchCart,
-  getCart,
-  resetCart,
-} = createReStateMethods('cart', initialCart);
+export const { useCart, useCartSelect, dispatchCart, getCart, resetCart } = createReStateMethods('cart', initialCart);
 
 export const addItem = (item: Omit<CartItem, 'quantity'>): void => {
   dispatchCart((currentCart) => {
@@ -142,13 +136,13 @@ export function CartEditor() {
 
 For createReStateMethods('cart', initialCart), the returned object contains:
 
-| Method | Use it to |
-| --- | --- |
-| useCart() | Read and update the cart in a component |
-| useCartSelect() | Read the cart in a component without a setter |
-| dispatchCart(value) | Update the cart from any code |
-| getCart() | Read the current cart without subscribing |
-| resetCart() | Restore initialCart |
+| Method              | Use it to                                     |
+| ------------------- | --------------------------------------------- |
+| useCart()           | Read and update the cart in a component       |
+| useCartSelect()     | Read the cart in a component without a setter |
+| dispatchCart(value) | Update the cart from any code                 |
+| getCart()           | Read the current cart without subscribing     |
+| resetCart()         | Restore initialCart                           |
 
 Keep the factory call at module scope. Calling it once per state module gives the key a stable owner and avoids
 repeating setup in components.
@@ -159,12 +153,7 @@ createReStateMethods is the default choice, but individual factories are useful 
 need part of the API. Initialize the key before creating the other helpers:
 
 ```ts filename="states/theme.ts"
-import {
-  createGetReState,
-  createReState,
-  createReStateDispatch,
-  createReStateSelect,
-} from '@raulpesilva/re-state';
+import { createGetReState, createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -212,7 +201,7 @@ src/
     Cart.tsx
 ```
 
-Keep keys unique, use updater functions for changes based on current state, and prefer use*Select for display-only
+Keep keys unique, use updater functions for changes based on current state, and prefer use\*Select for display-only
 components. If a selector combines multiple keys, use useReStateSelector.
 
 For a quick one-off shared value, the direct useReState hook is still the simplest option.

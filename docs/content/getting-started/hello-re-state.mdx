@@ -7,12 +7,12 @@ If you have not installed it yet, start with the [installation guide](/getting-s
 
 ## Choose an API
 
-| API | Best for |
-| --- | --- |
-| [useReState](/methods/useReState) | A small shared value used directly by components |
-| [createReState](/methods/createRestate) | A reusable read/write hook for one key |
+| API                                                   | Best for                                             |
+| ----------------------------------------------------- | ---------------------------------------------------- |
+| [useReState](/methods/useReState)                     | A small shared value used directly by components     |
+| [createReState](/methods/createReState)               | A reusable read/write hook for one key               |
 | [createReStateMethods](/methods/createReStateMethods) | A complete state module with named hooks and actions |
-| [useReStateSelector](/methods/useReStateSelector) | Derived data across one or more state keys |
+| [useReStateSelector](/methods/useReStateSelector)     | Derived data across one or more state keys           |
 
 Start with useReState for a quick experiment. Use createReStateMethods when the state has domain logic or needs to
 be read and updated outside React.
@@ -50,13 +50,10 @@ For application state that will be reused, define the key and its behavior in on
 ```ts filename="states/counter.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
-export const {
-  useCounter,
-  useCounterSelect,
-  dispatchCounter,
-  getCounter,
-  resetCounter,
-} = createReStateMethods('counter', 0);
+export const { useCounter, useCounterSelect, dispatchCounter, getCounter, resetCounter } = createReStateMethods(
+  'counter',
+  0
+);
 
 export const increment = (): void => {
   dispatchCounter((previous) => previous + 1);
@@ -65,13 +62,13 @@ export const increment = (): void => {
 
 The factory creates five named methods:
 
-| Generated method | Purpose |
-| --- | --- |
-| useCounter() | Read and update the value from a component |
-| useCounterSelect() | Read the value from a component without returning a setter |
-| dispatchCounter(value) | Update the value from any JavaScript or TypeScript code |
-| getCounter() | Read the current value synchronously without subscribing |
-| resetCounter() | Restore the initial value |
+| Generated method       | Purpose                                                    |
+| ---------------------- | ---------------------------------------------------------- |
+| useCounter()           | Read and update the value from a component                 |
+| useCounterSelect()     | Read the value from a component without returning a setter |
+| dispatchCounter(value) | Update the value from any JavaScript or TypeScript code    |
+| getCounter()           | Read the current value synchronously without subscribing   |
+| resetCounter()         | Restore the initial value                                  |
 
 Use the read-only hook in a display component:
 
@@ -131,11 +128,11 @@ the selected value needs comparison rules other than the default shallow equalit
 
 ## Explore the API
 
-| Topic | Guide |
-| --- | --- |
-| Direct keyed state | [useReState](/methods/useReState) |
-| Named state modules | [createReStateMethods](/methods/createReStateMethods) |
-| Individual factories | [createReState](/methods/createRestate) and related factory methods |
-| Derived values | [useReStateSelector](/methods/useReStateSelector) |
-| External subscriptions | [onReStateChange](/methods/onReStateChange) |
-| Reset behavior | [resetReState](/methods/resetReState) and [setReStateInitialValue](/methods/setReStateInitialValue) |
+| Topic                  | Guide                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| Direct keyed state     | [useReState](/methods/useReState)                                                                   |
+| Named state modules    | [createReStateMethods](/methods/createReStateMethods)                                               |
+| Individual factories   | [createReState](/methods/createReState) and related factory methods                                 |
+| Derived values         | [useReStateSelector](/methods/useReStateSelector)                                                   |
+| External subscriptions | [onReStateChange](/methods/onReStateChange)                                                         |
+| Reset behavior         | [resetReState](/methods/resetReState) and [setReStateInitialValue](/methods/setReStateInitialValue) |

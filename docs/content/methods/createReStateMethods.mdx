@@ -5,13 +5,10 @@ Creates the complete set of methods for one state key: a writable hook, a read-o
 ```ts filename="states/muted.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
-export const {
-  useMuted,
-  useMutedSelect,
-  dispatchMuted,
-  getMuted,
-  resetMuted,
-} = createReStateMethods<'muted', boolean>('muted', false);
+export const { useMuted, useMutedSelect, dispatchMuted, getMuted, resetMuted } = createReStateMethods<'muted', boolean>(
+  'muted',
+  false
+);
 ```
 
 ```tsx filename="components/MuteButton.tsx"
@@ -20,11 +17,7 @@ import { useMuted } from '../states/muted';
 export function MuteButton() {
   const [muted, setMuted] = useMuted();
 
-  return (
-    <button onClick={() => setMuted((previous) => !previous)}>
-      {muted ? 'Unmute' : 'Mute'}
-    </button>
-  );
+  return <button onClick={() => setMuted((previous) => !previous)}>{muted ? 'Unmute' : 'Mute'}</button>;
 }
 ```
 
@@ -34,13 +27,13 @@ The state is initialized when the factory runs. A later factory call with the sa
 
 For a name of `volume`, the returned object contains:
 
-| Method | Behavior |
-| --- | --- |
-| `useVolume()` | Returns `[value, setValue]` and subscribes to the key. |
-| `useVolumeSelect()` | Returns the value and subscribes to the key, without a setter. |
-| `dispatchVolume(value)` | Replaces or functionally updates the value from anywhere. |
-| `getVolume()` | Reads the current value synchronously without subscribing. |
-| `resetVolume()` | Sets only this key to its reset value. |
+| Method                  | Behavior                                                       |
+| ----------------------- | -------------------------------------------------------------- |
+| `useVolume()`           | Returns `[value, setValue]` and subscribes to the key.         |
+| `useVolumeSelect()`     | Returns the value and subscribes to the key, without a setter. |
+| `dispatchVolume(value)` | Replaces or functionally updates the value from anywhere.      |
+| `getVolume()`           | Reads the current value synchronously without subscribing.     |
+| `resetVolume()`         | Sets only this key to its reset value.                         |
 
 `name` is used verbatim except that its first character is capitalized for generated names. It must be a non-empty string; invalid names throw.
 
@@ -49,11 +42,7 @@ For a name of `volume`, the returned object contains:
 Pass `{ value: ... }` as the third argument to register a reset value:
 
 ```ts
-const { dispatchVolume, resetVolume } = createReStateMethods<'volume', number>(
-  'volume',
-  100,
-  { value: 50 }
-);
+const { dispatchVolume, resetVolume } = createReStateMethods<'volume', number>('volume', 100, { value: 50 });
 
 dispatchVolume(20);
 resetVolume(); // volume is now 50
@@ -68,7 +57,7 @@ function createReStateMethods<S extends string = string, V extends any = any>(
   name: S,
   initialValue?: V | ((previous: V) => V),
   valueOfReset?: { value: V }
-): ReStateMethods<S, V>
+): ReStateMethods<S, V>;
 ```
 
 The returned object has names derived from `name`:

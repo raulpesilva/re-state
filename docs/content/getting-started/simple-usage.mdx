@@ -84,12 +84,12 @@ application runtime.
 Use useReState directly when the state is small and shared by a few components. For a reusable state module with
 actions, getters, and reset behavior, use createReStateMethods.
 
-| Need | API |
-| --- | --- |
-| Share a small value by key | useReState |
-| Create a named state module | createReStateMethods |
-| Read a named state without a setter | createReStateSelect or the generated use*Select hook |
-| Update or read state outside React | createReStateDispatch and createGetReState |
-| Derive data from multiple keys | useReStateSelector |
+| Need                                | API                                                   |
+| ----------------------------------- | ----------------------------------------------------- |
+| Share a small value by key          | useReState                                            |
+| Create a named state module         | createReStateMethods                                  |
+| Read a named state without a setter | createReStateSelect or the generated use\*Select hook |
+| Update or read state outside React  | createReStateDispatch and createGetReState            |
+| Derive data from multiple keys      | useReStateSelector                                    |
 
 Continue with [Hello re-state](/getting-started/hello-re-state) for the recommended state-module pattern.

@@ -35,19 +35,17 @@ If the key has not been initialized, the first dispatch creates it and establish
 ## API
 
 ```ts
-function createReStateDispatch<S>(
-  key: string
-): (value: S | ((previous: S) => S) | undefined) => void
+function createReStateDispatch<S>(key: string): (value: S | ((previous: S) => S) | undefined) => void;
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `key` | `string` | Shared state key to update. |
+| Parameter | Type     | Description                 |
+| --------- | -------- | --------------------------- |
+| `key`     | `string` | Shared state key to update. |
 
 The returned function returns `void`. It does not read or subscribe to state.
 
 ## Related
 
-- [createReState](/methods/createRestate) creates the hook for the same key.
+- [createReState](/methods/createReState) creates the hook for the same key.
 - [createGetReState](/methods/createGetReState) reads a key without subscribing.
 - [createReStateMethods](/methods/createReStateMethods) includes a generated dispatch method.

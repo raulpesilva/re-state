@@ -3,12 +3,7 @@
 Sets or replaces the initial value stored for one state key. [resetReState](/methods/resetReState) uses this value when restoring the key.
 
 ```ts
-import {
-  createReState,
-  createReStateDispatch,
-  resetReState,
-  setReStateInitialValue,
-} from '@raulpesilva/re-state';
+import { createReState, createReStateDispatch, resetReState, setReStateInitialValue } from '@raulpesilva/re-state';
 
 export const useTheme = createReState<'light' | 'dark'>('theme', 'light');
 const dispatchTheme = createReStateDispatch<'light' | 'dark'>('theme');
@@ -33,13 +28,13 @@ For a direct reset value, pass the value itself. This is also the behavior used 
 ## API
 
 ```ts
-function setReStateInitialValue<T>(key: string, value: T): void
+function setReStateInitialValue<T>(key: string, value: T): void;
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `key` | `string` | State key whose baseline should be set. |
-| `value` | `T` | Direct value, or a function that the store evaluates as described above. |
+| Parameter | Type     | Description                                                              |
+| --------- | -------- | ------------------------------------------------------------------------ |
+| `key`     | `string` | State key whose baseline should be set.                                  |
+| `value`   | `T`      | Direct value, or a function that the store evaluates as described above. |
 
 The function is synchronous and returns `void`.
 

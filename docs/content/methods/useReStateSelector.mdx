@@ -13,21 +13,19 @@ type AppState = {
 };
 
 const { dispatchCount } = createReStateMethods<'count', number>('count', 0);
-const { dispatchTheme } = createReStateMethods<'theme', AppState['theme']>(
-  'theme',
-  'light'
-);
+const { dispatchTheme } = createReStateMethods<'theme', AppState['theme']>('theme', 'light');
 
 export function Summary() {
-  const summary = useReStateSelector<
-    AppState,
-    { count: number; theme: AppState['theme'] }
-  >((state) => ({
+  const summary = useReStateSelector<AppState, { count: number; theme: AppState['theme'] }>((state) => ({
     count: state.count,
     theme: state.theme,
   }));
 
-  return <p>{summary.theme}: {summary.count}</p>;
+  return (
+    <p>
+      {summary.theme}: {summary.count}
+    </p>
+  );
 }
 
 export function updateSummary(): void {
@@ -52,9 +50,7 @@ const { dispatchItems } = createReStateMethods<'items', CartState['items']>('ite
 function ItemIds() {
   const ids = useReStateSelector<CartState, string[]>(
     (state) => state.items.map((item) => item.id),
-    (previous, next) =>
-      previous.length === next.length &&
-      previous.every((id, index) => id === next[index])
+    (previous, next) => previous.length === next.length && previous.every((id, index) => id === next[index])
   );
 
   return <p>{ids.join(', ')}</p>;
@@ -73,18 +69,18 @@ Because this hook subscribes to the whole store, it can derive data from multipl
 function useReStateSelector<Store, Selection = unknown>(
   selector: (store: Store) => Selection,
   isEquals?: (storeA: Selection, storeB: Selection) => boolean
-): Selection
+): Selection;
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `selector` | `(store: Store) => Selection` | Returns the value to expose to the component. |
+| Parameter  | Type                                                | Description                                                 |
+| ---------- | --------------------------------------------------- | ----------------------------------------------------------- |
+| `selector` | `(store: Store) => Selection`                       | Returns the value to expose to the component.               |
 | `isEquals` | `(storeA: Selection, storeB: Selection) => boolean` | Optional comparison function. Defaults to shallow equality. |
 
-| Type parameter | Description |
-| --- | --- |
-| `Store` | TypeScript shape of the complete state object. |
-| `Selection` | Value returned by `selector`. |
+| Type parameter | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `Store`        | TypeScript shape of the complete state object. |
+| `Selection`    | Value returned by `selector`.                  |
 
 ## Related
 

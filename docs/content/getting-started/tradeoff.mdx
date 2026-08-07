@@ -6,15 +6,15 @@ using state outside React.
 
 ## At a glance
 
-| Concern | React Context | re-state |
-| --- | --- | --- |
-| Setup | Create a context, provider, and consumer hook | Install the package and use a keyed hook |
-| Scope | Each provider creates an independent instance | One global value per key in the store |
-| Updates outside React | Usually requires an explicit bridge or external store | dispatch*, get*, and onReStateChange are built in |
-| Re-render control | Split contexts or memoize provider values and consumers | Key subscriptions plus selector equality |
-| Lifecycle | Follows the provider tree | Persists for the module runtime; reset restores initial values |
-| TypeScript | Types are defined by the application | Types flow into generated methods from the initial value |
-| Dependencies | Part of React | Additional package, with React as a peer |
+| Concern               | React Context                                           | re-state                                                       |
+| --------------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| Setup                 | Create a context, provider, and consumer hook           | Install the package and use a keyed hook                       |
+| Scope                 | Each provider creates an independent instance           | One global value per key in the store                          |
+| Updates outside React | Usually requires an explicit bridge or external store   | dispatch*, get*, and onReStateChange are built in              |
+| Re-render control     | Split contexts or memoize provider values and consumers | Key subscriptions plus selector equality                       |
+| Lifecycle             | Follows the provider tree                               | Persists for the module runtime; reset restores initial values |
+| TypeScript            | Types are defined by the application                    | Types flow into generated methods from the initial value       |
+| Dependencies          | Part of React                                           | Additional package, with React as a peer                       |
 
 Neither approach is universally better. The right choice depends on scope, lifecycle, and where updates originate.
 
@@ -65,11 +65,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
   };
 
-  return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>{children}</CartContext.Provider>;
 }
 
 export function useCart(): CartContextValue {
@@ -160,7 +156,9 @@ export function Cart() {
       <h2>Cart ({cart.items.length} items)</h2>
       {cart.items.map((item) => (
         <div key={item.id}>
-          <span>{item.name} × {item.quantity}</span>
+          <span>
+            {item.name} × {item.quantity}
+          </span>
           <button type="button" onClick={() => removeItem(item.id)}>
             Remove
           </button>
@@ -185,7 +183,7 @@ component.
 Context consumers re-render when the provider value they consume changes. Applications can reduce that work by
 splitting contexts, memoizing values, or moving expensive components behind memoized boundaries.
 
-re-state subscribes a useReState or generated use*Select hook to one key. useReStateSelector subscribes to the store
+re-state subscribes a useReState or generated use\*Select hook to one key. useReStateSelector subscribes to the store
 and compares the selected result, which is useful for derived values:
 
 ```tsx
@@ -195,9 +193,13 @@ type AppStore = {
   todos: Array<{ finished: boolean }>;
 };
 
-const finishedCount = useReStateSelector<AppStore, number>(
-  (state) => state.todos.filter((todo) => todo.finished).length
-);
+export function FinishedCount() {
+  const finishedCount = useReStateSelector<AppStore, number>(
+    (state) => state.todos.filter((todo) => todo.finished).length
+  );
+
+  return <output>Finished: {finishedCount}</output>;
+}
 ```
 
 This is a subscription model, not a promise that every component will avoid every render. A selector still renders
@@ -233,7 +235,7 @@ For a state that should become application-wide:
 1. Move the state shape and initial value into a module.
 2. Replace the context and provider with createReStateMethods.
 3. Move update functions into actions next to the state.
-4. Replace useContext calls with generated hooks or use*Select.
+4. Replace useContext calls with generated hooks or use\*Select.
 5. Remove the provider wrapper only after all consumers use the new module.
 
 The reverse migration is just as valid when the state needs provider scope or independent instances.

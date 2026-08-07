@@ -1,0 +1,5 @@
+packages: []
+
+overrides:
+  lodash-es: 4.18.1
+  zod: 4.1.12

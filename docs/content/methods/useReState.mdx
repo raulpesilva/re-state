@@ -8,11 +8,7 @@ import { useReState } from '@raulpesilva/re-state';
 export function Counter() {
   const [count, setCount] = useReState('count', 0);
 
-  return (
-    <button onClick={() => setCount((previous) => previous + 1)}>
-      Count: {count}
-    </button>
-  );
+  return <button onClick={() => setCount((previous) => previous + 1)}>Count: {count}</button>;
 }
 ```
 
@@ -37,21 +33,18 @@ The hook must be called from a component or another custom hook. If no initial v
 function useReState<S>(
   key: string,
   initialValue?: S | ((previous: S) => S)
-): [
-  S,
-  (value: S | ((previous: S) => S) | undefined) => void
-]
+): [S, (value: S | ((previous: S) => S) | undefined) => void];
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `key` | `string` | Shared state key. |
+| Parameter      | Type                        | Description                                   |
+| -------------- | --------------------------- | --------------------------------------------- |
+| `key`          | `string`                    | Shared state key.                             |
 | `initialValue` | `S \| ((previous: S) => S)` | Value or initializer used only for a new key. |
 
 The hook returns the current value and a setter. The setter accepts a replacement value or a function that receives the current value.
 
 ## Related
 
-- [createReState](/methods/createRestate) binds a key once and returns a reusable hook.
+- [createReState](/methods/createReState) binds a key once and returns a reusable hook.
 - [createReStateDispatch](/methods/createReStateDispatch) updates a key outside React.
 - [useReStateSelector](/methods/useReStateSelector) selects derived data from the complete store.

@@ -28,17 +28,17 @@ export function hasSession(): boolean {
 ## API
 
 ```ts
-function createGetReState<S>(key: string): () => S
+function createGetReState<S>(key: string): () => S;
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `key` | `string` | Key to read. |
+| Parameter | Type     | Description  |
+| --------- | -------- | ------------ |
+| `key`     | `string` | Key to read. |
 
 The returned getter has no parameters and returns the current value. It always reads the latest value; it does not retain a snapshot.
 
 ## Related
 
-- [createReState](/methods/createRestate) creates a keyed state hook.
+- [createReState](/methods/createReState) creates a keyed state hook.
 - [createReStateDispatch](/methods/createReStateDispatch) creates a keyed updater.
 - [createReStateMethods](/methods/createReStateMethods) creates a getter together with the other keyed methods.
