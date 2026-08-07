@@ -1,3 +1,3 @@
-import { useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react';
 
-export const useIsomorphicLayoutEffect = useLayoutEffect
+export const useIsomorphicLayoutEffect = useLayoutEffect;

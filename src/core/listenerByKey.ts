@@ -7,12 +7,12 @@ export class ListenerByKey<
     next: T[K]
   ) => void,
   Listeners extends Set<Listener> = Set<Listener>,
-  Fields extends keyof T = keyof T
+  Fields extends keyof T = keyof T,
 > {
   private listeners = new Map<keyof T, Listeners>();
 
   get size(): number {
-    return this.listeners.size ;
+    return this.listeners.size;
   }
 
   getListeners<K extends Fields>(key: K): Set<SubscribeFn<T[K]>> {

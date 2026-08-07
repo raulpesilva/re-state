@@ -1,4 +1,4 @@
-import { SetReStateAction } from '../core';
+import type { SetReStateAction } from '../core';
 import { createGetReState } from './createGetReState';
 import { createReState } from './createReState';
 import { createReStateDispatch } from './createReStateDispatch';

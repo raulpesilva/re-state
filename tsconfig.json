@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "jsx": "react",
-    "lib": [
-      "ESNext",
-      "dom"
-    ],
-    "target": "es5",
+    "lib": ["ES2019", "dom"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2019",
     "noEmit": true,
     "noImplicitAny": true,
     "noImplicitReturns": false,
@@ -17,13 +17,10 @@
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "strict": true,
+    "verbatimModuleSyntax": true,
     "paths": {
-      "re-state": [
-        "./src/index.ts"
-      ]
+      "re-state": ["./src/index.ts"]
     }
   },
-  "include": [
-    "./src"
-  ]
+  "include": ["./src", "./tsdown.config.mts", "./vitest.config.mts"]
 }

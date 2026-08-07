@@ -1,4 +1,4 @@
-import { FnVoid } from '../core';
+import type { FnVoid } from '../core';
 import { store } from './store';
 
 export const onReStateChange = (callback: FnVoid, dependencies: string[]) => {

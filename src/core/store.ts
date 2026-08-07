@@ -8,7 +8,7 @@ type TListener<T> = (prev: T | undefined, next: T) => void;
 export class Store<
   T extends Record<string, unknown>,
   Fields extends keyof T = keyof T,
-  Values extends T[keyof T] = T[keyof T]
+  Values extends T[keyof T] = T[keyof T],
 > {
   private store = new Map<keyof T, T[keyof T]>();
   private initialStore = new Map<keyof T, T[keyof T]>();
