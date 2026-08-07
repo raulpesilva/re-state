@@ -209,7 +209,7 @@ jobs:
           NPM_TAG: ${{ needs.verify.outputs.npm_tag }}
           TARBALL: ${{ steps.artifact.outputs.tarball }}
         run: >-
-          npm publish "$TARBALL"
+          npm publish "$GITHUB_WORKSPACE/$TARBALL"
           --ignore-scripts
           --access public
           --tag "$NPM_TAG"
