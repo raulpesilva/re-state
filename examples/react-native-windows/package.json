@@ -14,7 +14,7 @@
     "test:windows": "jest --config jest.config.windows.js"
   },
   "dependencies": {
-    "@raulpesilva/re-state": "^1.2.28",
+    "@raulpesilva/re-state": "workspace:*",
     "react": "19.2.3",
     "react-native": "0.84.1",
     "react-native-windows": "0.84.0"

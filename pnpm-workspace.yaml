@@ -1,2 +1,18 @@
+packages:
+  - 'examples/*'
+
+# The advisories name image-size >=2.0.3 as patched, but npm only publishes 2.0.2 as of 2026-08-07.
+# Keep these explicit until Expo can resolve a published patched release.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-w3rx-r6r6-pgpr
+    - GHSA-5p2g-fcmc-qvqq
+
+minimumReleaseAgeExclude:
+  - '@types/node@26.2.0'
+
 overrides:
+  '@xmldom/xmldom': 0.8.13
+  fast-xml-parser: 5.7.0
   picomatch: 4.0.5
+  uuid: 11.1.1

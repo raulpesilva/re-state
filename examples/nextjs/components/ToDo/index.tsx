@@ -6,12 +6,12 @@ import {
   addTodo,
   removeTodo,
   resetTodo,
-  Todo,
   todoCountSelector,
   todoFinishedCountSelector,
   toggleTodo,
   useTodoSelect,
 } from '../../states';
+import type { Todo } from '../../states';
 import styles from './index.module.css';
 
 export const ToDo = () => {

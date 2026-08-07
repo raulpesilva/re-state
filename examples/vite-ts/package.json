@@ -16,7 +16,7 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
-    "@raulpesilva/re-state": "^1.2.28",
+    "@raulpesilva/re-state": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

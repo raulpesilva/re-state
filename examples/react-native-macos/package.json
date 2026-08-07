@@ -17,7 +17,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@raulpesilva/re-state": "^1.2.28",
+    "@raulpesilva/re-state": "workspace:*",
     "react": "19.1.4",
     "react-native": "0.81.6",
     "react-native-macos": "0.81.9"
