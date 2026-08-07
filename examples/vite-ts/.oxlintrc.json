@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "react", "vitest"],
+  "ignorePatterns": ["node_modules/**", "coverage/**", "dist/**", "*.tsbuildinfo"],
+  "settings": {
+    "react": {
+      "version": "19.2.0"
+    }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.test.ts", "src/**/*.test.tsx"],
+      "env": {
+        "vitest": true
+      },
+      "rules": {
+        "vitest/require-mock-type-parameters": "off",
+        "vitest/require-to-throw-message": "off",
+        "vitest/valid-title": "off"
+      }
+    }
+  ]
+}
