@@ -1,3 +1,5 @@
+'use client';
+
 import { useReStateSelector } from '@raulpesilva/re-state';
 import { memo, useCallback, useRef } from 'react';
 import {
