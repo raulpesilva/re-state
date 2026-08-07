@@ -19,10 +19,12 @@ From the repository root:
 
 ```sh
 pnpm install
+pnpm build
 ```
 
 Do not run an independent install inside an example when working in this repository: the examples rely on the root
-workspace link to the local library.
+workspace link to the local library. The build creates the local `es/`, `lib/`, and `types/` package outputs consumed by
+the examples.
 
 ## Run web examples
 
