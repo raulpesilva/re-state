@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "react", "vitest"],
+  "ignorePatterns": [
+    "node_modules/**",
+    "artifacts/**",
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "es/**",
+    "lib/**",
+    "types/**",
+    ".rpt2_cache/**",
+    "docs/**",
+    "examples/**",
+    "pnpm-lock.yaml",
+    "*.tgz",
+    "size-plugin.json",
+    "stats-react.json",
+    "stats.html"
+  ],
+  "settings": {
+    "react": {
+      "version": "18.2.0"
+    }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.spec.ts", "src/**/*.spec.tsx", "src/**/*.test.ts", "src/**/*.test.tsx"],
+      "env": {
+        "vitest": true
+      },
+      "rules": {
+        "vitest/require-mock-type-parameters": "off",
+        "vitest/require-to-throw-message": "off",
+        "vitest/valid-title": "off"
+      }
+    }
+  ]
+}
