@@ -1,0 +1,27 @@
+{
+  "name": "vite-js",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm build"
+  },
+  "dependencies": {
+    "@raulpesilva/re-state": "^1.2.28",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "oxfmt": "0.62.0",
+    "oxlint": "1.77.0",
+    "vite": "^8.2.1"
+  }
+}

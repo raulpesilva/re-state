@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "plugins": ["eslint", "unicorn", "oxc", "react"],
+  "settings": {
+    "react": {
+      "version": "19.2.0"
+    }
+  }
+}
