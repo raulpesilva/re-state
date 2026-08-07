@@ -1,5 +1,7 @@
+import { StatusBar } from 'expo-status-bar';
+import type { ReactElement } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { createReState, createReStateSelect, createReStateDispatch, createGetReState } from '@raulpesilva/re-state';
+import { createGetReState, createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state';
 
 type Count = number;
 
@@ -10,27 +12,30 @@ export const useCount = createReState<Count>(COUNT, countInitialValue);
 export const useCountSelect = createReStateSelect<Count>(COUNT);
 export const dispatchCount = createReStateDispatch<Count>(COUNT);
 export const getCount = createGetReState<Count>(COUNT);
-export const resetCount = () => dispatchCount(countInitialValue);
+export const resetCount = (): void => {
+  dispatchCount(countInitialValue);
+};
 
-const App = () => {
+const App = (): ReactElement => {
   const [count, setCount] = useCount();
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.wrapper}>
-        <Pressable onPress={() => setCount((prev) => prev - 100)} style={styles.button}>
+        <Pressable onPress={() => setCount((previous) => previous - 100)} style={styles.button}>
           <Text style={styles.buttonText}>-</Text>
         </Pressable>
         <View style={styles.wrapperCount}>
           <Text style={styles.count}>{count}</Text>
         </View>
-        <Pressable onPress={() => dispatchCount((prev) => prev + 100)} style={styles.button}>
+        <Pressable onPress={() => dispatchCount((previous) => previous + 100)} style={styles.button}>
           <Text style={styles.buttonText}>+</Text>
         </Pressable>
       </View>
-      <Pressable onPress={resetCount} style={styles.button}>
+      <Pressable onPress={resetCount} style={styles.resetButton}>
         <Text style={styles.buttonText}>Reset</Text>
       </Pressable>
+      <StatusBar style="auto" />
     </SafeAreaView>
   );
 };
@@ -38,37 +43,47 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
   },
-  wrapper:{
+  wrapper: {
     flexDirection: 'row',
   },
   button: {
-    backgroundColor: '#0099ff',
     height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     borderRadius: 8,
-    justifyContent: 'center',
+    backgroundColor: '#0099ff',
+  },
+  resetButton: {
+    marginTop: 20,
+    height: 40,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: '#0099ff',
   },
   buttonText: {
-    fontWeight: '600',
     color: '#fff',
+    fontWeight: '600',
   },
   wrapperCount: {
     height: 40,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginHorizontal: 20,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 20,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: '#fff',
   },
   count: {
+    color: '#000',
     fontSize: 24,
     fontWeight: '600',
-    color: '#000',
   },
 });
 
