@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "react"],
+  "ignorePatterns": ["node_modules/**", ".next/**", "out/**", "coverage/**"],
+  "settings": {
+    "react": {
+      "version": "19.2.0"
+    }
+  }
+}
