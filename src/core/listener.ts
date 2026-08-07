@@ -1,21 +1,16 @@
-import type { CompareStore, FnVoid } from './types';
+export class Listener<T extends unknown> {
+  private listeners = new Set<(prev: T | undefined, next: T) => void>();
 
-export class Listener {
-  _listeners: CompareStore[] = [];
-
-  subscribe(listener: CompareStore): FnVoid {
-    this._listeners.push(listener);
-    return (): void => {
-      const index = this._listeners.indexOf(listener);
-      if (index < 0) return;
-      this._listeners[index] = this._listeners[this._listeners.length - 1] as CompareStore;
-      this._listeners.length--;
-    };
+  get size(): number {
+    return this.listeners.size;
   }
 
-  notify(prevStore: any, newStore: any): void {
-    for (const listener of this._listeners) {
-      listener(prevStore, newStore);
-    }
+  subscribe(listener: (prev: T | undefined, next: T) => void) {
+    this.listeners.add(listener);
+    return () => this.listeners.has(listener) && this.listeners.delete(listener);
+  }
+
+  notify(prev: T | undefined, next: T) {
+    this.listeners.forEach((listener) => listener(prev, next));
   }
 }

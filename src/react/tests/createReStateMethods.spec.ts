@@ -1,5 +1,10 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import type { SetReStateAction } from '../../core';
 import { createReStateMethods } from '../createReStateMethods';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('createReStateMethods', () => {
   it('should return all methods', () => {
@@ -28,9 +33,9 @@ describe('createReStateMethods', () => {
   });
 
   it('should render reState hook select', () => {
-    const key = 'key';
-    const { useKeySelect } = createReStateMethods(key, 0);
-    const { result } = renderHook(() => useKeySelect());
+    const key = 'keyRender';
+    const { useKeyRenderSelect } = createReStateMethods(key, 0);
+    const { result } = renderHook(() => useKeyRenderSelect());
     expect(result.current).toBe(0);
   });
 
@@ -89,5 +94,39 @@ describe('createReStateMethods', () => {
 
   it('should not throw an error if initialValue is not provided', () => {
     expect(() => createReStateMethods('key')).not.toThrowError('InitialValue is required');
+  });
+
+  it('should accept function as initialValue', () => {
+    const key = 'funcInit';
+    const initFn: SetReStateAction<number> = () => 42;
+    const { useFuncInit, getFuncInit } = createReStateMethods(key, initFn);
+    const { result } = renderHook(() => useFuncInit());
+    expect(result.current[0]).toBe(42);
+    expect(getFuncInit()).toBe(42);
+  });
+
+  it('should compute initialValue from function only once', () => {
+    const key = 'funcOnce';
+    const initFn = vi.fn(() => 100) as SetReStateAction<number>;
+    const { useFuncOnce } = createReStateMethods(key, initFn);
+    const { result: result1 } = renderHook(() => useFuncOnce());
+    const { result: result2 } = renderHook(() => useFuncOnce());
+    expect(result1.current[0]).toBe(100);
+    expect(result2.current[0]).toBe(100);
+    expect(initFn).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not override existing state when called with function initialValue', () => {
+    const key = 'noOverride';
+    const initFn1: SetReStateAction<number> = () => 10;
+    const { useNoOverride, dispatchNoOverride } = createReStateMethods(key, initFn1);
+    const { result } = renderHook(() => useNoOverride());
+    expect(result.current[0]).toBe(10);
+    act(() => dispatchNoOverride(20));
+    expect(result.current[0]).toBe(20);
+    const initFn2: SetReStateAction<number> = () => 30;
+    const { useNoOverride: useNoOverride2 } = createReStateMethods(key, initFn2);
+    const { result: result2 } = renderHook(() => useNoOverride2());
+    expect(result2.current[0]).toBe(20);
   });
 });

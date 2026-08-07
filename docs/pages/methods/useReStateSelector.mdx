@@ -1,30 +1,224 @@
-# Create re-state selector
+# useReStateSelector
 
-This method select any data from store and update when change
+A hook that selects and subscribes to a specific slice of the global store. Components only re-render when the selected value changes, making it ideal for performance optimization.
+
+## Why use useReStateSelector?
+
+- **Performance**: Only re-renders when the selected value changes, not the entire store
+- **Derived data**: Compute values from multiple state keys in a single subscription
+- **Fine-grained control**: Custom equality functions to control when re-renders happen
+- **Type-safe**: Full TypeScript support for store and selection types
+
+## Basic Usage
 
 ```tsx
-//MyComponent.tsx
-import { useReStateSelector } from '@raulpesilva/re-state'
-import type { Muted } from './mutedState'
-import { key } from './mutedState'
+import { useReStateSelector } from '@raulpesilva/re-state';
 
-type Store = { [key]: Muted }
+// Define your store shape
+interface AppStore {
+  user: { name: string; email: string };
+  counter: number;
+  settings: { theme: 'light' | 'dark' };
+}
 
-export const MyComponent = () => {
-  const muted = useReStateSelector<Store, Boolean>(({ muted }) => muted)
+function UserName() {
+  // Select only the user's name from the store
+  const name = useReStateSelector<AppStore, string>(
+    (store) => store.user.name
+  );
 
-  return (
-    <div>
-      <span>{muted ? 'Is muted' : 'Is unMuted'}</span>
-    </div>
-  )
+  return <p>Hello, {name}</p>;
 }
 ```
 
-```ts
-type Store = { MeyKey: Boolean }
-type DataToReturn = boolean
-type Selector<Store, DataToReturn = Store> = (store: Store) => DataToReturn
+## Examples
 
-const result: DataToReturn = useReStateSelector<Store,DataToReturn>(selector: Selector, equalityFn?: Function)
+### Selecting a Single Value
+
+```tsx
+import { useReStateSelector } from '@raulpesilva/re-state';
+
+interface Store {
+  counter: number;
+}
+
+function CounterDisplay() {
+  const count = useReStateSelector<Store, number>(
+    (store) => store.counter
+  );
+
+  return <p>Count: {count}</p>;
+}
 ```
+
+### Selecting Nested Values
+
+```tsx
+interface Store {
+  user: {
+    profile: {
+      name: string;
+      avatar: string;
+    };
+    preferences: {
+      theme: 'light' | 'dark';
+    };
+  };
+}
+
+function Avatar() {
+  const avatar = useReStateSelector<Store, string>(
+    (store) => store.user.profile.avatar
+  );
+
+  return <img src={avatar} alt="User avatar" />;
+}
+```
+
+### Computing Derived Values
+
+Combine data from multiple parts of the store:
+
+```tsx
+interface Store {
+  items: { id: string; price: number; quantity: number }[];
+  discount: number;
+}
+
+function CartTotal() {
+  const total = useReStateSelector<Store, number>((store) => {
+    const subtotal = store.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    return subtotal * (1 - store.discount);
+  });
+
+  return <p>Total: ${total.toFixed(2)}</p>;
+}
+```
+
+### Custom Equality Function
+
+By default, `useReStateSelector` uses shallow equality comparison. Provide a custom equality function for complex comparisons:
+
+```tsx
+interface Store {
+  users: { id: string; name: string }[];
+}
+
+function UserList() {
+  // Only re-render if the user IDs change, not when names change
+  const userIds = useReStateSelector<Store, string[]>(
+    (store) => store.users.map((u) => u.id),
+    (prev, next) => {
+      if (prev.length !== next.length) return false;
+      return prev.every((id, i) => id === next[i]);
+    }
+  );
+
+  return (
+    <ul>
+      {userIds.map((id) => (
+        <li key={id}>{id}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Selecting Objects (with shallow equality)
+
+When selecting objects, the default shallow equality prevents unnecessary re-renders:
+
+```tsx
+interface Store {
+  user: { name: string; email: string };
+  counter: number;
+}
+
+function UserCard() {
+  // Uses shallow equality by default
+  // Only re-renders if user.name or user.email changes
+  const user = useReStateSelector<Store, { name: string; email: string }>(
+    (store) => store.user
+  );
+
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+```
+
+### Combining with createReStateMethods
+
+Use `useReStateSelector` alongside state created with `createReStateMethods`:
+
+```tsx
+import { createReStateMethods } from '@raulpesilva/re-state';
+import { useReStateSelector } from '@raulpesilva/re-state';
+
+// Create individual states
+const { dispatchUser } = createReStateMethods('user', { name: '', role: 'guest' });
+const { dispatchTheme } = createReStateMethods('theme', 'light');
+
+interface Store {
+  user: { name: string; role: string };
+  theme: 'light' | 'dark';
+}
+
+// Select across multiple states
+function Header() {
+  const headerData = useReStateSelector<Store, { name: string; theme: string }>(
+    (store) => ({
+      name: store.user.name,
+      theme: store.theme,
+    })
+  );
+
+  return (
+    <header className={headerData.theme}>
+      Welcome, {headerData.name}
+    </header>
+  );
+}
+```
+
+## API Reference
+
+```ts
+function useReStateSelector<Store, Selection>(
+  selector: (store: Store) => Selection,
+  isEquals?: (a: Selection, b: Selection) => boolean
+): Selection
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `selector` | `(store: Store) => Selection` | Yes | Function that extracts the desired value from the store |
+| `isEquals` | `(a: Selection, b: Selection) => boolean` | No | Custom equality function. Defaults to shallow equality. |
+
+### Returns
+
+The selected value from the store. The component re-renders only when the selected value changes (based on the equality function).
+
+### Type Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `Store` | The shape of your global store |
+| `Selection` | The type of the value returned by the selector |
+
+## When to Use
+
+| Use Case | Recommended |
+|----------|-------------|
+| Reading a single state key | `useReStateSelector` or `use*Select` from `createReStateMethods` |
+| Deriving data from multiple keys | `useReStateSelector` |
+| Performance-critical lists | `useReStateSelector` with custom equality |
+| Simple component reading one state | `createReStateMethods` (simpler API) |

@@ -1,43 +1,28 @@
-import { useCallback, useDebugValue, useState } from 'react';
-import type { UniqueKey, SetReStateAction } from '../core/types';
+import { useCallback, useDebugValue } from 'react';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import type { SetReStateAction } from '../core/types';
 import { store } from './store';
 import type { DispatchReState } from './types';
-import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect';
+
+const upSetState = <S>(key: string, value: SetReStateAction<S>): S => {
+  if (store.has(key)) return store.get(key) as S;
+  store.initiateState(key, value);
+  return store.get(key) as S;
+};
 
 export function useReState<S>(
-  key: UniqueKey,
+  key: string,
   initialValue?: SetReStateAction<S>
 ): [S, DispatchReState<SetReStateAction<S>>] {
-  const makeState = useCallback(
-    (value: SetReStateAction<S>): S => {
-      if (store.has(key)) {
-        return store.get<S>(key);
-      } else {
-        store.setWithoutNotify<SetReStateAction<S>>(key, value);
-        return store.get<S>(key);
-      }
-    },
-    [key]
+  const reStateValue = useSyncExternalStore(
+    (onStoreChange) => store.subscribe(key, onStoreChange),
+    () => upSetState(key, initialValue),
+    () => upSetState(key, initialValue)
   );
 
-  const setState = useCallback(
-    (newValue: SetReStateAction<S>) => {
-      store.set<SetReStateAction<S>>(key, newValue);
-    },
-    [key]
-  );
+  const setState = useCallback((newValue: SetReStateAction<S>) => store.set(key, newValue), [key]);
 
-  const [reStateValue, setReStateValue] = useState<S>(makeState(initialValue));
-
-  useDebugValue(makeState(initialValue));
-
-  useIsomorphicLayoutEffect(() => {
-    const unSub = store.subscribe(key, () => {
-      setReStateValue(store.get(key));
-    });
-
-    return unSub;
-  }, [initialValue, key]);
+  useDebugValue(reStateValue);
 
   return [reStateValue, setState];
 }

@@ -1,4 +1,7 @@
-import { store, resetReState, setReStateInitialValue } from '../store';
+import { afterEach, describe, expect, it } from 'vitest';
+import { resetHardStore, resetReState, setReStateInitialValue, store } from '../store';
+
+afterEach(resetHardStore);
 
 describe('store', () => {
   it('should set initial value with set', () => {
@@ -6,7 +9,7 @@ describe('store', () => {
     const value = 'value';
     store.set(key, value);
 
-    expect(store.__initial_store.get(key)).toBe(value);
+    expect(store.getInitialValue(key)).toBe(value);
   });
 
   it('should update initial value with setReStateInitialValue', () => {
@@ -15,7 +18,7 @@ describe('store', () => {
     store.set(key, 'never');
     setReStateInitialValue(key, value);
 
-    expect(store.__initial_store.get(key)).toBe(value);
+    expect(store.getInitialValue(key)).toBe(value);
   });
 
   it('should update initial value with setReStateInitialValue', () => {
@@ -24,19 +27,19 @@ describe('store', () => {
     const neverInitialValue = 'never';
     store.set(key, initialValue);
 
-    expect(store.__initial_store.get(key)).toBe(initialValue);
+    expect(store.getInitialValue(key)).toBe(initialValue);
     expect(store.get(key)).toBe(initialValue);
 
     store.set(key, neverInitialValue);
 
     expect(store.get(key)).toBe(neverInitialValue);
-    expect(store.__initial_store.get(key)).toBe(initialValue);
-    expect(store.__initial_store.get(key)).not.toBe(neverInitialValue);
+    expect(store.getInitialValue(key)).toBe(initialValue);
+    expect(store.getInitialValue(key)).not.toBe(neverInitialValue);
 
     resetReState();
 
     expect(store.get(key)).toBe(initialValue);
-    expect(store.__initial_store.get(key)).toBe(initialValue);
-    expect(store.__initial_store.get(key)).not.toBe(neverInitialValue);
+    expect(store.getInitialValue(key)).toBe(initialValue);
+    expect(store.getInitialValue(key)).not.toBe(neverInitialValue);
   });
 });

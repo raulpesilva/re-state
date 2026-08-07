@@ -1,22 +1,17 @@
-import { useDebugValue, useState } from 'react';
-import type { UniqueKey } from '../core/types';
+import { useDebugValue } from 'react';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { store } from './store';
-import { useIsomorphicLayoutEffect } from './useIsomorphicLayoutEffect';
 
-export function createReStateSelect<S>(key: UniqueKey) {
+export function createReStateSelect<S>(key: string) {
   return function useReStateSelect() {
-    const [reStateValue, setReStateValue] = useState<S>(store.get(key));
+    const reStateValue = useSyncExternalStore(
+      (fn) => store.subscribe(key, fn),
+      () => store.get(key),
+      () => store.get(key)
+    );
 
     useDebugValue(reStateValue);
 
-    useIsomorphicLayoutEffect(() => {
-      const unSub = store.subscribe(key, () => {
-        setReStateValue(store.get(key));
-      });
-
-      return unSub;
-    }, [key]);
-
-    return reStateValue;
+    return reStateValue as S;
   };
 }

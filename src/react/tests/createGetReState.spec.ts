@@ -1,6 +1,10 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import { createReState } from '../createReState';
+import { afterEach, describe, expect, it } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import { createGetReState } from '../createGetReState';
+import { createReState } from '../createReState';
+import { resetHardStore } from '../store';
+
+afterEach(resetHardStore);
 
 describe('createGetReState', () => {
   it('should return the initial state', () => {
