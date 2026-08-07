@@ -1,77 +1,12 @@
 # createReStateSelect
 
-Creates a read-only hook that subscribes to a specific global state. Unlike `createReState`, this hook only returns the value without a setter, making it ideal for components that only need to display state.
-
-## Why use createReStateSelect?
-
-- **Cleaner API**: Returns just the value, not a tuple
-- **Intent clarity**: Signals that a component only reads state
-- **Separation of concerns**: Read-only components stay read-only
-- **Same performance**: Subscribes and re-renders only when the state changes
-
-## Basic Usage
-
-```ts filename="states/muted.ts"
-import { createReState, createReStateSelect, createReStateDispatch } from '@raulpesilva/re-state';
-
-export const useMuted = createReState<boolean>('muted', false);
-export const useMutedSelect = createReStateSelect<boolean>('muted');
-export const dispatchMuted = createReStateDispatch<boolean>('muted');
-```
-
-```tsx filename="components/MuteIndicator.tsx"
-import { useMutedSelect } from '../states/muted';
-
-function MuteIndicator() {
-  const muted = useMutedSelect();
-  
-  return <span>{muted ? '🔇 Muted' : '🔊 Sound On'}</span>;
-}
-```
-
-## Examples
-
-### Display-Only Components
-
-```ts filename="states/user.ts"
-import { createReState, createReStateSelect } from '@raulpesilva/re-state';
-
-interface User {
-  name: string;
-  avatar: string;
-}
-
-export const useUser = createReState<User>('user', { name: '', avatar: '' });
-export const useUserSelect = createReStateSelect<User>('user');
-```
-
-```tsx filename="components/UserAvatar.tsx"
-import { useUserSelect } from '../states/user';
-
-function UserAvatar() {
-  const user = useUserSelect();
-  
-  return <img src={user.avatar} alt={user.name} />;
-}
-```
-
-```tsx filename="components/UserGreeting.tsx"
-import { useUserSelect } from '../states/user';
-
-function UserGreeting() {
-  const user = useUserSelect();
-  
-  return <h1>Welcome, {user.name}!</h1>;
-}
-```
-
-### Separating Read and Write
+Creates a read-only hook bound to one state key. It returns the current value and subscribes only to that key, so components do not receive a setter.
 
 ```ts filename="states/theme.ts"
-import { 
-  createReState, 
-  createReStateSelect, 
-  createReStateDispatch 
+import {
+  createReState,
+  createReStateDispatch,
+  createReStateSelect,
 } from '@raulpesilva/re-state';
 
 type Theme = 'light' | 'dark';
@@ -79,113 +14,39 @@ type Theme = 'light' | 'dark';
 export const useTheme = createReState<Theme>('theme', 'light');
 export const useThemeSelect = createReStateSelect<Theme>('theme');
 export const dispatchTheme = createReStateDispatch<Theme>('theme');
-
-export const toggleTheme = () => dispatchTheme(prev => 
-  prev === 'light' ? 'dark' : 'light'
-);
 ```
 
-```tsx filename="components/ThemeDisplay.tsx"
+```tsx filename="components/ThemeLabel.tsx"
 import { useThemeSelect } from '../states/theme';
 
-function ThemeDisplay() {
+export function ThemeLabel() {
   const theme = useThemeSelect();
   return <p>Current theme: {theme}</p>;
 }
 ```
 
-```tsx filename="components/ThemeToggle.tsx"
-import { useTheme } from '../states/theme';
+`createReStateSelect` does not initialize the key. Initialize it with [createReState](/methods/createRestate), [useReState](/methods/useReState), a dispatcher, or [setReStateInitialValue](/methods/setReStateInitialValue) before relying on a defined value.
 
-function ThemeToggle() {
-  const [theme, setTheme] = useTheme();
-  
-  return (
-    <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}>
-      Switch to {theme === 'light' ? 'Dark' : 'Light'}
-    </button>
-  );
-}
-```
+The hook uses the external-store snapshot for the key. React compares that snapshot with `Object.is`; this hook does not apply the shallow equality used by [useReStateSelector](/methods/useReStateSelector). An uninitialized key therefore returns `undefined` at runtime.
 
-### Multiple Read-Only Consumers
-
-```ts filename="states/cart.ts"
-import { createReState, createReStateSelect } from '@raulpesilva/re-state';
-
-interface CartState {
-  items: { id: string; name: string; price: number }[];
-  total: number;
-}
-
-export const useCart = createReState<CartState>('cart', { items: [], total: 0 });
-export const useCartSelect = createReStateSelect<CartState>('cart');
-```
-
-```tsx filename="components/CartBadge.tsx"
-import { useCartSelect } from '../states/cart';
-
-function CartBadge() {
-  const cart = useCartSelect();
-  return <span className="badge">{cart.items.length}</span>;
-}
-```
-
-```tsx filename="components/CartTotal.tsx"
-import { useCartSelect } from '../states/cart';
-
-function CartTotal() {
-  const cart = useCartSelect();
-  return <p>Total: ${cart.total.toFixed(2)}</p>;
-}
-```
-
-```tsx filename="components/CartSummary.tsx"
-import { useCartSelect } from '../states/cart';
-
-function CartSummary() {
-  const cart = useCartSelect();
-  
-  return (
-    <div>
-      <p>{cart.items.length} items in cart</p>
-      <p>Total: ${cart.total.toFixed(2)}</p>
-    </div>
-  );
-}
-```
-
-## API Reference
+## API
 
 ```ts
-function createReStateSelect<S>(
-  key: string
-): () => S
+function createReStateSelect<S>(key: string): () => S
 ```
 
-### Parameters
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `key` | `string` | Shared state key to read and subscribe to. |
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `key` | `string` | Yes | The state key to subscribe to |
-
-### Returns
-
-A hook that returns the current state value. The component will re-render when the state changes.
+The returned hook takes no arguments and returns the current value.
 
 ## Comparison
 
-| Feature | `createReState` | `createReStateSelect` |
-|---------|-----------------|----------------------|
-| Returns | `[value, setter]` | `value` |
-| Can update state | Yes | No (use with `createReStateDispatch`) |
-| Best for | Components that read and write | Display-only components |
-
-## When to Use
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Display-only components | `createReStateSelect` |
-| Components that read and write | `createReState` |
-| Read state outside React | [`createGetReState`](/methods/createGetReState) |
-| Need all utilities at once | [`createReStateMethods`](/methods/createReStateMethods) |
+| Need | Use |
+| --- | --- |
+| Read and write one key in a component | [createReState](/methods/createRestate) |
+| Read one key in a component | `createReStateSelect` |
+| Read one key outside React | [createGetReState](/methods/createGetReState) |
+| Select derived data from several keys | [useReStateSelector](/methods/useReStateSelector) |
+| Get all methods for one key | [createReStateMethods](/methods/createReStateMethods) |

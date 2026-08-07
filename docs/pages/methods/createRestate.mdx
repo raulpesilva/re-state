@@ -1,225 +1,54 @@
 # createReState
 
-Creates a reusable hook for a specific global state. Unlike `useReState` where you pass the key every time, `createReState` binds the key once and returns a ready-to-use hook.
+Creates a hook bound to a state key. The factory initializes the key with `initialValue` when it is first registered, and the returned hook provides the familiar `[value, setValue]` tuple.
 
-## Why use createReState?
-
-- **Encapsulation**: Define state key and type in one place
-- **Reusability**: Export a named hook that's easy to import
-- **Type safety**: TypeScript types are defined once, not repeated
-- **Cleaner imports**: Components import `useMuted()` instead of `useReState('muted', false)`
-
-## Basic Usage
-
-```ts filename="states/muted.ts"
+```ts filename="states/counter.ts"
 import { createReState } from '@raulpesilva/re-state';
 
-export const useMuted = createReState<boolean>('muted', false);
+export const useCounter = createReState<number>('counter', 0);
 ```
 
-```tsx filename="components/MuteButton.tsx"
-import { useMuted } from '../states/muted';
+```tsx filename="components/Counter.tsx"
+import { useCounter } from '../states/counter';
 
-function MuteButton() {
-  const [muted, setMuted] = useMuted();
+export function Counter() {
+  const [count, setCount] = useCounter();
 
   return (
-    <button onClick={() => setMuted(!muted)}>
-      {muted ? 'Unmute' : 'Mute'}
+    <button onClick={() => setCount((previous) => previous + 1)}>
+      Count: {count}
     </button>
   );
 }
 ```
 
-## Examples
+Every hook created for the same key shares the same value. If that key is already registered, a later call does not replace its current or initial value. An initializer function is evaluated while the factory initializes a new key.
 
-### Sharing State Across Components
+`createReState` returns a hook, so call the returned function only from a React component or another custom hook.
 
-```ts filename="states/volume.ts"
-import { createReState } from '@raulpesilva/re-state';
-
-export const useVolume = createReState<number>('volume', 50);
-```
-
-```tsx filename="components/VolumeSlider.tsx"
-import { useVolume } from '../states/volume';
-
-function VolumeSlider() {
-  const [volume, setVolume] = useVolume();
-
-  return (
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value={volume}
-      onChange={e => setVolume(Number(e.target.value))}
-    />
-  );
-}
-```
-
-```tsx filename="components/VolumeDisplay.tsx"
-import { useVolume } from '../states/volume';
-
-function VolumeDisplay() {
-  const [volume] = useVolume();
-  return <p>Volume: {volume}%</p>;
-}
-```
-
-Both components share the same volume state.
-
-### Complex State Types
-
-```ts filename="states/user.ts"
-import { createReState } from '@raulpesilva/re-state';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-}
-
-const initialUser: User = {
-  id: '',
-  name: '',
-  email: '',
-  avatar: '',
-};
-
-export const useUser = createReState<User>('user', initialUser);
-```
-
-```tsx filename="components/UserCard.tsx"
-import { useUser } from '../states/user';
-
-function UserCard() {
-  const [user, setUser] = useUser();
-
-  const updateName = (name: string) => {
-    setUser(prev => ({ ...prev, name }));
-  };
-
-  return (
-    <div>
-      <img src={user.avatar} alt={user.name} />
-      <input
-        value={user.name}
-        onChange={e => updateName(e.target.value)}
-      />
-    </div>
-  );
-}
-```
-
-### Multiple States in One File
-
-```ts filename="states/audio.ts"
-import { createReState } from '@raulpesilva/re-state';
-
-export const useVolume = createReState<number>('volume', 50);
-export const useMuted = createReState<boolean>('muted', false);
-export const usePlaying = createReState<boolean>('playing', false);
-```
-
-```tsx filename="components/AudioControls.tsx"
-import { useVolume, useMuted, usePlaying } from '../states/audio';
-
-function AudioControls() {
-  const [volume, setVolume] = useVolume();
-  const [muted, setMuted] = useMuted();
-  const [playing, setPlaying] = usePlaying();
-
-  return (
-    <div>
-      <button onClick={() => setPlaying(!playing)}>
-        {playing ? 'Pause' : 'Play'}
-      </button>
-      <button onClick={() => setMuted(!muted)}>
-        {muted ? 'Unmute' : 'Mute'}
-      </button>
-      <input
-        type="range"
-        value={volume}
-        onChange={e => setVolume(Number(e.target.value))}
-        disabled={muted}
-      />
-    </div>
-  );
-}
-```
-
-### Lazy Initial Value
-
-Pass a function to compute the initial value lazily. This is useful when the initial value is expensive to compute or depends on runtime conditions:
-
-```ts filename="states/settings.ts"
-import { createReState } from '@raulpesilva/re-state';
-
-interface Settings {
-  theme: 'light' | 'dark';
-  language: string;
-}
-
-// Function is called once to compute the initial value
-export const useSettings = createReState<Settings>('settings', () => {
-  const saved = localStorage.getItem('settings');
-  return saved ? JSON.parse(saved) : { theme: 'light', language: 'en' };
-});
-```
-
-The function receives the previous value (or `undefined` if no value exists):
-
-```ts
-import { createReState } from '@raulpesilva/re-state';
-
-// Only initialize if not already set
-export const useCounter = createReState<number>('counter', (prev) => prev ?? 0);
-```
-
-## API Reference
+## API
 
 ```ts
 function createReState<S>(
   key: string,
-  initialValue?: S | ((prev: S | undefined) => S)
-): () => [S, (value: S | ((prev: S) => S)) => void]
+  initialValue?: S | ((previous: S) => S)
+): () => [
+  S,
+  (value: S | ((previous: S) => S) | undefined) => void
+]
 ```
 
-### Parameters
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `key` | `string` | Shared state key. |
+| `initialValue` | `S \| ((previous: S) => S)` | Value or initializer used when the key is not registered. |
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `key` | `string` | Yes | Unique identifier for the state |
-| `initialValue` | `S \| ((prev: S \| undefined) => S)` | No | Initial value of the state, or a function that returns the initial value |
+The hook returns the current value and a setter. The setter accepts a value or an updater function that receives the current value.
 
-### Returns
+If no initial value is supplied, the value is `undefined` until something initializes the key.
 
-A hook function that returns a tuple:
+## Related
 
-| Index | Type | Description |
-|-------|------|-------------|
-| `[0]` | `S` | Current state value |
-| `[1]` | `(value: S \| ((prev: S) => S)) => void` | Function to update the state |
-
-## Comparison
-
-| Feature | `useReState` | `createReState` |
-|---------|--------------|-----------------|
-| Key passed at | Call site | Definition |
-| Best for | Quick prototyping | Reusable state modules |
-| Type defined at | Each usage | Once |
-| Import style | `useReState('key', value)` | `useMyState()` |
-
-## When to Use
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Single state, need just the hook | `createReState` |
-| Need dispatch/get/reset utilities | [`createReStateMethods`](/methods/createReStateMethods) |
-| Quick inline state | [`useReState`](/methods/useReState) |
-| Full state management solution | [`createReStateMethods`](/methods/createReStateMethods) |
-
-For most production use cases, consider [`createReStateMethods`](/methods/createReStateMethods) which gives you all utilities (`useX`, `useXSelect`, `dispatchX`, `getX`, `resetX`) in one call.
+- [useReState](/methods/useReState) accepts the key at the hook call site.
+- [createReStateSelect](/methods/createReStateSelect) creates a read-only keyed hook.
+- [createReStateMethods](/methods/createReStateMethods) creates all keyed methods together.

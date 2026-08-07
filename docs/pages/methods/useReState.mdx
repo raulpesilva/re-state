@@ -1,184 +1,57 @@
 # useReState
 
-A hook for sharing state between React components. Works like `useState`, but the state is global and accessible from any component using the same key.
-
-## Why use useReState?
-
-- **Familiar API**: Same `[value, setValue]` pattern as `useState`
-- **Zero setup**: No providers, no context, no boilerplate
-- **Instant sharing**: Any component with the same key shares the same state
-- **Quick prototyping**: Perfect for simple shared states
-
-## Basic Usage
+`useReState` is a hook for sharing one value across components. Components that use the same key subscribe to the same state, without a provider or context setup.
 
 ```tsx
 import { useReState } from '@raulpesilva/re-state';
 
-function Counter() {
+export function Counter() {
   const [count, setCount] = useReState('count', 0);
 
   return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>+</button>
-      <button onClick={() => setCount(count - 1)}>-</button>
-    </div>
-  );
-}
-```
-
-## Examples
-
-### Sharing State Between Components
-
-Components using the same key automatically share state:
-
-```tsx
-import { useReState } from '@raulpesilva/re-state';
-
-function IncrementButton() {
-  const [count, setCount] = useReState('count', 0);
-  return <button onClick={() => setCount(count + 1)}>Add +1</button>;
-}
-
-function DecrementButton() {
-  const [count, setCount] = useReState('count', 0);
-  return <button onClick={() => setCount(count - 1)}>Remove -1</button>;
-}
-
-function Display() {
-  const [count] = useReState('count', 0);
-  return <p>Current count: {count}</p>;
-}
-
-function App() {
-  return (
-    <div>
-      <Display />
-      <IncrementButton />
-      <DecrementButton />
-    </div>
-  );
-}
-```
-
-All three components share the same `count` state. Clicking either button updates the display.
-
-### Using Previous State
-
-Update state based on the previous value using a callback:
-
-```tsx
-import { useReState } from '@raulpesilva/re-state';
-
-function Counter() {
-  const [count, setCount] = useReState('count', 0);
-
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(prev => prev + 1)}>+</button>
-      <button onClick={() => setCount(prev => prev - 1)}>-</button>
-    </div>
-  );
-}
-```
-
-### Typed State
-
-Use TypeScript generics for type safety:
-
-```tsx
-import { useReState } from '@raulpesilva/re-state';
-
-interface User {
-  name: string;
-  email: string;
-}
-
-function UserProfile() {
-  const [user, setUser] = useReState<User>('user', {
-    name: '',
-    email: '',
-  });
-
-  return (
-    <div>
-      <input
-        value={user.name}
-        onChange={e => setUser(prev => ({ ...prev, name: e.target.value }))}
-        placeholder="Name"
-      />
-      <input
-        value={user.email}
-        onChange={e => setUser(prev => ({ ...prev, email: e.target.value }))}
-        placeholder="Email"
-      />
-    </div>
-  );
-}
-```
-
-### Toggle State
-
-Common pattern for boolean states:
-
-```tsx
-import { useReState } from '@raulpesilva/re-state';
-
-function ThemeToggle() {
-  const [isDark, setIsDark] = useReState('theme-dark', false);
-
-  return (
-    <button onClick={() => setIsDark(prev => !prev)}>
-      {isDark ? 'Switch to Light' : 'Switch to Dark'}
+    <button onClick={() => setCount((previous) => previous + 1)}>
+      Count: {count}
     </button>
   );
 }
+```
 
-function App() {
-  const [isDark] = useReState('theme-dark', false);
+Another component can use the same key:
 
-  return (
-    <div className={isDark ? 'dark' : 'light'}>
-      <ThemeToggle />
-      <p>Current theme: {isDark ? 'Dark' : 'Light'}</p>
-    </div>
-  );
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function CounterLabel() {
+  const [count] = useReState('count', 0);
+  return <span>{count}</span>;
 }
 ```
 
-## API Reference
+The `initialValue` is used only when the key is not already registered. Later calls with the same key do not replace the shared value or its stored initial value. For object and array state, use immutable updates when changing nested data.
+
+The hook must be called from a component or another custom hook. If no initial value is supplied and nothing else initializes the key, its runtime value is `undefined`.
+
+## API
 
 ```ts
 function useReState<S>(
   key: string,
-  initialValue?: S
-): [S, (value: S | ((prev: S) => S)) => void]
+  initialValue?: S | ((previous: S) => S)
+): [
+  S,
+  (value: S | ((previous: S) => S) | undefined) => void
+]
 ```
 
-### Parameters
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `key` | `string` | Shared state key. |
+| `initialValue` | `S \| ((previous: S) => S)` | Value or initializer used only for a new key. |
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `key` | `string` | Yes | Unique identifier for the state |
-| `initialValue` | `S` | No | Initial value (used only if state doesn't exist) |
+The hook returns the current value and a setter. The setter accepts a replacement value or a function that receives the current value.
 
-### Returns
+## Related
 
-A tuple with two elements:
-
-| Index | Type | Description |
-|-------|------|-------------|
-| `[0]` | `S` | Current state value |
-| `[1]` | `(value: S \| ((prev: S) => S)) => void` | Function to update the state |
-
-## When to Use
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Quick prototyping | `useReState` |
-| Simple shared state | `useReState` |
-| Production app with many states | [`createReStateMethods`](/methods/createReStateMethods) |
-| Need dispatch/get outside components | [`createReStateMethods`](/methods/createReStateMethods) |
-| Type-safe reusable state modules | [`createReStateMethods`](/methods/createReStateMethods) |
+- [createReState](/methods/createRestate) binds a key once and returns a reusable hook.
+- [createReStateDispatch](/methods/createReStateDispatch) updates a key outside React.
+- [useReStateSelector](/methods/useReStateSelector) selects derived data from the complete store.

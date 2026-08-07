@@ -1,172 +1,53 @@
 # createReStateDispatch
 
-Creates a function to update a specific global state from anywhere in your application. Unlike hooks, the dispatch function can be called outside of React components.
-
-## Why use createReStateDispatch?
-
-- **Update from anywhere**: Event handlers, utility functions, async operations
-- **No hook rules**: Not bound by React's rules of hooks
-- **Create actions**: Build reusable state update functions
-- **Decouple logic**: Separate state updates from component rendering
-
-## Basic Usage
+Creates a function that updates one state key without using a React hook. Use it in actions, event handlers, utilities, or asynchronous code.
 
 ```ts filename="states/counter.ts"
 import { createReState, createReStateDispatch } from '@raulpesilva/re-state';
 
 export const useCounter = createReState<number>('counter', 0);
 export const dispatchCounter = createReStateDispatch<number>('counter');
+
+export const increment = (): void => {
+  dispatchCounter((previous) => previous + 1);
+};
 ```
 
-```tsx filename="Anywhere in your app"
-import { dispatchCounter } from './states/counter';
+```ts filename="utils/notifications.ts"
+import { createReStateDispatch } from '@raulpesilva/re-state';
 
-// Set a value directly
+const dispatchNotification = createReStateDispatch<string | null>('notification');
+
+export function showNotification(message: string): void {
+  dispatchNotification(message);
+}
+```
+
+The dispatch function accepts either a replacement value or an updater function:
+
+```ts
 dispatchCounter(10);
-
-// Update based on previous value
-dispatchCounter(prev => prev + 1);
+dispatchCounter((previous) => previous + 1);
 ```
 
-## Examples
+If the key has not been initialized, the first dispatch creates it and establishes its initial value. An updater for an uninitialized key receives `undefined` at runtime, so initialize the key first when the updater requires a value.
 
-### Creating Actions
-
-Define reusable actions alongside your state:
-
-```ts filename="states/counter.ts"
-import { createReState, createReStateDispatch } from '@raulpesilva/re-state';
-
-export const useCounter = createReState<number>('counter', 0);
-const dispatchCounter = createReStateDispatch<number>('counter');
-
-// Reusable actions
-export const increment = () => dispatchCounter(prev => prev + 1);
-export const decrement = () => dispatchCounter(prev => prev - 1);
-export const reset = () => dispatchCounter(0);
-export const setCounter = (value: number) => dispatchCounter(value);
-```
-
-```tsx filename="components/Counter.tsx"
-import { useCounter, increment, decrement, reset } from '../states/counter';
-
-function Counter() {
-  const [count] = useCounter();
-
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={increment}>+</button>
-      <button onClick={decrement}>-</button>
-      <button onClick={reset}>Reset</button>
-    </div>
-  );
-}
-```
-
-### Updating from Event Handlers
-
-```ts
-import { createReStateDispatch } from '@raulpesilva/re-state';
-
-const dispatchTheme = createReStateDispatch<'light' | 'dark'>('theme');
-
-// Global keyboard shortcut
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'd' && e.ctrlKey) {
-    dispatchTheme(prev => prev === 'light' ? 'dark' : 'light');
-  }
-});
-```
-
-### Async Operations
-
-```ts
-import { createReStateDispatch } from '@raulpesilva/re-state';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-const dispatchUser = createReStateDispatch<User | null>('user');
-const dispatchLoading = createReStateDispatch<boolean>('loading');
-
-export async function fetchUser(userId: string) {
-  dispatchLoading(true);
-  
-  try {
-    const response = await fetch(`/api/users/${userId}`);
-    const user = await response.json();
-    dispatchUser(user);
-  } catch (error) {
-    dispatchUser(null);
-  } finally {
-    dispatchLoading(false);
-  }
-}
-```
-
-### Complex State Updates
-
-```ts
-import { createReStateDispatch } from '@raulpesilva/re-state';
-
-interface CartItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-const dispatchCart = createReStateDispatch<CartItem[]>('cart');
-
-export const addToCart = (item: Omit<CartItem, 'quantity'>) => {
-  dispatchCart(prev => {
-    const existing = prev.find(i => i.id === item.id);
-    if (existing) {
-      return prev.map(i =>
-        i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-      );
-    }
-    return [...prev, { ...item, quantity: 1 }];
-  });
-};
-
-export const removeFromCart = (id: string) => {
-  dispatchCart(prev => prev.filter(item => item.id !== id));
-};
-
-export const clearCart = () => dispatchCart([]);
-```
-
-## API Reference
+## API
 
 ```ts
 function createReStateDispatch<S>(
   key: string
-): (value: S | ((prev: S) => S)) => void
+): (value: S | ((previous: S) => S) | undefined) => void
 ```
 
-### Parameters
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `key` | `string` | Shared state key to update. |
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `key` | `string` | Yes | The state key to update |
+The returned function returns `void`. It does not read or subscribe to state.
 
-### Returns
+## Related
 
-A dispatch function that accepts:
-- A new value directly: `dispatch(newValue)`
-- A callback with previous state: `dispatch(prev => newValue)`
-
-## When to Use
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Update state outside React | `createReStateDispatch` |
-| Build reusable actions | `createReStateDispatch` |
-| Async state updates | `createReStateDispatch` |
-| Simple component state updates | Use setter from `useReState` or `createReState` |
-| Need all utilities at once | [`createReStateMethods`](/methods/createReStateMethods) |
+- [createReState](/methods/createRestate) creates the hook for the same key.
+- [createGetReState](/methods/createGetReState) reads a key without subscribing.
+- [createReStateMethods](/methods/createReStateMethods) includes a generated dispatch method.

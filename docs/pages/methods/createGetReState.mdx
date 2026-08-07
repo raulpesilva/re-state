@@ -1,171 +1,44 @@
 # createGetReState
 
-Creates a function to read a specific global state synchronously without subscribing to updates. The component or function calling this getter will **not** re-render when the state changes.
+Creates a getter bound to one state key. The returned function reads the current value synchronously and does not subscribe to updates, so calling it does not cause a React render.
 
-## Why use createGetReState?
+```ts filename="states/session.ts"
+import { createGetReState, createReState } from '@raulpesilva/re-state';
 
-- **Read without subscribing**: Get current value without triggering re-renders
-- **Use outside React**: Access state in utility functions, event handlers, or async code
-- **Snapshot access**: Get the current value at a specific moment in time
-- **Performance**: Avoid unnecessary subscriptions when you only need to read once
-
-## Basic Usage
-
-```ts filename="states/user.ts"
-import { createReState, createGetReState } from '@raulpesilva/re-state';
-
-export const useUser = createReState<{ name: string }>('user', { name: '' });
-export const getUser = createGetReState<{ name: string }>('user');
-```
-
-```ts
-// Anywhere in your app
-import { getUser } from './states/user';
-
-const currentUser = getUser();
-console.log(currentUser.name);
-```
-
-## Examples
-
-### Reading State in Utility Functions
-
-```ts filename="states/auth.ts"
-import { createReState, createGetReState } from '@raulpesilva/re-state';
-
-interface AuthState {
-  token: string | null;
-  userId: string | null;
-}
-
-export const useAuth = createReState<AuthState>('auth', { 
-  token: null, 
-  userId: null 
-});
-export const getAuth = createGetReState<AuthState>('auth');
-```
-
-```ts filename="utils/api.ts"
-import { getAuth } from '../states/auth';
-
-export async function fetchWithAuth(url: string) {
-  const { token } = getAuth();
-  
-  return fetch(url, {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-    },
-  });
-}
-```
-
-### Logging and Debugging
-
-```ts
-import { createGetReState } from '@raulpesilva/re-state';
-
-const getCart = createGetReState<{ items: any[]; total: number }>('cart');
-
-export function logCartState() {
-  const cart = getCart();
-  console.log('Cart items:', cart.items.length);
-  console.log('Cart total:', cart.total);
-}
-```
-
-### Conditional Logic Outside Components
-
-```ts
-import { createGetReState, createReStateDispatch } from '@raulpesilva/re-state';
-
-const getUser = createGetReState<{ role: string } | null>('user');
-const dispatchNotification = createReStateDispatch<string>('notification');
-
-export function checkAdminAccess(): boolean {
-  const user = getUser();
-  
-  if (!user || user.role !== 'admin') {
-    dispatchNotification('Access denied: Admin privileges required');
-    return false;
-  }
-  
-  return true;
-}
-```
-
-### Syncing with External Services
-
-```ts
-import { createGetReState } from '@raulpesilva/re-state';
-
-interface Settings {
-  analyticsEnabled: boolean;
+type Session = {
   userId: string;
-}
+};
 
-const getSettings = createGetReState<Settings>('settings');
+export const useSession = createReState<Session | null>('session', null);
+export const getSession = createGetReState<Session | null>('session');
+```
 
-export function trackEvent(event: string, data: Record<string, any>) {
-  const settings = getSettings();
-  
-  if (!settings.analyticsEnabled) return;
-  
-  // Send to analytics service
-  analytics.track(event, {
-    ...data,
-    userId: settings.userId,
-  });
+Use the getter in utilities, event handlers, or other code that is not a component:
+
+```ts filename="utils/session.ts"
+import { getSession } from '../states/session';
+
+export function hasSession(): boolean {
+  return getSession() !== null;
 }
 ```
 
-### Combining with Dispatch
+`createGetReState` neither creates nor initializes the key. If the key has not been initialized, the runtime value is `undefined`, even though the generic return type describes the value your application expects.
+
+## API
 
 ```ts
-import { createGetReState, createReStateDispatch } from '@raulpesilva/re-state';
-
-interface Counter {
-  value: number;
-  max: number;
-}
-
-const getCounter = createGetReState<Counter>('counter');
-const dispatchCounter = createReStateDispatch<Counter>('counter');
-
-export function incrementIfAllowed() {
-  const { value, max } = getCounter();
-  
-  if (value < max) {
-    dispatchCounter(prev => ({ ...prev, value: prev.value + 1 }));
-    return true;
-  }
-  
-  return false;
-}
+function createGetReState<S>(key: string): () => S
 ```
 
-## API Reference
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `key` | `string` | Key to read. |
 
-```ts
-function createGetReState<S>(
-  key: string
-): () => S
-```
+The returned getter has no parameters and returns the current value. It always reads the latest value; it does not retain a snapshot.
 
-### Parameters
+## Related
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `key` | `string` | Yes | The state key to read |
-
-### Returns
-
-A function that returns the current state value. Calling this function does **not** subscribe to updates.
-
-## When to Use
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Read state in utility functions | `createGetReState` |
-| Read state once (no subscription) | `createGetReState` |
-| Read and react to changes in components | `createReState` or `createReStateSelect` |
-| Need all utilities at once | [`createReStateMethods`](/methods/createReStateMethods) |
+- [createReState](/methods/createRestate) creates a keyed state hook.
+- [createReStateDispatch](/methods/createReStateDispatch) creates a keyed updater.
+- [createReStateMethods](/methods/createReStateMethods) creates a getter together with the other keyed methods.
