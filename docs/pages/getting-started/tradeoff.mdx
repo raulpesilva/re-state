@@ -1,98 +1,90 @@
-# Tradeoffs: React Context vs re-state
+# Tradeoffs: React Context and re-state
 
-This guide compares React's built-in `useState` + `Context` approach with **re-state**, helping you choose the right solution for your application.
+React Context and re-state solve different versions of the shared-state problem. Context is built into React and
+scopes values to a provider tree. re-state is an external store with keyed, application-wide values and helpers for
+using state outside React.
 
-## Quick Comparison
+## At a glance
 
-| Aspect | React Context | re-state |
-|--------|---------------|----------|
-| **Setup** | Requires providers and context creation | Zero setup, works out of the box |
-| **Boilerplate** | High (context, provider, consumers) | Minimal (single hook call) |
-| **Learning curve** | Requires understanding context API | Same as `useState` |
-| **TypeScript support** | Manual type definitions | Auto-generated types |
-| **Updating outside React** | Complex (requires refs or external store) | Built-in dispatch functions |
-| **Performance** | Can cause unnecessary re-renders | Optimized with selector hooks |
-| **State scope** | Global or reusable (multiple instances) | Global only (single instance per key) |
+| Concern | React Context | re-state |
+| --- | --- | --- |
+| Setup | Create a context, provider, and consumer hook | Install the package and use a keyed hook |
+| Scope | Each provider creates an independent instance | One global value per key in the store |
+| Updates outside React | Usually requires an explicit bridge or external store | dispatch*, get*, and onReStateChange are built in |
+| Re-render control | Split contexts or memoize provider values and consumers | Key subscriptions plus selector equality |
+| Lifecycle | Follows the provider tree | Persists for the module runtime; reset restores initial values |
+| TypeScript | Types are defined by the application | Types flow into generated methods from the initial value |
+| Dependencies | Part of React | Additional package, with React as a peer |
 
----
+Neither approach is universally better. The right choice depends on scope, lifecycle, and where updates originate.
 
-## Complete Example Comparison
+## The same cart in both approaches
 
-### Scenario: Shopping Cart State
+### React Context
 
-Let's compare implementing a shopping cart that needs to be accessed from multiple components.
-
----
-
-### React Context Approach
+Context usually combines a state value, update functions, a provider, and a hook:
 
 ```tsx filename="context/CartContext.tsx"
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
-interface CartItem {
+type CartItem = {
   id: string;
   name: string;
   price: number;
   quantity: number;
-}
+};
 
-interface CartContextType {
+type CartContextValue = {
   items: CartItem[];
-  total: number;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
-}
+};
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const CartContext = createContext<CartContextValue | null>(null);
 
-function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const addItem = (item: Omit<CartItem, 'quantity'>) => {
-    setItems(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
-      }
-      return [...prev, { ...item, quantity: 1 }];
+  const addItem = (item: Omit<CartItem, 'quantity'>): void => {
+    setItems((currentItems) => {
+      const existingItem = currentItems.find((currentItem) => currentItem.id === item.id);
+      return existingItem
+        ? currentItems.map((currentItem) =>
+            currentItem.id === item.id ? { ...currentItem, quantity: currentItem.quantity + 1 } : currentItem
+          )
+        : [...currentItems, { ...item, quantity: 1 }];
     });
   };
 
-  const removeItem = (id: string) => {
-    setItems(prev => prev.filter(i => i.id !== id));
+  const removeItem = (id: string): void => {
+    setItems((currentItems) => currentItems.filter((item) => item.id !== id));
   };
 
-  const clearCart = () => {
+  const clearCart = (): void => {
     setItems([]);
   };
 
   return (
-    <CartContext.Provider value={{ items, total, addItem, removeItem, clearCart }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-function useCart() {
-  const context = useContext(CartContext);
-  if (!context) {
+export function useCart(): CartContextValue {
+  const value = useContext(CartContext);
+  if (!value) {
     throw new Error('useCart must be used within CartProvider');
   }
-  return context;
+  return value;
 }
-
-export { CartProvider, useCart };
 ```
 
-```tsx filename="App.tsx"
-import { CartProvider } from './context/CartContext';
-import Cart from './components/Cart';
-import AddProduct from './components/AddProduct';
+The application must wrap every consumer in CartProvider:
 
-function App() {
+```tsx
+export function App() {
   return (
     <CartProvider>
       <AddProduct />
@@ -102,503 +94,151 @@ function App() {
 }
 ```
 
-```tsx filename="components/Cart.tsx"
-import { useCart } from '../context/CartContext';
+This gives Context a useful property: rendering two CartProvider components creates two independent carts, each with
+its own lifecycle and initial data.
 
-function Cart() {
-  const { items, total, removeItem, clearCart } = useCart();
+### re-state
 
-  return (
-    <div>
-      <h2>Cart ({items.length} items)</h2>
-      {items.map(item => (
-        <div key={item.id}>
-          <span>{item.name} x{item.quantity} - ${item.price * item.quantity}</span>
-          <button onClick={() => removeItem(item.id)}>Remove</button>
-        </div>
-      ))}
-      <p>Total: ${total}</p>
-      <button onClick={clearCart}>Clear Cart</button>
-    </div>
-  );
-}
-```
-
-```tsx filename="components/AddProduct.tsx"
-import { useCart } from '../context/CartContext';
-
-function AddProduct() {
-  const { addItem } = useCart();
-
-  return (
-    <button onClick={() => addItem({ id: '1', name: 'Product', price: 10 })}>
-      Add Product
-    </button>
-  );
-}
-```
-
-**Lines of code:** ~80 lines (context setup) + component code
-
-**Key challenges:**
-- Must wrap app in `CartProvider`
-- Need to create context, provider, and custom hook separately
-- Type definitions are manual and verbose
-- Updating cart from outside React components is difficult
-
----
-
-### re-state Approach
+The state module contains the same cart actions without a provider:
 
 ```ts filename="states/cart.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
-interface CartItem {
+type CartItem = {
   id: string;
   name: string;
   price: number;
   quantity: number;
-}
+};
 
-interface CartState {
+type CartState = {
   items: CartItem[];
   total: number;
-}
+};
 
 const initialCart: CartState = { items: [], total: 0 };
 
-export const {
-  useCart,
-  useCartSelect,
-  dispatchCart,
-  getCart,
-  resetCart,
-} = createReStateMethods('cart', initialCart);
+export const { useCartSelect, dispatchCart, resetCart } = createReStateMethods('cart', initialCart);
 
-export const addItem = (item: Omit<CartItem, 'quantity'>) => {
-  dispatchCart(prev => {
-    const existing = prev.items.find(i => i.id === item.id);
-    const items = existing
-      ? prev.items.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)
-      : [...prev.items, { ...item, quantity: 1 }];
-    const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+export const addItem = (item: Omit<CartItem, 'quantity'>): void => {
+  dispatchCart((currentCart) => {
+    const existingItem = currentCart.items.find((currentItem) => currentItem.id === item.id);
+    const items = existingItem
+      ? currentCart.items.map((currentItem) =>
+          currentItem.id === item.id ? { ...currentItem, quantity: currentItem.quantity + 1 } : currentItem
+        )
+      : [...currentCart.items, { ...item, quantity: 1 }];
+    const total = items.reduce((sum, currentItem) => sum + currentItem.price * currentItem.quantity, 0);
+
     return { items, total };
   });
 };
 
-export const removeItem = (id: string) => {
-  dispatchCart(prev => {
-    const items = prev.items.filter(i => i.id !== id);
-    const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+export const removeItem = (id: string): void => {
+  dispatchCart((currentCart) => {
+    const items = currentCart.items.filter((item) => item.id !== id);
+    const total = items.reduce((sum, currentItem) => sum + currentItem.price * currentItem.quantity, 0);
     return { items, total };
   });
 };
 
-export const clearCart = () => resetCart();
+export const clearCart = (): void => {
+  resetCart();
+};
 ```
 
-```tsx filename="components/Cart.tsx"
-import { useCartSelect, removeItem, clearCart } from '../states/cart';
+Consumers import the state methods directly:
 
-function Cart() {
+```tsx
+import { addItem, clearCart, removeItem, useCartSelect } from './states/cart';
+
+export function Cart() {
   const cart = useCartSelect();
 
   return (
-    <div>
+    <section>
       <h2>Cart ({cart.items.length} items)</h2>
-      {cart.items.map(item => (
+      {cart.items.map((item) => (
         <div key={item.id}>
-          <span>{item.name} x{item.quantity} - ${item.price * item.quantity}</span>
-          <button onClick={() => removeItem(item.id)}>Remove</button>
+          <span>{item.name} × {item.quantity}</span>
+          <button type="button" onClick={() => removeItem(item.id)}>
+            Remove
+          </button>
         </div>
       ))}
-      <p>Total: ${cart.total}</p>
-      <button onClick={clearCart}>Clear Cart</button>
-    </div>
+      <button type="button" onClick={() => addItem({ id: '1', name: 'Product', price: 10 })}>
+        Add product
+      </button>
+      <button type="button" onClick={clearCart}>
+        Clear cart
+      </button>
+    </section>
   );
 }
 ```
 
-```tsx filename="components/AddProduct.tsx"
-import { addItem } from '../states/cart';
+dispatchCart can also be called by a utility, event handler, or service because it does not depend on a mounted
+component.
 
-function AddProduct() {
-  return (
-    <button onClick={() => addItem({ id: '1', name: 'Product', price: 10 })}>
-      Add Product
-    </button>
-  );
-}
-```
+## Performance and subscriptions
 
-```tsx filename="App.tsx"
-import Cart from './components/Cart';
-import AddProduct from './components/AddProduct';
+Context consumers re-render when the provider value they consume changes. Applications can reduce that work by
+splitting contexts, memoizing values, or moving expensive components behind memoized boundaries.
 
-function App() {
-  return (
-    <>
-      <AddProduct />
-      <Cart />
-    </>
-  );
-}
-```
+re-state subscribes a useReState or generated use*Select hook to one key. useReStateSelector subscribes to the store
+and compares the selected result, which is useful for derived values:
 
-**Lines of code:** ~50 lines (state definition + actions) + component code
-
-**Key advantages:**
-- No provider needed
-- Single file for state and actions
-- Auto-generated type-safe methods
-- Can call `addItem`, `removeItem` from anywhere (outside React components too)
-
----
-
-## Feature-by-Feature Comparison
-
-### 1. Setup and Boilerplate
-
-**React Context:**
 ```tsx
-// 1. Create context type
-interface ContextType { ... }
+import { useReStateSelector } from '@raulpesilva/re-state';
 
-// 2. Create context
-const Context = createContext<ContextType | undefined>(undefined);
+type AppStore = {
+  todos: Array<{ finished: boolean }>;
+};
 
-// 3. Create provider
-function Provider({ children }) { ... }
-
-// 4. Create custom hook
-function useContext() { ... }
-
-// 5. Wrap app
-<Provider><App /></Provider>
+const finishedCount = useReStateSelector<AppStore, number>(
+  (state) => state.todos.filter((todo) => todo.finished).length
+);
 ```
 
-**re-state:**
-```ts
-// Done! Single line
-export const { useCart, dispatchCart } = createReStateMethods('cart', initialValue);
-```
+This is a subscription model, not a promise that every component will avoid every render. A selector still renders
+when its selected result changes, and custom equality functions should be used only when their comparison is correct.
 
----
+## When Context is the better fit
 
-### 2. Reading and Writing State
+Choose Context when you need one or more of these properties:
 
-**React Context:**
-```tsx
-function Component() {
-  const { value, setValue } = useContext(CartContext);
-  return <button onClick={() => setValue(newValue)}>{value}</button>;
-}
-```
+- Multiple independent instances of the same state, such as several carts or editors on one page.
+- State whose lifetime should start and end with a provider subtree.
+- Request-scoped or server-rendered state that must be isolated per request.
+- Dependency injection for a subtree, where the nearest provider should determine the value.
+- A solution with no additional state-management package.
 
-**re-state:**
-```tsx
-function Component() {
-  const [value, setValue] = useCart();
-  return <button onClick={() => setValue(newValue)}>{value}</button>;
-}
-```
+## When re-state is the better fit
 
----
+Choose re-state when you want:
 
-### 3. Updating State Outside React
+- One application-wide value shared by unrelated components.
+- Updates from event handlers, utilities, services, or other code outside React.
+- A useState-like direct hook without a provider.
+- Named hooks, dispatchers, getters, reset methods, and actions in one reusable module.
+- Derived values with useReStateSelector.
 
-**React Context:**
-```ts
-// Complex - requires external store or ref workaround
-let externalUpdater: ((value: number) => void) | null = null;
+Remember that re-state has one store instance per JavaScript runtime. Give independent states distinct keys, and be
+careful with server rendering if state must not be shared between requests.
 
-function Provider({ children }) {
-  const [value, setValue] = useState(0);
-  externalUpdater = setValue;
-  return <Context.Provider value={{ value, setValue }}>{children}</Context.Provider>;
-}
+## Moving from Context to re-state
 
-// Later, outside React:
-if (externalUpdater) {
-  externalUpdater(42);
-}
-```
+For a state that should become application-wide:
 
-**re-state:**
-```ts
-import { dispatchCart } from './states/cart';
+1. Move the state shape and initial value into a module.
+2. Replace the context and provider with createReStateMethods.
+3. Move update functions into actions next to the state.
+4. Replace useContext calls with generated hooks or use*Select.
+5. Remove the provider wrapper only after all consumers use the new module.
 
-// Simple and type-safe
-dispatchCart(newValue);
+The reverse migration is just as valid when the state needs provider scope or independent instances.
 
-// Or with callback
-dispatchCart(prev => prev + 1);
-```
+## Bottom line
 
----
-
-### 4. Performance Optimization
-
-**React Context:**
-```tsx
-// All consumers re-render on any change
-function ExpensiveComponent() {
-  const { theme } = useContext(ThemeContext);
-  // Re-renders even when unrelated state changes
-  return <div className={theme}>...</div>;
-}
-
-// Requires complex memoization to prevent
-```
-
-**re-state:**
-```tsx
-// Only components that read specific values re-render
-function ExpensiveComponent() {
-  const theme = useThemeSelect(); // Optimized selector
-  // Only re-renders when theme changes
-  return <div className={theme}>...</div>;
-}
-```
-
----
-
-### 5. Type Safety
-
-**React Context:**
-```ts
-// Manual type definitions required
-interface CartContextType {
-  items: CartItem[];
-  total: number;
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
-  // ... must manually type everything
-}
-
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-function useCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('...');
-  return context;
-}
-```
-
-**re-state:**
-```ts
-// Types are auto-generated
-export const {
-  useCart,        // [CartState, (value) => void]
-  dispatchCart,   // (value: CartState | ((prev) => CartState)) => void
-  getCart,        // () => CartState
-} = createReStateMethods<CartState>('cart', initialCart);
-```
-
----
-
-### 6. Global vs Reusable State
-
-**React Context:**
-```tsx
-// Can create multiple independent instances
-function CounterProvider({ children, initialCount = 0 }) {
-  const [count, setCount] = useState(initialCount);
-  return (
-    <CounterContext.Provider value={{ count, setCount }}>
-      {children}
-    </CounterContext.Provider>
-  );
-}
-
-function App() {
-  return (
-    <div>
-      {/* Two independent counters */}
-      <CounterProvider initialCount={10}>
-        <Counter />
-      </CounterProvider>
-      <CounterProvider initialCount={20}>
-        <Counter />
-      </CounterProvider>
-    </div>
-  );
-}
-
-// Each counter has its own isolated state
-```
-
-**re-state:**
-```tsx
-// Global state only - single instance per key
-export const { useCounter } = createReStateMethods('counter', 0);
-
-function App() {
-  return (
-    <div>
-      {/* Both use the SAME global counter */}
-      <Counter />
-      <Counter />
-    </div>
-  );
-}
-
-// If you need multiple counters, you must use different keys
-export const { useCounter1 } = createReStateMethods('counter1', 0);
-export const { useCounter2 } = createReStateMethods('counter2', 0);
-```
-
----
-
-## When to Use React Context
-
-Use **React Context** when:
-
-| Scenario | Reason |
-|----------|--------|
-| You need reusable state | Multiple independent instances of the same state type |
-| You need React-specific features | Context integrates with Suspense, concurrent rendering |
-| Your team is already familiar with it | No new learning curve |
-| You need complex provider logic | Providers can manage side effects, subscriptions, etc. |
-| You want to stay pure React | No external dependencies |
-| State is tied to React lifecycle | Provider setup/teardown aligns with component lifecycle |
-
-**Good use case:**
-```tsx
-function AppProvider({ children }) {
-  // Complex initialization logic
-  const [user, setUser] = useState(null);
-  const [theme, setTheme] = useState('light');
-
-  useEffect(() => {
-    // Load user from API on mount
-    loadUser().then(setUser);
-  }, []);
-
-  // Multiple contexts combined in one provider
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
-      <ThemeContext.Provider value={{ theme, setTheme }}>
-        {children}
-      </ThemeContext.Provider>
-    </UserContext.Provider>
-  );
-}
-```
-
-**Reusable state example:**
-```tsx
-// Multiple independent counters using Context
-function CounterApp() {
-  return (
-    <div>
-      {/* Each counter is independent */}
-      <CounterProvider initialCount={0}>
-        <Counter label="First" />
-      </CounterProvider>
-      <CounterProvider initialCount={100}>
-        <Counter label="Second" />
-      </CounterProvider>
-      <CounterProvider initialCount={-50}>
-        <Counter label="Third" />
-      </CounterProvider>
-    </div>
-  );
-}
-```
-
----
-
-## When to Use re-state
-
-Use **re-state** when:
-
-| Scenario | Reason |
-|----------|--------|
-| Quick prototyping | Zero setup, start using immediately |
-| Simple global state | Single instance of state shared across app |
-| Update state outside React | Built-in dispatch functions |
-| Type safety matters | Auto-generated types, less boilerplate |
-| Minimize bundle size | Tiny library, no provider overhead |
-| Want simple API | Same mental model as `useState` |
-| New developers on team | Lower barrier to entry |
-
-**Good use case:**
-```ts
-// Quick and simple
-export const { useUser, dispatchUser, getUser } =
-  createReStateMethods('user', { name: '', email: '' });
-
-// Can update from anywhere
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    dispatchUser(prev => ({ ...prev, lastSeen: Date.now() }));
-  }
-});
-```
-
-> **Note:** re-state creates a single global instance per key. If you need multiple independent instances of the same state type, use different keys or consider React Context.
-
-```ts
-// Multiple global counters with different keys
-export const { useCounter: useCounterA } = createReStateMethods('counter-a', 0);
-export const { useCounter: useCounterB } = createReStateMethods('counter-b', 0);
-```
-
----
-
-## Migration Guide
-
-### From React Context to re-state
-
-**Before (Context):**
-```tsx
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-function CartProvider({ children }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  return (
-    <CartContext.Provider value={{ items, setItems }}>
-      {children}
-    </CartContext.Provider>
-  );
-}
-
-function useCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('...');
-  return context;
-}
-```
-
-**After (re-state):**
-```ts
-export const {
-  useCart,
-  dispatchCart,
-} = createReStateMethods('cart', { items: [] });
-```
-
-**Steps:**
-1. Replace `createContext` with `createReStateMethods`
-2. Remove provider component
-3. Remove `useContext` wrapper
-4. Update components to use new hooks
-5. Remove provider wrapper from app
-
----
-
-## Summary
-
-| Criteria | React Context | re-state |
-|----------|---------------|----------|
-| **Lines of code** | High (boilerplate) | Low (minimal) |
-| **Learning curve** | Moderate (context API) | Low (like `useState`) |
-| **Setup time** | High (providers, types) | Zero |
-| **Type safety** | Manual | Auto-generated |
-| **Outside React updates** | Difficult | Built-in |
-| **Performance** | Requires optimization | Optimized selectors |
-| **Bundle size** | Built-in (0KB) | ~1KB |
-| **State scope** | Global or reusable | Global only |
-| **Best for** | Reusable state, complex logic | Simple global state |
-
-**Recommendation:** Start with re-state for most cases. Switch to React Context only if you need complex provider logic or React-specific features.
+Use Context for scoped, provider-owned state and re-state for keyed application-wide state that also needs access
+outside React. Both are typeable and can perform well when their subscription boundaries match the application.

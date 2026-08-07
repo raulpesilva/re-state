@@ -1,137 +1,95 @@
-# Simple Usage
+# Simple usage
 
-re-state makes global state as simple as `useState`. No providers, no context, no boilerplate.
+useReState provides the familiar [value, setValue] tuple from useState, but the value is shared by every component
+that uses the same key. It is a good starting point for a small piece of application-wide state.
 
-## The Simplest Example
+## Create a shared value
 
 ```tsx
 import { useReState } from '@raulpesilva/re-state';
 
-function Counter() {
+export function Counter() {
   const [count, setCount] = useReState('count', 0);
 
   return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>+</button>
-    </div>
+    <button type="button" onClick={() => setCount((previous) => previous + 1)}>
+      Count: {count}
+    </button>
   );
 }
 ```
 
-That's it. The state is now global.
+No provider or context wrapper is required. The setter accepts either a new value or an updater function, just like
+React's useState setter.
 
-## Sharing State Between Components
+## Share the value between components
 
-Any component using the same key shares the same state automatically:
+Use the same key in another component to read or update the same state:
 
 ```tsx
 import { useReState } from '@raulpesilva/re-state';
 
-function IncrementButton() {
-  const [count, setCount] = useReState('count', 0);
-  return <button onClick={() => setCount(count + 1)}>Add +1</button>;
+export function IncrementButton() {
+  const [, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount((previous) => previous + 1)}>Add 1</button>;
 }
 
-function DecrementButton() {
-  const [count, setCount] = useReState('count', 0);
-  return <button onClick={() => setCount(count - 1)}>Remove -1</button>;
+export function DecrementButton() {
+  const [, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount((previous) => previous - 1)}>Remove 1</button>;
 }
 
-function Display() {
+export function CounterDisplay() {
   const [count] = useReState('count', 0);
-  return <p>Current count: {count}</p>;
-}
-
-function App() {
-  return (
-    <div>
-      <Display />
-      <IncrementButton />
-      <DecrementButton />
-    </div>
-  );
+  return <output>Current count: {count}</output>;
 }
 ```
 
-Click any button and `Display` updates instantly. No prop drilling, no context providers.
+The first initialization of count establishes its value. Later calls with the same key do not replace the current
+value with their initialValue.
 
-## How It Works
+## State values and updates
 
-1. **Same key = same state**: Components using `useReState('count', 0)` all share the same `count` value
-2. **First value wins**: The initial value (`0`) is only used when the state is first created
-3. **Updates are global**: When any component calls `setCount`, all components re-render with the new value
-
-## Compare to Traditional React
-
-### Before (with Context)
-
-```tsx
-// Create context
-const CountContext = createContext();
-
-// Create provider
-function CountProvider({ children }) {
-  const [count, setCount] = useState(0);
-  return (
-    <CountContext.Provider value={{ count, setCount }}>
-      {children}
-    </CountContext.Provider>
-  );
-}
-
-// Wrap your app
-function App() {
-  return (
-    <CountProvider>
-      <Counter />
-    </CountProvider>
-  );
-}
-
-// Use in components
-function Counter() {
-  const { count, setCount } = useContext(CountContext);
-  return <button onClick={() => setCount(count + 1)}>{count}</button>;
-}
-```
-
-### After (with re-state)
+The state can be a primitive, object, array, or any other value. Updates replace the current value, so return a new
+object or array when changing part of a structured value:
 
 ```tsx
 import { useReState } from '@raulpesilva/re-state';
 
-function Counter() {
-  const [count, setCount] = useReState('count', 0);
-  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+type User = {
+  name: string;
+  email: string;
+};
+
+const initialUser: User = { name: '', email: '' };
+
+export function UserForm() {
+  const [user, setUser] = useReState<User>('user', initialUser);
+
+  return (
+    <input
+      value={user.name}
+      onChange={(event) => setUser((previous) => ({ ...previous, name: event.target.value }))}
+      placeholder="Name"
+    />
+  );
 }
 ```
 
-No context, no provider, no wrapper. Just use it.
+For independent instances of the same kind of state, use different keys. A key identifies one global value for the
+application runtime.
 
-## Next Steps
+## When to use another API
 
-Once you're comfortable with `useReState`, explore more powerful patterns:
+Use useReState directly when the state is small and shared by a few components. For a reusable state module with
+actions, getters, and reset behavior, use createReStateMethods.
 
-| When you need... | Use |
-|------------------|-----|
-| Reusable typed state modules | [`createReStateMethods`](/methods/createReStateMethods) |
-| Update state outside components | [`createReStateDispatch`](/methods/createReStateDispatch) |
-| Read state without re-rendering | [`createGetReState`](/methods/createGetReState) |
-| Select derived data from store | [`useReStateSelector`](/methods/useReStateSelector) |
+| Need | API |
+| --- | --- |
+| Share a small value by key | useReState |
+| Create a named state module | createReStateMethods |
+| Read a named state without a setter | createReStateSelect or the generated use*Select hook |
+| Update or read state outside React | createReStateDispatch and createGetReState |
+| Derive data from multiple keys | useReStateSelector |
 
-For production apps, we recommend [`createReStateMethods`](/methods/createReStateMethods) which gives you all utilities in one call:
-
-```ts filename="states/counter.ts"
-import { createReStateMethods } from '@raulpesilva/re-state';
-
-export const {
-  useCounter,        // Hook: [value, setValue]
-  useCounterSelect,  // Hook: value only
-  dispatchCounter,   // Update from anywhere
-  getCounter,        // Read without subscribing
-  resetCounter,      // Reset to initial value
-} = createReStateMethods('counter', 0);
-```
-
-Learn more in the [Hello re-state](/getting-started/hello-re-state) guide.
+Continue with [Hello re-state](/getting-started/hello-re-state) for the recommended state-module pattern.
