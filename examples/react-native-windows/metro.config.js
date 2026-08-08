@@ -9,7 +9,7 @@ const rnwPath = fs.realpathSync(path.resolve(require.resolve('react-native-windo
 
 /**
  * Metro configuration
- * https://facebook.github.io/metro/docs/configuration
+ * https://metrobundler.dev/docs/configuration/
  *
  * @type {import('metro-config').MetroConfig}
  */

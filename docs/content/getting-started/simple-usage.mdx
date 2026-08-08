@@ -1,0 +1,95 @@
+# Simple usage
+
+useReState provides the familiar [value, setValue] tuple from useState, but the value is shared by every component
+that uses the same key. It is a good starting point for a small piece of application-wide state.
+
+## Create a shared value
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function Counter() {
+  const [count, setCount] = useReState('count', 0);
+
+  return (
+    <button type="button" onClick={() => setCount((previous) => previous + 1)}>
+      Count: {count}
+    </button>
+  );
+}
+```
+
+No provider or context wrapper is required. The setter accepts either a new value or an updater function, just like
+React's useState setter.
+
+## Share the value between components
+
+Use the same key in another component to read or update the same state:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function IncrementButton() {
+  const [, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount((previous) => previous + 1)}>Add 1</button>;
+}
+
+export function DecrementButton() {
+  const [, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount((previous) => previous - 1)}>Remove 1</button>;
+}
+
+export function CounterDisplay() {
+  const [count] = useReState('count', 0);
+  return <output>Current count: {count}</output>;
+}
+```
+
+The first initialization of count establishes its value. Later calls with the same key do not replace the current
+value with their initialValue.
+
+## State values and updates
+
+The state can be a primitive, object, array, or any other value. Updates replace the current value, so return a new
+object or array when changing part of a structured value:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+type User = {
+  name: string;
+  email: string;
+};
+
+const initialUser: User = { name: '', email: '' };
+
+export function UserForm() {
+  const [user, setUser] = useReState<User>('user', initialUser);
+
+  return (
+    <input
+      value={user.name}
+      onChange={(event) => setUser((previous) => ({ ...previous, name: event.target.value }))}
+      placeholder="Name"
+    />
+  );
+}
+```
+
+For independent instances of the same kind of state, use different keys. A key identifies one global value for the
+application runtime.
+
+## When to use another API
+
+Use useReState directly when the state is small and shared by a few components. For a reusable state module with
+actions, getters, and reset behavior, use createReStateMethods.
+
+| Need                                | API                                                   |
+| ----------------------------------- | ----------------------------------------------------- |
+| Share a small value by key          | useReState                                            |
+| Create a named state module         | createReStateMethods                                  |
+| Read a named state without a setter | createReStateSelect or the generated use\*Select hook |
+| Update or read state outside React  | createReStateDispatch and createGetReState            |
+| Derive data from multiple keys      | useReStateSelector                                    |
+
+Continue with [Hello re-state](/getting-started/hello-re-state) for the recommended state-module pattern.

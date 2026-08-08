@@ -1,0 +1,138 @@
+# Hello re-state
+
+re-state is a small external store for shared React and React Native state. It keeps the useState mental model,
+identifies values with string keys, and does not require a provider.
+
+If you have not installed it yet, start with the [installation guide](/getting-started/install).
+
+## Choose an API
+
+| API                                                   | Best for                                             |
+| ----------------------------------------------------- | ---------------------------------------------------- |
+| [useReState](/methods/useReState)                     | A small shared value used directly by components     |
+| [createReState](/methods/createReState)               | A reusable read/write hook for one key               |
+| [createReStateMethods](/methods/createReStateMethods) | A complete state module with named hooks and actions |
+| [useReStateSelector](/methods/useReStateSelector)     | Derived data across one or more state keys           |
+
+Start with useReState for a quick experiment. Use createReStateMethods when the state has domain logic or needs to
+be read and updated outside React.
+
+## A direct hook
+
+The direct hook returns the same tuple as useState:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function Counter() {
+  const [count, setCount] = useReState('count', 0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button type="button" onClick={() => setCount((previous) => previous + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+```
+
+Another component can call useReState('count', 0) and observe the same value. The initial value is used only when the
+key is initialized; it is not a default that is reapplied on every render.
+
+See [Simple usage](/getting-started/simple-usage) for the complete keyed-state example.
+
+## A named state module
+
+For application state that will be reused, define the key and its behavior in one module:
+
+```ts filename="states/counter.ts"
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+export const { useCounter, useCounterSelect, dispatchCounter, getCounter, resetCounter } = createReStateMethods(
+  'counter',
+  0
+);
+
+export const increment = (): void => {
+  dispatchCounter((previous) => previous + 1);
+};
+```
+
+The factory creates five named methods:
+
+| Generated method       | Purpose                                                    |
+| ---------------------- | ---------------------------------------------------------- |
+| useCounter()           | Read and update the value from a component                 |
+| useCounterSelect()     | Read the value from a component without returning a setter |
+| dispatchCounter(value) | Update the value from any JavaScript or TypeScript code    |
+| getCounter()           | Read the current value synchronously without subscribing   |
+| resetCounter()         | Restore the initial value                                  |
+
+Use the read-only hook in a display component:
+
+```tsx filename="components/CounterDisplay.tsx"
+import { useCounterSelect } from '../states/counter';
+
+export function CounterDisplay() {
+  const count = useCounterSelect();
+  return <output>Current count: {count}</output>;
+}
+```
+
+The generated dispatcher and getter can be used outside React:
+
+```ts
+import { dispatchCounter, getCounter } from './states/counter';
+
+export const incrementFromShortcut = (): void => {
+  dispatchCounter((previous) => previous + 1);
+};
+
+export const logCounter = (): void => {
+  console.log(getCounter());
+};
+```
+
+## Select derived data
+
+useReStateSelector receives the complete keyed store and returns the value selected by your function. Its default
+equality check avoids a render when the selected value has not changed:
+
+```tsx
+import { useReStateSelector } from '@raulpesilva/re-state';
+
+type AppStore = {
+  todos: Array<{ finished: boolean }>;
+};
+
+const todoCount = (state: AppStore): number => state.todos.length;
+
+export function TodoCount() {
+  const count = useReStateSelector<AppStore, number>(todoCount);
+  return <output>Total: {count}</output>;
+}
+```
+
+The todos key must be initialized by a state module before the selector is used. Use a custom equality function when
+the selected value needs comparison rules other than the default shallow equality.
+
+## Important behavior
+
+- A key identifies one global value in the current application runtime. Use different keys for independent instances.
+- An updater function receives the current value, which is safer when several updates can be queued.
+- State updates replace the value. Merge object or array state explicitly with a new value.
+- Factory functions initialize their key when the module is evaluated, which makes them suitable for state modules.
+- onReStateChange can subscribe to key changes outside React and returns an unsubscribe function.
+
+## Explore the API
+
+| Topic                  | Guide                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| Direct keyed state     | [useReState](/methods/useReState)                                                                   |
+| Named state modules    | [createReStateMethods](/methods/createReStateMethods)                                               |
+| Individual factories   | [createReState](/methods/createReState) and related factory methods                                 |
+| Derived values         | [useReStateSelector](/methods/useReStateSelector)                                                   |
+| External subscriptions | [onReStateChange](/methods/onReStateChange)                                                         |
+| Reset behavior         | [resetReState](/methods/resetReState) and [setReStateInitialValue](/methods/setReStateInitialValue) |

@@ -1,0 +1,44 @@
+# setReStateInitialValue
+
+Sets or replaces the initial value stored for one state key. [resetReState](/methods/resetReState) uses this value when restoring the key.
+
+```ts
+import { createReState, createReStateDispatch, resetReState, setReStateInitialValue } from '@raulpesilva/re-state';
+
+export const useTheme = createReState<'light' | 'dark'>('theme', 'light');
+const dispatchTheme = createReStateDispatch<'light' | 'dark'>('theme');
+
+setReStateInitialValue('theme', 'dark');
+dispatchTheme('light');
+resetReState(); // theme is now "dark"
+```
+
+If the key already exists, changing its initial value does not change its current value and does not notify subscribers. If the key does not exist, the computed initial value also becomes its current value.
+
+The exported wrapper is typed as `value: T`, while the underlying store treats a function value as an initializer function. That function is evaluated immediately with the current value (or `undefined` for a new key), and the result is stored. The function is not evaluated again by `resetReState`:
+
+```ts
+const computeResetCount = (previous: number | undefined): number => previous ?? 0;
+
+setReStateInitialValue('count', computeResetCount);
+```
+
+For a direct reset value, pass the value itself. This is also the behavior used by the `valueOfReset` option of [createReStateMethods](/methods/createReStateMethods).
+
+## API
+
+```ts
+function setReStateInitialValue<T>(key: string, value: T): void;
+```
+
+| Parameter | Type     | Description                                                              |
+| --------- | -------- | ------------------------------------------------------------------------ |
+| `key`     | `string` | State key whose baseline should be set.                                  |
+| `value`   | `T`      | Direct value, or a function that the store evaluates as described above. |
+
+The function is synchronous and returns `void`.
+
+## Related
+
+- [resetReState](/methods/resetReState) restores all stored baselines.
+- [createReStateMethods](/methods/createReStateMethods) accepts a reset value when a key is created.

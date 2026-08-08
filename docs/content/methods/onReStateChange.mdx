@@ -1,0 +1,62 @@
+# onReStateChange
+
+Subscribes a callback to one or more state keys without using a React hook. It is useful for side effects in application setup, utilities, integrations, and other non-component code.
+
+```ts filename="state-effects.ts"
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { getTheme, dispatchTheme } = createReStateMethods<'theme', 'light' | 'dark'>('theme', 'light');
+
+const unsubscribe = onReStateChange(() => {
+  document.documentElement.dataset.theme = getTheme();
+}, ['theme']);
+
+dispatchTheme('dark');
+unsubscribe();
+```
+
+The public callback type exposes no parameters. Read the latest values with a getter inside the callback rather than
+depending on internal notification arguments:
+
+```ts
+const stop = onReStateChange(() => {
+  console.log(getTheme());
+}, ['theme']);
+```
+
+The callback is not called when the subscription is created. Each write or reset notification for a listed key invokes it; the store does not compare old and new values before notifying. If the same key appears more than once in `dependencies`, it is subscribed more than once.
+
+Call the returned function to remove every subscription created by that call. There is no automatic cleanup, so do not register during every render. In a component, register from an effect and return the cleanup:
+
+```tsx
+import { useEffect } from 'react';
+import { onReStateChange } from '@raulpesilva/re-state';
+
+export function Monitor() {
+  useEffect(() => {
+    return onReStateChange(() => {
+      console.log('state written');
+    }, ['connection']);
+  }, []);
+
+  return null;
+}
+```
+
+## API
+
+```ts
+function onReStateChange(callback: () => void, dependencies: string[]): () => void;
+```
+
+| Parameter      | Type         | Description                                                             |
+| -------------- | ------------ | ----------------------------------------------------------------------- |
+| `callback`     | `() => void` | Function invoked for a matching notification.                           |
+| `dependencies` | `string[]`   | Keys to watch. Unknown keys may be watched before they are initialized. |
+
+Returns an unsubscribe function. Calling it more than once is safe.
+
+## Related
+
+- [createGetReState](/methods/createGetReState) reads current values inside a callback.
+- [useReState](/methods/useReState) and [createReStateMethods](/methods/createReStateMethods) provide component subscriptions.

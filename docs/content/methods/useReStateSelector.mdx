@@ -1,0 +1,89 @@
+# useReStateSelector
+
+Selects a value from the complete re-state store and subscribes to store updates. The selector runs when the store is notified, while the component re-renders only when the selected result fails the equality check.
+
+State is represented as an object keyed by the state names you have initialized:
+
+```tsx
+import { createReStateMethods, useReStateSelector } from '@raulpesilva/re-state';
+
+type AppState = {
+  count: number;
+  theme: 'light' | 'dark';
+};
+
+const { dispatchCount } = createReStateMethods<'count', number>('count', 0);
+const { dispatchTheme } = createReStateMethods<'theme', AppState['theme']>('theme', 'light');
+
+export function Summary() {
+  const summary = useReStateSelector<AppState, { count: number; theme: AppState['theme'] }>((state) => ({
+    count: state.count,
+    theme: state.theme,
+  }));
+
+  return (
+    <p>
+      {summary.theme}: {summary.count}
+    </p>
+  );
+}
+
+export function updateSummary(): void {
+  dispatchCount(1);
+  dispatchTheme('dark');
+}
+```
+
+`Store` in the generic signature is the TypeScript shape of that object; it is not a store instance that you create or pass to the hook. Keys that have not been initialized are absent from the runtime object.
+
+The default equality function is shallow equality. It compares primitives with `Object.is` semantics and compares an object's own enumerable properties one level deep. Supply `isEquals` when the selected value needs different comparison rules:
+
+```tsx
+import { createReStateMethods, useReStateSelector } from '@raulpesilva/re-state';
+
+type CartState = {
+  items: Array<{ id: string; name: string }>;
+};
+
+const { dispatchItems } = createReStateMethods<'items', CartState['items']>('items', []);
+
+function ItemIds() {
+  const ids = useReStateSelector<CartState, string[]>(
+    (state) => state.items.map((item) => item.id),
+    (previous, next) => previous.length === next.length && previous.every((id, index) => id === next[index])
+  );
+
+  return <p>{ids.join(', ')}</p>;
+}
+
+export function addItem(item: CartState['items'][number]): void {
+  dispatchItems((previous) => [...previous, item]);
+}
+```
+
+Because this hook subscribes to the whole store, it can derive data from multiple keys. For a single key without derived data, [createReStateSelect](/methods/createReStateSelect) or the `use<Name>Select` method from [createReStateMethods](/methods/createReStateMethods) is simpler.
+
+## API
+
+```ts
+function useReStateSelector<Store, Selection = unknown>(
+  selector: (store: Store) => Selection,
+  isEquals?: (storeA: Selection, storeB: Selection) => boolean
+): Selection;
+```
+
+| Parameter  | Type                                                | Description                                                 |
+| ---------- | --------------------------------------------------- | ----------------------------------------------------------- |
+| `selector` | `(store: Store) => Selection`                       | Returns the value to expose to the component.               |
+| `isEquals` | `(storeA: Selection, storeB: Selection) => boolean` | Optional comparison function. Defaults to shallow equality. |
+
+| Type parameter | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `Store`        | TypeScript shape of the complete state object. |
+| `Selection`    | Value returned by `selector`.                  |
+
+## Related
+
+- [useReState](/methods/useReState) reads and writes one key.
+- [createReStateSelect](/methods/createReStateSelect) subscribes to one key.
+- [createReStateMethods](/methods/createReStateMethods) creates keyed hooks and methods.
