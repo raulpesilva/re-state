@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Fredericka_the_Great, Geist, Geist_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import './global.css';
@@ -12,6 +12,13 @@ const sans = Geist({
 const mono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
+});
+
+const blueprint = Fredericka_the_Great({
+  adjustFontFallback: false,
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-blueprint',
 });
 
 export const metadata: Metadata = {
@@ -39,7 +46,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${sans.variable} ${mono.variable} flex min-h-screen flex-col font-sans`}>
+      <body className={`${sans.variable} ${mono.variable} ${blueprint.variable} flex min-h-screen flex-col font-sans`}>
         <RootProvider
           theme={{
             defaultTheme: 'dark',

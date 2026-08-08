@@ -40,5 +40,8 @@ export function homeOptions(): BaseLayoutProps {
     searchToggle: {
       enabled: false,
     },
+    themeSwitch: {
+      enabled: false,
+    },
   };
 }

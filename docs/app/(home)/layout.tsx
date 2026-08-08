@@ -4,5 +4,9 @@ import { homeOptions } from '@/utils/layout.shared';
 import './home.css';
 
 export default function LandingLayout({ children }: { children: ReactNode }) {
-  return <HomeLayout {...homeOptions()}>{children}</HomeLayout>;
+  return (
+    <HomeLayout {...homeOptions()} className="dark">
+      {children}
+    </HomeLayout>
+  );
 }
