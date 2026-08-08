@@ -1,0 +1,33 @@
+{
+  "name": "expo-example",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@expo/metro-runtime": "~57.0.8",
+    "@raulpesilva/re-state": "workspace:*",
+    "expo": "~57.0.11",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "oxfmt": "0.62.0",
+    "oxlint": "1.77.0",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "format": "oxfmt --write App.tsx app.json index.ts package.json tsconfig.json .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check App.tsx app.json index.ts package.json tsconfig.json .oxlintrc.json .oxfmtrc.json",
+    "lint": "oxlint App.tsx index.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck"
+  },
+  "private": true
+}

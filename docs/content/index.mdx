@@ -1,0 +1,68 @@
+<div align="center">
+  <img alt="re-state" width="250" src="/logo.svg" />
+  <p>
+    <strong>Provider-free shared state for React and React Native.</strong>
+  </p>
+</div>
+
+# Shared state with a familiar API
+
+re-state lets components share a value by using the same string key. There is no provider to mount and no reducer or
+context boilerplate to maintain. Use the direct hook for small states or generate a complete, reusable state module for
+larger applications.
+
+## Recommended: create a state module
+
+```ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+export const { useCounter, useCounterSelect, dispatchCounter, getCounter, resetCounter } = createReStateMethods(
+  'counter',
+  0
+);
+```
+
+```tsx
+import { resetCounter, useCounter } from './counter';
+
+export function Counter() {
+  const [count, setCount] = useCounter();
+
+  return (
+    <div>
+      <output>{count}</output>
+      <button onClick={() => setCount((previous) => previous + 1)}>Increment</button>
+      <button onClick={resetCounter}>Reset</button>
+    </div>
+  );
+}
+```
+
+The generated selector hook reads without exposing a setter. The dispatch and getter functions also work outside React
+components.
+
+## Smallest API: useReState
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function CompactCounter() {
+  const [count, setCount] = useReState('compact-counter', 0);
+  return <button onClick={() => setCount((previous) => previous + 1)}>{count}</button>;
+}
+```
+
+Any mounted component using `compact-counter` observes the same value.
+
+## Supported environments
+
+- React 16.8 or newer, including current React 19 applications
+- React DOM through the web export and React Native through the native export
+- ESM and CommonJS consumers, with bundled TypeScript declarations
+- JavaScript runtimes that support the ES2019 output target
+
+The repository includes working examples for Vite JavaScript, Vite TypeScript, Next.js, Expo, React Native Windows,
+and React Native macOS.
+
+Start with [installation](/getting-started/install), choose a [usage style](/getting-started/recommended), or browse the
+[API reference](/methods/createReStateMethods).

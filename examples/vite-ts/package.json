@@ -1,0 +1,36 @@
+{
+  "name": "vite-ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm typecheck && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:dev": "vitest",
+    "format": "oxfmt --write src package.json index.html tsconfig.json vite.config.ts vitest.config.ts .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check src package.json index.html tsconfig.json vite.config.ts vitest.config.ts .oxlintrc.json .oxfmtrc.json",
+    "lint": "oxlint src vite.config.ts vitest.config.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "@raulpesilva/re-state": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "jsdom": "^29.1.1",
+    "oxfmt": "^0.62.0",
+    "oxlint": "^1.77.0",
+    "typescript": "^6.0.0",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  }
+}

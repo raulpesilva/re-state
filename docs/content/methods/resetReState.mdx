@@ -1,0 +1,49 @@
+# resetReState
+
+Resets every registered state key to its stored initial value. The operation is synchronous and notifies subscribers for the registered keys.
+
+```ts
+import { resetReState } from '@raulpesilva/re-state';
+
+resetReState();
+```
+
+An initial value is recorded when a key is first initialized or written. [setReStateInitialValue](/methods/setReStateInitialValue) replaces that key's reset baseline. Resetting does not remove keys, clear listeners, or re-run initializer functions.
+
+## Example
+
+Use it for logout or another application-wide reset:
+
+```ts filename="auth/logout.ts"
+import { resetReState } from '@raulpesilva/re-state';
+
+export function logout(): void {
+  localStorage.removeItem('token');
+  resetReState();
+}
+```
+
+To reset one key, use the generated `reset<Name>` method from [createReStateMethods](/methods/createReStateMethods):
+
+```ts
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+const { resetCart } = createReStateMethods('cart', []);
+
+resetCart(); // resets only "cart"
+```
+
+`resetReState` also sends notifications to [onReStateChange](/methods/onReStateChange) subscribers for each matching key. It restores the value snapshot that was stored as the initial value; it does not fetch persisted data or clear browser storage.
+
+## API
+
+```ts
+function resetReState(): void;
+```
+
+The function takes no parameters and returns `void`.
+
+## Related
+
+- [setReStateInitialValue](/methods/setReStateInitialValue) changes a key's reset baseline.
+- [createReStateMethods](/methods/createReStateMethods) provides a per-key reset method.

@@ -1,0 +1,207 @@
+# Recommended usage
+
+For reusable application state, define a small state module with createReStateMethods. The module owns the key,
+state shape, actions, and reset behavior; components only import the methods they need.
+
+## Why use a state module?
+
+| Benefit          | What it provides                                                   |
+| ---------------- | ------------------------------------------------------------------ |
+| Clear ownership  | The state key and initial value live in one file                   |
+| Type inference   | The generated methods use the type of the initial value            |
+| Reusable actions | Updates can be shared by components, event handlers, and utilities |
+| Read-only views  | use\*Select exposes state without a setter                         |
+| Testable logic   | Actions can be tested without mounting every consumer              |
+
+## Define state and actions together
+
+The following module models a cart and keeps its update rules next to the state:
+
+```ts filename="states/cart.ts"
+import { createReStateMethods } from '@raulpesilva/re-state';
+
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
+
+type CartState = {
+  items: CartItem[];
+  total: number;
+};
+
+const initialCart: CartState = {
+  items: [],
+  total: 0,
+};
+
+export const { useCart, useCartSelect, dispatchCart, getCart, resetCart } = createReStateMethods('cart', initialCart);
+
+export const addItem = (item: Omit<CartItem, 'quantity'>): void => {
+  dispatchCart((currentCart) => {
+    const existingItem = currentCart.items.find((currentItem) => currentItem.id === item.id);
+    const items = existingItem
+      ? currentCart.items.map((currentItem) =>
+          currentItem.id === item.id ? { ...currentItem, quantity: currentItem.quantity + 1 } : currentItem
+        )
+      : [...currentCart.items, { ...item, quantity: 1 }];
+    const total = items.reduce((sum, currentItem) => sum + currentItem.price * currentItem.quantity, 0);
+
+    return { items, total };
+  });
+};
+
+export const removeItem = (id: string): void => {
+  dispatchCart((currentCart) => {
+    const items = currentCart.items.filter((item) => item.id !== id);
+    const total = items.reduce((sum, currentItem) => sum + currentItem.price * currentItem.quantity, 0);
+
+    return { items, total };
+  });
+};
+
+export const clearCart = (): void => {
+  resetCart();
+};
+```
+
+The updater form of dispatchCart receives the current CartState. It replaces the value with the object returned by the
+callback, so each action creates new arrays instead of mutating the existing state.
+
+## Consume the module
+
+Use the read-only hook for a component that displays the cart:
+
+```tsx filename="components/Cart.tsx"
+import { clearCart, removeItem, useCartSelect } from '../states/cart';
+
+export function Cart() {
+  const cart = useCartSelect();
+
+  return (
+    <section>
+      <h2>Cart ({cart.items.length} items)</h2>
+      {cart.items.map((item) => (
+        <div key={item.id}>
+          <span>
+            {item.name} × {item.quantity}
+          </span>
+          <button type="button" onClick={() => removeItem(item.id)}>
+            Remove
+          </button>
+        </div>
+      ))}
+      <p>Total: {cart.total.toFixed(2)}</p>
+      <button type="button" onClick={clearCart}>
+        Clear cart
+      </button>
+    </section>
+  );
+}
+```
+
+Actions can be called from another component without passing setters through props:
+
+```tsx filename="components/AddProduct.tsx"
+import { addItem } from '../states/cart';
+
+export function AddProduct() {
+  return (
+    <button type="button" onClick={() => addItem({ id: '1', name: 'Product', price: 10 })}>
+      Add product
+    </button>
+  );
+}
+```
+
+When a component needs both the value and a setter, use the generated hook:
+
+```tsx
+import { useCart } from '../states/cart';
+
+export function CartEditor() {
+  const [cart, setCart] = useCart();
+
+  return (
+    <button type="button" onClick={() => setCart((currentCart) => ({ ...currentCart, total: currentCart.total + 1 }))}>
+      Adjust total ({cart.total})
+    </button>
+  );
+}
+```
+
+## The generated methods
+
+For createReStateMethods('cart', initialCart), the returned object contains:
+
+| Method              | Use it to                                     |
+| ------------------- | --------------------------------------------- |
+| useCart()           | Read and update the cart in a component       |
+| useCartSelect()     | Read the cart in a component without a setter |
+| dispatchCart(value) | Update the cart from any code                 |
+| getCart()           | Read the current cart without subscribing     |
+| resetCart()         | Restore initialCart                           |
+
+Keep the factory call at module scope. Calling it once per state module gives the key a stable owner and avoids
+repeating setup in components.
+
+## Use individual factories when needed
+
+createReStateMethods is the default choice, but individual factories are useful when you want custom names or only
+need part of the API. Initialize the key before creating the other helpers:
+
+```ts filename="states/theme.ts"
+import { createGetReState, createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state';
+
+type Theme = 'light' | 'dark' | 'system';
+
+const THEME_KEY = 'theme';
+const DEFAULT_THEME: Theme = 'system';
+
+export const useTheme = createReState<Theme>(THEME_KEY, DEFAULT_THEME);
+export const useThemeSelect = createReStateSelect<Theme>(THEME_KEY);
+export const dispatchTheme = createReStateDispatch<Theme>(THEME_KEY);
+export const getTheme = createGetReState<Theme>(THEME_KEY);
+
+export const resetTheme = (): void => {
+  dispatchTheme(DEFAULT_THEME);
+};
+```
+
+## Subscribe outside React
+
+Use onReStateChange for persistence, analytics, or another side effect that should run when a key changes:
+
+```ts
+import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
+
+const { getTheme } = createReStateMethods('theme', 'light');
+
+const unsubscribe = onReStateChange(() => {
+  localStorage.setItem('theme', getTheme());
+}, ['theme']);
+```
+
+The callback does not run when the subscription is created. Keep the returned unsubscribe function when the
+subscription has a shorter lifetime, such as a component effect or a test.
+
+## Organize larger applications
+
+Start with one file per feature and export its public actions and hooks:
+
+```text
+src/
+  states/
+    cart.ts
+    session.ts
+    theme.ts
+  components/
+    Cart.tsx
+```
+
+Keep keys unique, use updater functions for changes based on current state, and prefer use\*Select for display-only
+components. If a selector combines multiple keys, use useReStateSelector.
+
+For a quick one-off shared value, the direct useReState hook is still the simplest option.

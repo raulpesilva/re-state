@@ -1,0 +1,44 @@
+# createGetReState
+
+Creates a getter bound to one state key. The returned function reads the current value synchronously and does not subscribe to updates, so calling it does not cause a React render.
+
+```ts filename="states/session.ts"
+import { createGetReState, createReState } from '@raulpesilva/re-state';
+
+type Session = {
+  userId: string;
+};
+
+export const useSession = createReState<Session | null>('session', null);
+export const getSession = createGetReState<Session | null>('session');
+```
+
+Use the getter in utilities, event handlers, or other code that is not a component:
+
+```ts filename="utils/session.ts"
+import { getSession } from '../states/session';
+
+export function hasSession(): boolean {
+  return getSession() !== null;
+}
+```
+
+`createGetReState` neither creates nor initializes the key. If the key has not been initialized, the runtime value is `undefined`, even though the generic return type describes the value your application expects.
+
+## API
+
+```ts
+function createGetReState<S>(key: string): () => S;
+```
+
+| Parameter | Type     | Description  |
+| --------- | -------- | ------------ |
+| `key`     | `string` | Key to read. |
+
+The returned getter has no parameters and returns the current value. It always reads the latest value; it does not retain a snapshot.
+
+## Related
+
+- [createReState](/methods/createReState) creates a keyed state hook.
+- [createReStateDispatch](/methods/createReStateDispatch) creates a keyed updater.
+- [createReStateMethods](/methods/createReStateMethods) creates a getter together with the other keyed methods.

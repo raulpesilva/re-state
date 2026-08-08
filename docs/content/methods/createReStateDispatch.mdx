@@ -1,0 +1,51 @@
+# createReStateDispatch
+
+Creates a function that updates one state key without using a React hook. Use it in actions, event handlers, utilities, or asynchronous code.
+
+```ts filename="states/counter.ts"
+import { createReState, createReStateDispatch } from '@raulpesilva/re-state';
+
+export const useCounter = createReState<number>('counter', 0);
+export const dispatchCounter = createReStateDispatch<number>('counter');
+
+export const increment = (): void => {
+  dispatchCounter((previous) => previous + 1);
+};
+```
+
+```ts filename="utils/notifications.ts"
+import { createReStateDispatch } from '@raulpesilva/re-state';
+
+const dispatchNotification = createReStateDispatch<string | null>('notification');
+
+export function showNotification(message: string): void {
+  dispatchNotification(message);
+}
+```
+
+The dispatch function accepts either a replacement value or an updater function:
+
+```ts
+dispatchCounter(10);
+dispatchCounter((previous) => previous + 1);
+```
+
+If the key has not been initialized, the first dispatch creates it and establishes its initial value. An updater for an uninitialized key receives `undefined` at runtime, so initialize the key first when the updater requires a value.
+
+## API
+
+```ts
+function createReStateDispatch<S>(key: string): (value: S | ((previous: S) => S) | undefined) => void;
+```
+
+| Parameter | Type     | Description                 |
+| --------- | -------- | --------------------------- |
+| `key`     | `string` | Shared state key to update. |
+
+The returned function returns `void`. It does not read or subscribe to state.
+
+## Related
+
+- [createReState](/methods/createReState) creates the hook for the same key.
+- [createGetReState](/methods/createGetReState) reads a key without subscribing.
+- [createReStateMethods](/methods/createReStateMethods) includes a generated dispatch method.

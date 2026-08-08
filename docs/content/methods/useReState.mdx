@@ -1,0 +1,50 @@
+# useReState
+
+`useReState` is a hook for sharing one value across components. Components that use the same key subscribe to the same state, without a provider or context setup.
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function Counter() {
+  const [count, setCount] = useReState('count', 0);
+
+  return <button onClick={() => setCount((previous) => previous + 1)}>Count: {count}</button>;
+}
+```
+
+Another component can use the same key:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function CounterLabel() {
+  const [count] = useReState('count', 0);
+  return <span>{count}</span>;
+}
+```
+
+The `initialValue` is used only when the key is not already registered. Later calls with the same key do not replace the shared value or its stored initial value. For object and array state, use immutable updates when changing nested data.
+
+The hook must be called from a component or another custom hook. If no initial value is supplied and nothing else initializes the key, its runtime value is `undefined`.
+
+## API
+
+```ts
+function useReState<S>(
+  key: string,
+  initialValue?: S | ((previous: S) => S)
+): [S, (value: S | ((previous: S) => S) | undefined) => void];
+```
+
+| Parameter      | Type                        | Description                                   |
+| -------------- | --------------------------- | --------------------------------------------- |
+| `key`          | `string`                    | Shared state key.                             |
+| `initialValue` | `S \| ((previous: S) => S)` | Value or initializer used only for a new key. |
+
+The hook returns the current value and a setter. The setter accepts a replacement value or a function that receives the current value.
+
+## Related
+
+- [createReState](/methods/createReState) binds a key once and returns a reusable hook.
+- [createReStateDispatch](/methods/createReStateDispatch) updates a key outside React.
+- [useReStateSelector](/methods/useReStateSelector) selects derived data from the complete store.
