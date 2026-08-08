@@ -1,5 +1,5 @@
 {
   "title": "Getting Started",
   "defaultOpen": true,
-  "pages": ["install", "hello-re-state", "recommended", "simple-usage", "tradeoff"]
+  "pages": ["install", "hello-re-state", "simple-usage", "recommended", "tradeoff", "development"]
 }

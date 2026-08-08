@@ -1,11 +1,12 @@
 ---
 title: onReStateChange
-description: Subscribe to shared state changes from effects, utilities, and other non-component code.
+description: Run a callback when one or more shared state keys change.
 ---
 
 # onReStateChange
 
-Subscribes a callback to one or more state keys without using a React hook. It is useful for side effects in application setup, utilities, integrations, and other non-component code.
+Use `onReStateChange` for persistence, analytics, integrations, or another side effect that should run outside a React
+render.
 
 ```ts filename="state-effects.ts"
 import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
@@ -13,40 +14,33 @@ import { createReStateMethods, onReStateChange } from '@raulpesilva/re-state';
 const { getTheme, dispatchTheme } = createReStateMethods<'theme', 'light' | 'dark'>('theme', 'light');
 
 const unsubscribe = onReStateChange(() => {
-  document.documentElement.dataset.theme = getTheme();
+  localStorage.setItem('theme', getTheme());
 }, ['theme']);
 
 dispatchTheme('dark');
 unsubscribe();
 ```
 
-The public callback type exposes no parameters. Read the latest values with a getter inside the callback rather than
-depending on internal notification arguments:
+The callback receives no arguments. Read the latest value with a getter, as the example does.
 
-```ts
-const stop = onReStateChange(() => {
-  console.log(getTheme());
-}, ['theme']);
-```
+## Keep in mind
 
-The callback is not called when the subscription is created. Each write or reset notification for a listed key invokes it; the store does not compare old and new values before notifying. If the same key appears more than once in `dependencies`, it is subscribed more than once.
+- The callback does not run when you create the subscription.
+- Every write or reset notification for a listed key runs the callback, even when the old and new values are equal.
+- List each key once. A duplicate key creates a duplicate subscription.
+- Cleanup is manual. Keep the returned unsubscribe function and call it when the listener is no longer needed.
 
-Call the returned function to remove every subscription created by that call. There is no automatic cleanup, so do not register during every render. In a component, register from an effect and return the cleanup:
+Inside a component, subscribe from an effect and return the cleanup function:
 
 ```tsx
-import { useEffect } from 'react';
-import { onReStateChange } from '@raulpesilva/re-state';
-
-export function Monitor() {
-  useEffect(() => {
-    return onReStateChange(() => {
-      console.log('state written');
-    }, ['connection']);
-  }, []);
-
-  return null;
-}
+useEffect(() => {
+  return onReStateChange(() => {
+    console.log(getConnection());
+  }, ['connection']);
+}, []);
 ```
+
+Do not register a subscription during render.
 
 ## API
 
@@ -54,14 +48,12 @@ export function Monitor() {
 function onReStateChange(callback: () => void, dependencies: string[]): () => void;
 ```
 
-| Parameter      | Type         | Description                                                             |
-| -------------- | ------------ | ----------------------------------------------------------------------- |
-| `callback`     | `() => void` | Function invoked for a matching notification.                           |
-| `dependencies` | `string[]`   | Keys to watch. Unknown keys may be watched before they are initialized. |
+| Parameter      | Description                                            |
+| -------------- | ------------------------------------------------------ |
+| `callback`     | Function called after a listed key is written or reset |
+| `dependencies` | Keys to watch                                          |
 
-Returns an unsubscribe function. Calling it more than once is safe.
+Unknown keys may be watched before they are initialized. Calling the returned unsubscribe function more than once is
+safe.
 
-## Related
-
-- [createGetReState](/docs/methods/createGetReState) reads current values inside a callback.
-- [useReState](/docs/methods/useReState) and [createReStateMethods](/docs/methods/createReStateMethods) provide component subscriptions.
+Use [`createGetReState`](/docs/methods/createGetReState) to create the getters used inside a callback.

@@ -1,20 +1,20 @@
 ---
 title: createReStateSelect
-description: Create a read-only hook that subscribes to one shared state key.
+description: Create a read-only hook for one shared state key.
 ---
 
 # createReStateSelect
 
-Creates a read-only hook bound to one state key. It returns the current value and subscribes only to that key, so components do not receive a setter.
+`createReStateSelect` creates a hook that reads one key without exposing a setter. It is a good fit for display
+components that should observe state but not update it directly.
 
 ```ts filename="states/theme.ts"
-import { createReState, createReStateDispatch, createReStateSelect } from '@raulpesilva/re-state';
+import { createReState, createReStateSelect } from '@raulpesilva/re-state';
 
 type Theme = 'light' | 'dark';
 
 export const useTheme = createReState<Theme>('theme', 'light');
 export const useThemeSelect = createReStateSelect<Theme>('theme');
-export const dispatchTheme = createReStateDispatch<Theme>('theme');
 ```
 
 ```tsx filename="components/ThemeLabel.tsx"
@@ -26,9 +26,11 @@ export function ThemeLabel() {
 }
 ```
 
-`createReStateSelect` does not initialize the key. Initialize it with [createReState](/docs/methods/createReState), [useReState](/docs/methods/useReState), a dispatcher, or [setReStateInitialValue](/docs/methods/setReStateInitialValue) before relying on a defined value.
+This factory does not initialize the key. In the example, `createReState` does that first. If nothing initializes the
+key before the hook renders, the runtime value is `undefined`.
 
-The hook uses the external-store snapshot for the key. React compares that snapshot with `Object.is`; this hook does not apply the shallow equality used by [useReStateSelector](/docs/methods/useReStateSelector). An uninitialized key therefore returns `undefined` at runtime.
+The hook subscribes only to its key. React compares snapshots with `Object.is`; it does not use the shallow comparison
+from [`useReStateSelector`](/docs/methods/useReStateSelector).
 
 ## API
 
@@ -36,18 +38,7 @@ The hook uses the external-store snapshot for the key. React compares that snaps
 function createReStateSelect<S>(key: string): () => S;
 ```
 
-| Parameter | Type     | Description                                |
-| --------- | -------- | ------------------------------------------ |
-| `key`     | `string` | Shared state key to read and subscribe to. |
+`key` identifies the value the hook reads.
 
-The returned hook takes no arguments and returns the current value.
-
-## Comparison
-
-| Need                                  | Use                                                        |
-| ------------------------------------- | ---------------------------------------------------------- |
-| Read and write one key in a component | [createReState](/docs/methods/createReState)               |
-| Read one key in a component           | `createReStateSelect`                                      |
-| Read one key outside React            | [createGetReState](/docs/methods/createGetReState)         |
-| Select derived data from several keys | [useReStateSelector](/docs/methods/useReStateSelector)     |
-| Get all methods for one key           | [createReStateMethods](/docs/methods/createReStateMethods) |
+Use [`createReState`](/docs/methods/createReState) when the component also needs a setter, or
+[`createGetReState`](/docs/methods/createGetReState) to read the value outside React without subscribing.

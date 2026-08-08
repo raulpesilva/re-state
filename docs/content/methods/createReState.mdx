@@ -1,11 +1,12 @@
 ---
 title: createReState
-description: Create a reusable read-and-write hook bound to one shared state key.
+description: Create a reusable read-and-write hook for one shared state key.
 ---
 
 # createReState
 
-Creates a hook bound to a state key. The factory initializes the key with `initialValue` when it is first registered, and the returned hook provides the familiar `[value, setValue]` tuple.
+`createReState` binds a key and initial value once, then returns a named hook with the familiar
+`[value, setValue]` tuple.
 
 ```ts filename="states/counter.ts"
 import { createReState } from '@raulpesilva/re-state';
@@ -18,14 +19,14 @@ import { useCounter } from '../states/counter';
 
 export function Counter() {
   const [count, setCount] = useCounter();
-
   return <button onClick={() => setCount((previous) => previous + 1)}>Count: {count}</button>;
 }
 ```
 
-Every hook created for the same key shares the same value. If that key is already registered, a later call does not replace its current or initial value. An initializer function is evaluated while the factory initializes a new key.
+The factory initializes the key when it runs. Calling another factory with the same key later does not replace the
+current value or the original reset baseline.
 
-`createReState` returns a hook, so call the returned function only from a React component or another custom hook.
+The returned function is a React hook, so call it only from a component or another custom hook.
 
 ## API
 
@@ -36,17 +37,12 @@ function createReState<S>(
 ): () => [S, (value: S | ((previous: S) => S) | undefined) => void];
 ```
 
-| Parameter      | Type                        | Description                                               |
-| -------------- | --------------------------- | --------------------------------------------------------- |
-| `key`          | `string`                    | Shared state key.                                         |
-| `initialValue` | `S \| ((previous: S) => S)` | Value or initializer used when the key is not registered. |
+| Parameter      | Description                                           |
+| -------------- | ----------------------------------------------------- |
+| `key`          | Name that identifies the shared value                 |
+| `initialValue` | Value or initializer used when the key does not exist |
 
-The hook returns the current value and a setter. The setter accepts a value or an updater function that receives the current value.
+Without an initial value, a new key starts as `undefined` at runtime.
 
-If no initial value is supplied, the value is `undefined` until something initializes the key.
-
-## Related
-
-- [useReState](/docs/methods/useReState) accepts the key at the hook call site.
-- [createReStateSelect](/docs/methods/createReStateSelect) creates a read-only keyed hook.
-- [createReStateMethods](/docs/methods/createReStateMethods) creates all keyed methods together.
+Use [`useReState`](/docs/methods/useReState) when the key belongs at the hook call site. Use
+[`createReStateMethods`](/docs/methods/createReStateMethods) to generate all helpers for the key together.

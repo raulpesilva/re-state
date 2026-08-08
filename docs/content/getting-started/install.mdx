@@ -1,47 +1,31 @@
 ---
 title: Install
-description: Install re-state in React or React Native and run the repository examples locally.
+description: Add re-state to a React or React Native application.
 ---
 
 # Install
 
-## Add re-state to an application
-
-Install the published package with the package manager used by your application:
+Install re-state with the package manager already used by your application:
 
 ```package-install
 @raulpesilva/re-state
 ```
 
-re-state requires React 16.8 or newer. React DOM is an optional peer dependency for web applications; React Native
-applications use the package's native export automatically.
+That is all the setup you need. There is no provider to add to your component tree.
 
-## Work in the repository
+re-state supports React 16.8 and newer. React DOM is an optional peer dependency for web applications, while React
+Native automatically uses the package's native export.
 
-The repository uses pnpm, and pnpm-workspace.yaml includes the six packages under examples/\*. From the repository
-root:
+You can now import an API and create your first shared value:
 
-```sh
-pnpm install
-pnpm check
-pnpm examples:check
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function Counter() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount((previous) => previous + 1)}>{count}</button>;
+}
 ```
 
-pnpm check validates the library with formatting, linting, TypeScript, tests, and a build. pnpm examples:check runs
-the checks exposed by each example without launching a device or desktop native build.
-
-## Current examples
-
-The examples use the local package through the workspace link. Run them from the repository root:
-
-| Example                                                                                                    | Start command                      | Platform                    |
-| ---------------------------------------------------------------------------------------------------------- | ---------------------------------- | --------------------------- |
-| [vite-js](https://github.com/raulpesilva/re-state/tree/0016647/examples/vite-js)                           | pnpm --filter vite-js dev          | React and Vite              |
-| [vite-ts](https://github.com/raulpesilva/re-state/tree/0016647/examples/vite-ts)                           | pnpm --filter vite-ts dev          | React, Vite, and TypeScript |
-| [nextjs](https://github.com/raulpesilva/re-state/tree/0016647/examples/nextjs)                             | pnpm --filter nextjs dev           | Next.js App Router          |
-| [expo](https://github.com/raulpesilva/re-state/tree/0016647/examples/expo)                                 | pnpm --filter expo-example start   | Expo and React Native       |
-| [react-native-windows](https://github.com/raulpesilva/re-state/tree/0016647/examples/react-native-windows) | pnpm --filter ReStateWindows start | React Native Windows        |
-| [react-native-macos](https://github.com/raulpesilva/re-state/tree/0016647/examples/react-native-macos)     | pnpm --filter ReStateMacOS start   | React Native macOS          |
-
-The Windows and macOS examples also expose windows and macos scripts for native builds. Those commands require their
-platform toolchains; see each example's README for the prerequisites.
+Continue with the [quick start](/docs/getting-started/simple-usage). If you are contributing to the project or want to
+run its examples locally, see [Development and examples](/docs/getting-started/development).

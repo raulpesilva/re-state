@@ -1,0 +1,38 @@
+---
+title: Development and examples
+description: Run the re-state repository, its checks, and the included example applications.
+---
+
+# Development and examples
+
+This page is for contributors and anyone who wants to run the repository locally. If you only want to use re-state in
+an application, the [installation guide](/docs/getting-started/install) is all you need.
+
+## Work in the repository
+
+The repository uses pnpm. From its root, install dependencies and run the checks:
+
+```sh
+pnpm install
+pnpm check
+pnpm examples:check
+```
+
+`pnpm check` runs formatting, linting, TypeScript, tests, and the library build. `pnpm examples:check` runs the checks
+provided by each example without launching a native device or desktop build.
+
+## Run an example
+
+The examples use the local package through the pnpm workspace:
+
+| Example                                                                                                   | Start command                        | Platform                    |
+| --------------------------------------------------------------------------------------------------------- | ------------------------------------ | --------------------------- |
+| [vite-js](https://github.com/raulpesilva/re-state/tree/master/examples/vite-js)                           | `pnpm --filter vite-js dev`          | React and Vite              |
+| [vite-ts](https://github.com/raulpesilva/re-state/tree/master/examples/vite-ts)                           | `pnpm --filter vite-ts dev`          | React, Vite, and TypeScript |
+| [nextjs](https://github.com/raulpesilva/re-state/tree/master/examples/nextjs)                             | `pnpm --filter nextjs dev`           | Next.js App Router          |
+| [expo](https://github.com/raulpesilva/re-state/tree/master/examples/expo)                                 | `pnpm --filter expo-example start`   | Expo and React Native       |
+| [react-native-windows](https://github.com/raulpesilva/re-state/tree/master/examples/react-native-windows) | `pnpm --filter ReStateWindows start` | React Native Windows        |
+| [react-native-macos](https://github.com/raulpesilva/re-state/tree/master/examples/react-native-macos)     | `pnpm --filter ReStateMacOS start`   | React Native macOS          |
+
+The Windows and macOS examples also provide `windows` and `macos` scripts for native builds. Those commands require
+the platform toolchain described in each example's README.
