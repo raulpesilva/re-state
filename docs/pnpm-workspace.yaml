@@ -1,5 +1,12 @@
 packages: []
 
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - fumadocs-core@16.14.2
+  - fumadocs-ui@16.14.2
+
 overrides:
   lodash-es: 4.18.1
   zod: 4.1.12

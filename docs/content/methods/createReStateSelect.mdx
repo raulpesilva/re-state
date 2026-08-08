@@ -1,3 +1,8 @@
+---
+title: createReStateSelect
+description: Create a read-only hook that subscribes to one shared state key.
+---
+
 # createReStateSelect
 
 Creates a read-only hook bound to one state key. It returns the current value and subscribes only to that key, so components do not receive a setter.
@@ -21,9 +26,9 @@ export function ThemeLabel() {
 }
 ```
 
-`createReStateSelect` does not initialize the key. Initialize it with [createReState](/methods/createReState), [useReState](/methods/useReState), a dispatcher, or [setReStateInitialValue](/methods/setReStateInitialValue) before relying on a defined value.
+`createReStateSelect` does not initialize the key. Initialize it with [createReState](/docs/methods/createReState), [useReState](/docs/methods/useReState), a dispatcher, or [setReStateInitialValue](/docs/methods/setReStateInitialValue) before relying on a defined value.
 
-The hook uses the external-store snapshot for the key. React compares that snapshot with `Object.is`; this hook does not apply the shallow equality used by [useReStateSelector](/methods/useReStateSelector). An uninitialized key therefore returns `undefined` at runtime.
+The hook uses the external-store snapshot for the key. React compares that snapshot with `Object.is`; this hook does not apply the shallow equality used by [useReStateSelector](/docs/methods/useReStateSelector). An uninitialized key therefore returns `undefined` at runtime.
 
 ## API
 
@@ -39,10 +44,10 @@ The returned hook takes no arguments and returns the current value.
 
 ## Comparison
 
-| Need                                  | Use                                                   |
-| ------------------------------------- | ----------------------------------------------------- |
-| Read and write one key in a component | [createReState](/methods/createReState)               |
-| Read one key in a component           | `createReStateSelect`                                 |
-| Read one key outside React            | [createGetReState](/methods/createGetReState)         |
-| Select derived data from several keys | [useReStateSelector](/methods/useReStateSelector)     |
-| Get all methods for one key           | [createReStateMethods](/methods/createReStateMethods) |
+| Need                                  | Use                                                        |
+| ------------------------------------- | ---------------------------------------------------------- |
+| Read and write one key in a component | [createReState](/docs/methods/createReState)               |
+| Read one key in a component           | `createReStateSelect`                                      |
+| Read one key outside React            | [createGetReState](/docs/methods/createGetReState)         |
+| Select derived data from several keys | [useReStateSelector](/docs/methods/useReStateSelector)     |
+| Get all methods for one key           | [createReStateMethods](/docs/methods/createReStateMethods) |

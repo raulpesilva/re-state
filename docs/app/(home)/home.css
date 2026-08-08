@@ -1,0 +1,201 @@
+.home-page {
+  --home-blue: #1596ff;
+  flex: 1;
+}
+
+.home-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-fd-border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-fd-border) 55%, transparent) 1px, transparent 1px);
+  background-position: center;
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, black 0%, black 58%, transparent 100%);
+}
+
+.home-glow {
+  top: 8%;
+  right: -8%;
+  width: min(60vw, 880px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgb(21 150 255 / 0.2), rgb(21 150 255 / 0.04) 42%, transparent 70%);
+  filter: blur(12px);
+}
+
+.home-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--home-blue);
+  box-shadow:
+    0 0 0 5px rgb(21 150 255 / 0.1),
+    0 0 22px rgb(21 150 255 / 0.85);
+  animation: home-pulse 2.8s ease-in-out infinite;
+}
+
+.home-inline-code {
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.35rem;
+  background: var(--color-fd-card);
+  padding: 0.08em 0.35em;
+  color: var(--color-fd-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+.home-primary-action {
+  box-shadow: 0 10px 35px rgb(255 255 255 / 0.08);
+}
+
+.home-install {
+  box-shadow: inset 18px 0 30px -30px var(--home-blue);
+}
+
+.home-code-wrap {
+  perspective: 1200px;
+}
+
+.home-code-panel {
+  transform: rotateY(-2deg) rotateX(1deg);
+  transform-origin: center;
+  animation: home-code-enter 700ms cubic-bezier(0.22, 1, 0.36, 1) both 180ms;
+}
+
+.home-code-panel::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 28%, rgb(255 255 255 / 0.045) 45%, transparent 62%);
+  content: '';
+  pointer-events: none;
+  transform: translateX(-100%);
+  animation: home-scan 7s ease-in-out infinite 1.4s;
+}
+
+.home-code-orbit {
+  position: absolute;
+  inset: -12%;
+  border: 1px solid rgb(21 150 255 / 0.13);
+  border-radius: 48% 52% 44% 56%;
+  transform: rotate(-8deg);
+}
+
+.home-code-orbit::after {
+  position: absolute;
+  top: 14%;
+  right: 7%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--home-blue);
+  box-shadow: 0 0 22px var(--home-blue);
+  content: '';
+}
+
+.home-hero-copy > * {
+  animation: home-copy-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-hero-copy > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.home-hero-copy > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.home-hero-copy > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.home-hero-copy > :nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.home-principle {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-principle::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -7rem;
+  width: 12rem;
+  height: 12rem;
+  border: 1px solid rgb(21 150 255 / 0.18);
+  border-radius: 999px;
+  content: '';
+  transition:
+    transform 500ms ease,
+    border-color 500ms ease;
+}
+
+.home-principle:hover::after {
+  border-color: rgb(21 150 255 / 0.55);
+  transform: translate(-1rem, -1rem) scale(1.1);
+}
+
+@keyframes home-copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-code-enter {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotateY(-4deg) rotateX(2deg) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(-2deg) rotateX(1deg) scale(1);
+  }
+}
+
+@keyframes home-scan {
+  0%,
+  70% {
+    transform: translateX(-100%);
+  }
+  88%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes home-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 1023px) {
+  .home-code-panel {
+    transform: none;
+  }
+
+  .home-code-orbit {
+    inset: -8%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-status-dot,
+  .home-code-panel,
+  .home-code-panel::after,
+  .home-hero-copy > * {
+    animation: none;
+  }
+}

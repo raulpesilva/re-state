@@ -10,20 +10,28 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "oxlint app mdx-components.js next.config.mjs",
-    "format": "oxfmt --write app content mdx-components.js next.config.mjs package.json pnpm-workspace.yaml vercel.json README.md .oxlintrc.json .oxfmtrc.json",
-    "format:check": "oxfmt --check app content mdx-components.js next.config.mjs package.json pnpm-workspace.yaml vercel.json README.md .oxlintrc.json .oxfmtrc.json",
+    "lint": "oxlint app components utils next.config.mjs postcss.config.mjs",
+    "format": "oxfmt --write app components content utils next.config.mjs postcss.config.mjs package.json pnpm-workspace.yaml tsconfig.json vercel.json README.md .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check app components content utils next.config.mjs postcss.config.mjs package.json pnpm-workspace.yaml tsconfig.json vercel.json README.md .oxlintrc.json .oxfmtrc.json",
     "check": "pnpm format:check && pnpm lint && pnpm build"
   },
   "dependencies": {
+    "fumadocs-core": "16.14.2",
+    "fumadocs-mdx": "15.2.2",
+    "fumadocs-ui": "16.14.2",
     "next": "16.3.0",
-    "nextra": "4.6.1",
-    "nextra-theme-docs": "4.6.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/mdx": "2.0.14",
+    "@types/node": "24.0.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "oxfmt": "0.62.0",
-    "oxlint": "1.77.0"
+    "oxlint": "1.77.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
   }
 }

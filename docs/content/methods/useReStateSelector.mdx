@@ -1,3 +1,8 @@
+---
+title: useReStateSelector
+description: Select derived data from the complete re-state store with configurable equality checks.
+---
+
 # useReStateSelector
 
 Selects a value from the complete re-state store and subscribes to store updates. The selector runs when the store is notified, while the component re-renders only when the selected result fails the equality check.
@@ -61,7 +66,7 @@ export function addItem(item: CartState['items'][number]): void {
 }
 ```
 
-Because this hook subscribes to the whole store, it can derive data from multiple keys. For a single key without derived data, [createReStateSelect](/methods/createReStateSelect) or the `use<Name>Select` method from [createReStateMethods](/methods/createReStateMethods) is simpler.
+Because this hook subscribes to the whole store, it can derive data from multiple keys. For a single key without derived data, [createReStateSelect](/docs/methods/createReStateSelect) or the `use<Name>Select` method from [createReStateMethods](/docs/methods/createReStateMethods) is simpler.
 
 ## API
 
@@ -84,6 +89,6 @@ function useReStateSelector<Store, Selection = unknown>(
 
 ## Related
 
-- [useReState](/methods/useReState) reads and writes one key.
-- [createReStateSelect](/methods/createReStateSelect) subscribes to one key.
-- [createReStateMethods](/methods/createReStateMethods) creates keyed hooks and methods.
+- [useReState](/docs/methods/useReState) reads and writes one key.
+- [createReStateSelect](/docs/methods/createReStateSelect) subscribes to one key.
+- [createReStateMethods](/docs/methods/createReStateMethods) creates keyed hooks and methods.

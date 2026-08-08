@@ -1,0 +1,15 @@
+{
+  "title": "API Reference",
+  "pages": [
+    "createReStateMethods",
+    "useReState",
+    "useReStateSelector",
+    "createReState",
+    "createReStateSelect",
+    "createReStateDispatch",
+    "createGetReState",
+    "onReStateChange",
+    "resetReState",
+    "setReStateInitialValue"
+  ]
+}

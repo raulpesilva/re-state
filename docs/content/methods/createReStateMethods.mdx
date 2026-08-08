@@ -1,3 +1,8 @@
+---
+title: createReStateMethods
+description: Generate a complete named API for one state key from a single factory call.
+---
+
 # createReStateMethods
 
 Creates the complete set of methods for one state key: a writable hook, a read-only hook, a dispatcher, a getter, and a per-key reset function.
@@ -48,7 +53,7 @@ dispatchVolume(20);
 resetVolume(); // volume is now 50
 ```
 
-The optional object also updates the baseline used by [resetReState](/methods/resetReState). The generated reset method uses the custom value when it is non-nullish; otherwise it falls back to `initialValue`.
+The optional object also updates the baseline used by [resetReState](/docs/methods/resetReState). The generated reset method uses the custom value when it is non-nullish; otherwise it falls back to `initialValue`.
 
 ## API
 
@@ -74,6 +79,6 @@ The `initialValue` function is used to initialize a new key. `valueOfReset` is a
 
 ## Related
 
-- [useReState](/methods/useReState) is the lower-level writable hook.
-- [createReStateSelect](/methods/createReStateSelect) creates a read-only hook directly.
-- [resetReState](/methods/resetReState) resets every registered key.
+- [useReState](/docs/methods/useReState) is the lower-level writable hook.
+- [createReStateSelect](/docs/methods/createReStateSelect) creates a read-only hook directly.
+- [resetReState](/docs/methods/resetReState) resets every registered key.

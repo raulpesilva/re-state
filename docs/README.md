@@ -1,7 +1,8 @@
 # re-state documentation site
 
-The public documentation is a Nextra 4 site running on the Next.js App Router. Its dependencies and lockfile are kept
-inside this directory so documentation changes do not affect the library or examples workspace.
+The public documentation is a Fumadocs site running on the Next.js App Router with the official `black` color theme.
+Its dependencies and lockfile are kept inside this directory so documentation changes do not affect the library or
+examples workspace.
 
 ## Requirements
 
@@ -17,7 +18,9 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open <http://localhost:3000>. Documentation pages live in `content/`; site-wide layout and metadata live in `app/`.
+Open <http://localhost:3000> for the presentation home and <http://localhost:3000/docs> for the documentation.
+Documentation pages and navigation metadata live in `content/`; the site layout lives in `app/`, and the Fumadocs
+content source lives in `utils/source.ts`.
 
 ## Validate
 

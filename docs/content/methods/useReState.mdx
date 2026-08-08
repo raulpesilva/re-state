@@ -1,3 +1,8 @@
+---
+title: useReState
+description: Share one value across components with a provider-free useState-style hook.
+---
+
 # useReState
 
 `useReState` is a hook for sharing one value across components. Components that use the same key subscribe to the same state, without a provider or context setup.
@@ -45,6 +50,6 @@ The hook returns the current value and a setter. The setter accepts a replacemen
 
 ## Related
 
-- [createReState](/methods/createReState) binds a key once and returns a reusable hook.
-- [createReStateDispatch](/methods/createReStateDispatch) updates a key outside React.
-- [useReStateSelector](/methods/useReStateSelector) selects derived data from the complete store.
+- [createReState](/docs/methods/createReState) binds a key once and returns a reusable hook.
+- [createReStateDispatch](/docs/methods/createReStateDispatch) updates a key outside React.
+- [useReStateSelector](/docs/methods/useReStateSelector) selects derived data from the complete store.
