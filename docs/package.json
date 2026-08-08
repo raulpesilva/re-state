@@ -11,8 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "oxlint app mdx-components.js next.config.mjs",
-    "format": "oxfmt --write app content mdx-components.js next.config.mjs package.json pnpm-workspace.yaml README.md .oxlintrc.json .oxfmtrc.json",
-    "format:check": "oxfmt --check app content mdx-components.js next.config.mjs package.json pnpm-workspace.yaml README.md .oxlintrc.json .oxfmtrc.json",
+    "format": "oxfmt --write app content mdx-components.js next.config.mjs package.json pnpm-workspace.yaml vercel.json README.md .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check app content mdx-components.js next.config.mjs package.json pnpm-workspace.yaml vercel.json README.md .oxlintrc.json .oxfmtrc.json",
     "check": "pnpm format:check && pnpm lint && pnpm build"
   },
   "dependencies": {

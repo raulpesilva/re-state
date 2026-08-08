@@ -1,7 +1,6 @@
 {
   "name": "@raulpesilva/re-state",
   "version": "1.2.33",
-  "packageManager": "pnpm@11.7.0",
   "author": "raulpesilva",
   "repository": {
     "type": "git",
