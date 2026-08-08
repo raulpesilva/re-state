@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CodeBlock } from 'fumadocs-ui/components/codeblock';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'fumadocs-ui/components/tabs';
+import packageMetadata from '../../../package.json';
 import { HomeCodeShowcase } from '../../components/home-code-showcase';
 
 export const metadata: Metadata = {
@@ -92,7 +93,7 @@ export default function HomePage() {
             </div>
 
             <div className="home-code-wrap relative min-w-0">
-              <HomeCodeShowcase />
+              <HomeCodeShowcase packageVersion={packageMetadata.version} />
             </div>
           </div>
 

@@ -1,24 +1,25 @@
 ---
-title: Shared state with a familiar API
-description: Provider-free shared state for React and React Native.
+title: Shared state without providers
+description: Share state across React and React Native with a familiar, provider-free API.
 ---
 
 <div align="center">
   <img alt="re-state" width="250" src="/logo.svg" />
   <p>
-    <strong>Provider-free shared state for React and React Native.</strong>
+    <strong>Shared state for React and React Native, without providers.</strong>
   </p>
 </div>
 
-# Shared state with a familiar API
+# Shared state without providers
 
-re-state lets components share a value by using the same string key. There is no provider to mount and no reducer or
-context boilerplate to maintain. Use the direct hook for small states or generate a complete, reusable state module for
-larger applications.
+re-state gives shared state the same familiar shape as `useState`. Give a value a key, and every component that uses
+that key stays in sync. There is no provider, reducer, or context wrapper to configure.
 
-## Recommended: create a state module
+## Start with a state module
 
-```ts
+When state belongs to a feature or has its own actions, keep everything in one small module:
+
+```ts filename="states/counter.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
 
 export const { useCounter, useCounterSelect, dispatchCounter, getCounter, resetCounter } = createReStateMethods(
@@ -27,8 +28,8 @@ export const { useCounter, useCounterSelect, dispatchCounter, getCounter, resetC
 );
 ```
 
-```tsx
-import { resetCounter, useCounter } from './counter';
+```tsx filename="components/Counter.tsx"
+import { resetCounter, useCounter } from '../states/counter';
 
 export function Counter() {
   const [count, setCount] = useCounter();
@@ -36,17 +37,23 @@ export function Counter() {
   return (
     <div>
       <output>{count}</output>
-      <button onClick={() => setCount((previous) => previous + 1)}>Increment</button>
-      <button onClick={resetCounter}>Reset</button>
+      <button type="button" onClick={() => setCount((previous) => previous + 1)}>
+        Increment
+      </button>
+      <button type="button" onClick={resetCounter}>
+        Reset
+      </button>
     </div>
   );
 }
 ```
 
-The generated selector hook reads without exposing a setter. The dispatch and getter functions also work outside React
-components.
+The generated hooks keep components subscribed. The dispatcher and getter also work in event handlers, utilities, and
+other code outside React.
 
-## Smallest API: useReState
+## For a one-off value
+
+If you only need a small shared value, use `useReState` directly:
 
 ```tsx
 import { useReState } from '@raulpesilva/re-state';
@@ -57,17 +64,15 @@ export function CompactCounter() {
 }
 ```
 
-Any mounted component using `compact-counter` observes the same value.
+Any mounted component that uses `compact-counter` reads and updates the same value.
 
-## Supported environments
+## Is re-state a good fit?
 
-- React 16.8 or newer, including current React 19 applications
-- React DOM through the web export and React Native through the native export
-- ESM and CommonJS consumers, with bundled TypeScript declarations
-- JavaScript runtimes that support the ES2019 output target
+re-state works best when one value should be shared across the application or accessed outside React. If you need
+separate instances owned by different parts of the component tree, React Context may be a better fit. See
+[Context or re-state?](/docs/getting-started/tradeoff) for the full comparison.
 
-The repository includes working examples for Vite JavaScript, Vite TypeScript, Next.js, Expo, React Native Windows,
-and React Native macOS.
+The package supports React 16.8 and newer, React Native, ESM, CommonJS, and TypeScript.
 
-Start with [installation](/docs/getting-started/install), choose a [usage style](/docs/getting-started/recommended), or browse the
-[API reference](/docs/methods/createReStateMethods).
+Start with [installation](/docs/getting-started/install), follow the [quick start](/docs/getting-started/simple-usage),
+or [choose an API](/docs/getting-started/hello-re-state).

@@ -158,7 +158,11 @@ const BlueprintExploded = (): ReactNode => (
   </svg>
 );
 
-export const HomeCodeShowcase = (): ReactNode => (
+type HomeCodeShowcaseProps = {
+  packageVersion: string;
+};
+
+export const HomeCodeShowcase = ({ packageVersion }: HomeCodeShowcaseProps): ReactNode => (
   <div className="home-blueprint home-blueprint-a">
     <div className="home-blueprint-sheet">
       <BlueprintExploded />
@@ -177,7 +181,7 @@ export const HomeCodeShowcase = (): ReactNode => (
         </div>
         <div>
           <span>REV</span>
-          <strong>1.2.33</strong>
+          <strong>{packageVersion}</strong>
         </div>
       </div>
     </div>

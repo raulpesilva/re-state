@@ -1,11 +1,12 @@
 ---
 title: setReStateInitialValue
-description: Set or replace the reset baseline stored for one shared state key.
+description: Change the value that a future global reset restores for one state key.
 ---
 
 # setReStateInitialValue
 
-Sets or replaces the initial value stored for one state key. [resetReState](/docs/methods/resetReState) uses this value when restoring the key.
+`setReStateInitialValue` is an advanced API for changing one key's reset baseline. It affects what
+[`resetReState`](/docs/methods/resetReState) restores later; it does not replace the key's current value.
 
 ```ts
 import { createReState, createReStateDispatch, resetReState, setReStateInitialValue } from '@raulpesilva/re-state';
@@ -18,9 +19,13 @@ dispatchTheme('light');
 resetReState(); // theme is now "dark"
 ```
 
-If the key already exists, changing its initial value does not change its current value and does not notify subscribers. If the key does not exist, the computed initial value also becomes its current value.
+For a key that already exists, changing the baseline does not change the current value or notify subscribers. For a new
+key, the computed baseline also becomes its current value.
 
-The exported wrapper is typed as `value: T`, while the underlying store treats a function value as an initializer function. That function is evaluated immediately with the current value (or `undefined` for a new key), and the result is stored. The function is not evaluated again by `resetReState`:
+## Function values
+
+At runtime, a function passed as `value` is treated as an initializer rather than stored directly. It receives the
+current value, or `undefined` for a new key, and its result becomes the new baseline:
 
 ```ts
 const computeResetCount = (previous: number | undefined): number => previous ?? 0;
@@ -28,7 +33,11 @@ const computeResetCount = (previous: number | undefined): number => previous ?? 
 setReStateInitialValue('count', computeResetCount);
 ```
 
-For a direct reset value, pass the value itself. This is also the behavior used by the `valueOfReset` option of [createReStateMethods](/docs/methods/createReStateMethods).
+The initializer runs immediately. A later call to `resetReState` restores its result without running the function
+again.
+
+For most state modules, the `valueOfReset` option from
+[`createReStateMethods`](/docs/methods/createReStateMethods) is easier to keep next to the state definition.
 
 ## API
 
@@ -36,14 +45,7 @@ For a direct reset value, pass the value itself. This is also the behavior used 
 function setReStateInitialValue<T>(key: string, value: T): void;
 ```
 
-| Parameter | Type     | Description                                                              |
-| --------- | -------- | ------------------------------------------------------------------------ |
-| `key`     | `string` | State key whose baseline should be set.                                  |
-| `value`   | `T`      | Direct value, or a function that the store evaluates as described above. |
-
-The function is synchronous and returns `void`.
-
-## Related
-
-- [resetReState](/docs/methods/resetReState) restores all stored baselines.
-- [createReStateMethods](/docs/methods/createReStateMethods) accepts a reset value when a key is created.
+| Parameter | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| `key`     | State key whose reset baseline should change                |
+| `value`   | Direct value, or an initializer function as described above |

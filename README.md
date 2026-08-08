@@ -12,39 +12,56 @@
   <a href="https://www.npmjs.com/package/@raulpesilva/re-state">
     <img alt="Monthly downloads" src="https://badgen.net/npm/dm/@raulpesilva/re-state?color=blue" />
   </a>
-  <p>Provider-free shared state for React and React Native.</p>
+  <p>Share state across React and React Native without adding a provider.</p>
 </div>
 
-## Why re-state?
+re-state gives shared state the familiar shape of React's `useState`. Give a value a key, and every component using
+that key stays in sync. There is no provider, reducer, or context wrapper to configure.
 
-re-state keeps shared state close to React's familiar `useState` model. State is identified by a string key, can be
-read and updated from any component using that key, and does not require a provider or context wrapper.
+## When it fits
 
-- Works with React and React Native through dedicated package exports.
-- Includes TypeScript declarations for ESM, CommonJS, and React Native consumers.
-- Supports direct hooks, reusable state modules, selectors, subscriptions, and updates outside React.
-- Ships JavaScript targeting ES2019.
+re-state is a good fit when:
+
+- Unrelated components should share one application-wide value.
+- Code outside React needs to read or update that value.
+- You want the same small, typed API in React and React Native.
+
+If each provider should own a separate instance, or state must be isolated per server request, React Context may fit
+better. See [Context or re-state?](https://restate.vercel.app/docs/getting-started/tradeoff).
 
 ## Install
 
-```sh
-pnpm add @raulpesilva/re-state
-```
+Use the package manager already configured in your application:
 
 ```sh
 npm install @raulpesilva/re-state
-```
-
-```sh
+pnpm add @raulpesilva/re-state
 yarn add @raulpesilva/re-state
+bun add @raulpesilva/re-state
 ```
 
-React 16.8 or newer is required. `react-dom` 16.8 or newer is an optional peer used by web applications; React Native
-consumers use the native entry point instead.
+re-state supports React 16.8 and newer. React DOM is an optional peer dependency for web applications; React Native
+uses the package's native export automatically.
 
 ## Quick start
 
-For reusable application state, create a named group of typed methods once and import those methods where needed:
+`useReState` returns the same `[value, setValue]` tuple as `useState`:
+
+```tsx
+import { useReState } from '@raulpesilva/re-state';
+
+export function Counter() {
+  const [count, setCount] = useReState('count', 0);
+  return <button onClick={() => setCount((previous) => previous + 1)}>Count: {count}</button>;
+}
+```
+
+Another component using `count` reads and updates the same value. The first use stores its initial value; later calls
+join that state instead of replacing it.
+
+## Grow into a state module
+
+When state has actions or is used throughout a feature, define it once with `createReStateMethods`:
 
 ```ts
 // states/counter.ts
@@ -54,71 +71,32 @@ export const { useCounter, useCounterSelect, dispatchCounter, getCounter, resetC
   'counter',
   0
 );
+
+export const increment = (): void => {
+  dispatchCounter((previous) => previous + 1);
+};
 ```
 
-```tsx
-import { resetCounter, useCounter } from './states/counter';
+The module owns the key and initial value. Components import the named hook or action they need, while the generated
+dispatcher and getter also work outside React.
 
-export function Counter() {
-  const [count, setCount] = useCounter();
+## What to know
 
-  return (
-    <div>
-      <output>{count}</output>
-      <button onClick={() => setCount((previous) => previous + 1)}>Increment</button>
-      <button onClick={resetCounter}>Reset</button>
-    </div>
-  );
-}
-```
+- One key identifies one value in the current JavaScript runtime.
+- Updates replace the current value. Return a new object or array when changing structured state.
+- A server runtime can outlive a request, so request-specific state needs proper isolation.
 
-The generated `dispatchCounter` and `getCounter` functions can be used outside React components. `useCounterSelect`
-subscribes to the value without returning a setter.
-
-For a small state that does not need a reusable module, use the direct hook:
-
-```tsx
-import { useReState } from '@raulpesilva/re-state';
-
-export function CompactCounter() {
-  const [count, setCount] = useReState('compact-counter', 0);
-  return <button onClick={() => setCount((previous) => previous + 1)}>{count}</button>;
-}
-```
-
-Components using the same key share the same value. The first initialization of a key establishes its value.
-
-## API
-
-| API | Purpose |
-| --- | --- |
-| `createReStateMethods` | Create named hook, selector hook, dispatch, getter, and reset methods together |
-| `useReState` | Read and update a keyed state directly from a component |
-| `useReStateSelector` | Derive and subscribe to a value from the complete store |
-| `createReState` | Create a reusable read/write hook for one key |
-| `createReStateSelect` | Create a reusable read-only hook for one key |
-| `createReStateDispatch` | Create a setter that can be called outside React |
-| `createGetReState` | Create a synchronous getter for one key |
-| `onReStateChange` | Subscribe a callback to one or more keys and receive an unsubscribe function |
-| `resetReState` | Reset every initialized key to its stored initial value |
-| `setReStateInitialValue` | Change the value used when the store is reset |
-
-See the [documentation](https://restate.vercel.app/) for signatures, behavior, and complete examples.
+The [documentation](https://restate.vercel.app/docs) covers selectors, individual factories, subscriptions, reset
+behavior, and complete examples.
 
 ## Examples
 
-Six workspace examples exercise the current supported toolchains:
+The workspace includes web examples for [Vite with JavaScript](examples/vite-js),
+[Vite with TypeScript](examples/vite-ts), and [Next.js](examples/nextjs), plus native examples for
+[Expo](examples/expo), [React Native Windows](examples/react-native-windows), and
+[React Native macOS](examples/react-native-macos).
 
-| Example | Stack |
-| --- | --- |
-| [`vite-js`](examples/vite-js) | React 19 and Vite 8 in JavaScript |
-| [`vite-ts`](examples/vite-ts) | React 19, Vite 8, TypeScript, and Vitest |
-| [`nextjs`](examples/nextjs) | React 19 and Next.js 16 App Router |
-| [`expo`](examples/expo) | Expo SDK 57 and React Native 0.86 |
-| [`react-native-windows`](examples/react-native-windows) | React Native 0.84 and React Native Windows 0.84 |
-| [`react-native-macos`](examples/react-native-macos) | React Native 0.81 and React Native macOS 0.81 |
-
-The [examples workspace guide](examples/README.md) contains installation, execution, and platform requirements.
+See the [examples guide](examples/README.md) for commands and platform requirements.
 
 ## Development
 
@@ -130,8 +108,8 @@ pnpm check
 pnpm examples:check
 ```
 
-`pnpm check` runs Oxfmt, Oxlint, strict TypeScript checking, the Vitest suite, and the tsdown build. The documentation
-site is an independent project; see [`docs/README.md`](docs/README.md) for its commands.
+`pnpm check` runs formatting, linting, strict TypeScript checking, tests, and the library build. The documentation site
+has its own commands in [`docs/README.md`](docs/README.md).
 
 ## License
 

@@ -1,11 +1,12 @@
 ---
 title: createGetReState
-description: Create a synchronous getter for a shared state key without subscribing to updates.
+description: Read the latest value for one state key without subscribing to updates.
 ---
 
 # createGetReState
 
-Creates a getter bound to one state key. The returned function reads the current value synchronously and does not subscribe to updates, so calling it does not cause a React render.
+Need the latest value in an event handler or utility? `createGetReState` gives you a getter for one key. It reads the
+value when you call it and never subscribes to changes.
 
 ```ts filename="states/session.ts"
 import { createGetReState, createReState } from '@raulpesilva/re-state';
@@ -18,8 +19,6 @@ export const useSession = createReState<Session | null>('session', null);
 export const getSession = createGetReState<Session | null>('session');
 ```
 
-Use the getter in utilities, event handlers, or other code that is not a component:
-
 ```ts filename="utils/session.ts"
 import { getSession } from '../states/session';
 
@@ -28,7 +27,8 @@ export function hasSession(): boolean {
 }
 ```
 
-`createGetReState` neither creates nor initializes the key. If the key has not been initialized, the runtime value is `undefined`, even though the generic return type describes the value your application expects.
+The factory does not create or initialize the key. If nothing initializes it first, the getter returns `undefined` at
+runtime even when its generic type describes a different value.
 
 ## API
 
@@ -36,14 +36,7 @@ export function hasSession(): boolean {
 function createGetReState<S>(key: string): () => S;
 ```
 
-| Parameter | Type     | Description  |
-| --------- | -------- | ------------ |
-| `key`     | `string` | Key to read. |
+`key` identifies the value to read. The getter always reads the latest value; it does not keep an earlier snapshot.
 
-The returned getter has no parameters and returns the current value. It always reads the latest value; it does not retain a snapshot.
-
-## Related
-
-- [createReState](/docs/methods/createReState) creates a keyed state hook.
-- [createReStateDispatch](/docs/methods/createReStateDispatch) creates a keyed updater.
-- [createReStateMethods](/docs/methods/createReStateMethods) creates a getter together with the other keyed methods.
+Use [`createReStateDispatch`](/docs/methods/createReStateDispatch) to update the same key, or
+[`createReStateMethods`](/docs/methods/createReStateMethods) to generate both helpers together.

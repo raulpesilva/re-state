@@ -1,11 +1,12 @@
 ---
 title: createReStateMethods
-description: Generate a complete named API for one state key from a single factory call.
+description: Create named hooks, a dispatcher, a getter, and a reset function for one state key.
 ---
 
 # createReStateMethods
 
-Creates the complete set of methods for one state key: a writable hook, a read-only hook, a dispatcher, a getter, and a per-key reset function.
+Use `createReStateMethods` when a shared state deserves its own module. One call initializes the key and gives you a
+complete named API for reading, updating, and resetting it.
 
 ```ts filename="states/muted.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
@@ -26,25 +27,29 @@ export function MuteButton() {
 }
 ```
 
-The state is initialized when the factory runs. A later factory call with the same key does not replace an existing current or initial value.
+The factory runs at module scope, so the key is ready before a component uses one of the generated hooks.
 
 ## Generated methods
 
-For a name of `volume`, the returned object contains:
+For a state named `volume`, the returned object contains:
 
-| Method                  | Behavior                                                       |
-| ----------------------- | -------------------------------------------------------------- |
-| `useVolume()`           | Returns `[value, setValue]` and subscribes to the key.         |
-| `useVolumeSelect()`     | Returns the value and subscribes to the key, without a setter. |
-| `dispatchVolume(value)` | Replaces or functionally updates the value from anywhere.      |
-| `getVolume()`           | Reads the current value synchronously without subscribing.     |
-| `resetVolume()`         | Sets only this key to its reset value.                         |
+| Method                  | What it does                                                    |
+| ----------------------- | --------------------------------------------------------------- |
+| `useVolume()`           | Returns `[value, setValue]` and subscribes to the key           |
+| `useVolumeSelect()`     | Returns the value and subscribes without exposing a setter      |
+| `dispatchVolume(value)` | Updates the value from a component, action, utility, or service |
+| `getVolume()`           | Reads the latest value without subscribing                      |
+| `resetVolume()`         | Resets only the `volume` key                                    |
 
-`name` is used verbatim except that its first character is capitalized for generated names. It must be a non-empty string; invalid names throw.
+The generated names use `name` exactly as provided, except that its first character is capitalized. The name must be
+a non-empty string.
 
-### Custom reset value
+Calling the factory again with the same key does not replace that key's current value or original reset baseline.
 
-Pass `{ value: ... }` as the third argument to register a reset value:
+## Set a custom reset value
+
+By default, the generated reset method restores `initialValue`. Pass `{ value: ... }` as the third argument when the
+reset value should be different:
 
 ```ts
 const { dispatchVolume, resetVolume } = createReStateMethods<'volume', number>('volume', 100, { value: 50 });
@@ -53,7 +58,8 @@ dispatchVolume(20);
 resetVolume(); // volume is now 50
 ```
 
-The optional object also updates the baseline used by [resetReState](/docs/methods/resetReState). The generated reset method uses the custom value when it is non-nullish; otherwise it falls back to `initialValue`.
+The custom value also becomes the baseline used by [`resetReState`](/docs/methods/resetReState). If it is `null` or
+`undefined`, the generated reset method falls back to `initialValue`.
 
 ## API
 
@@ -65,7 +71,13 @@ function createReStateMethods<S extends string = string, V extends any = any>(
 ): ReStateMethods<S, V>;
 ```
 
-The returned object has names derived from `name`:
+| Parameter      | Description                                                   |
+| -------------- | ------------------------------------------------------------- |
+| `name`         | State key and base name used to generate the returned methods |
+| `initialValue` | Value or initializer used when the key does not exist         |
+| `valueOfReset` | Optional object containing a custom reset value               |
+
+The returned method names follow this shape:
 
 ```ts
 use<Name>(): [V, (value: V | ((previous: V) => V) | undefined) => void]
@@ -75,10 +87,5 @@ get<Name>(): V
 reset<Name>(): void
 ```
 
-The `initialValue` function is used to initialize a new key. `valueOfReset` is a plain object containing the value used by the generated reset method.
-
-## Related
-
-- [useReState](/docs/methods/useReState) is the lower-level writable hook.
-- [createReStateSelect](/docs/methods/createReStateSelect) creates a read-only hook directly.
-- [resetReState](/docs/methods/resetReState) resets every registered key.
+For a one-off shared value, [`useReState`](/docs/methods/useReState) is smaller. Use the
+[individual factories](/docs/methods/createReState) when you need only part of this API or want custom method names.

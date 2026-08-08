@@ -1,11 +1,12 @@
 ---
 title: createReStateDispatch
-description: Create a dispatcher that updates one shared state key outside React components.
+description: Create a function that updates one state key without using a React hook.
 ---
 
 # createReStateDispatch
 
-Creates a function that updates one state key without using a React hook. Use it in actions, event handlers, utilities, or asynchronous code.
+Use `createReStateDispatch` when an action, event handler, utility, or service needs to update shared state outside a
+React hook.
 
 ```ts filename="states/counter.ts"
 import { createReState, createReStateDispatch } from '@raulpesilva/re-state';
@@ -18,24 +19,15 @@ export const increment = (): void => {
 };
 ```
 
-```ts filename="utils/notifications.ts"
-import { createReStateDispatch } from '@raulpesilva/re-state';
-
-const dispatchNotification = createReStateDispatch<string | null>('notification');
-
-export function showNotification(message: string): void {
-  dispatchNotification(message);
-}
-```
-
-The dispatch function accepts either a replacement value or an updater function:
+The dispatcher accepts a replacement value or an updater function:
 
 ```ts
 dispatchCounter(10);
 dispatchCounter((previous) => previous + 1);
 ```
 
-If the key has not been initialized, the first dispatch creates it and establishes its initial value. An updater for an uninitialized key receives `undefined` at runtime, so initialize the key first when the updater requires a value.
+If the key does not exist, the first dispatch creates it and also establishes its reset baseline. An updater for a new
+key receives `undefined` at runtime, so initialize the key first when the update depends on a previous value.
 
 ## API
 
@@ -43,14 +35,7 @@ If the key has not been initialized, the first dispatch creates it and establish
 function createReStateDispatch<S>(key: string): (value: S | ((previous: S) => S) | undefined) => void;
 ```
 
-| Parameter | Type     | Description                 |
-| --------- | -------- | --------------------------- |
-| `key`     | `string` | Shared state key to update. |
+`key` identifies the value to update. The returned dispatcher does not read or subscribe to state.
 
-The returned function returns `void`. It does not read or subscribe to state.
-
-## Related
-
-- [createReState](/docs/methods/createReState) creates the hook for the same key.
-- [createGetReState](/docs/methods/createGetReState) reads a key without subscribing.
-- [createReStateMethods](/docs/methods/createReStateMethods) includes a generated dispatch method.
+Use [`createGetReState`](/docs/methods/createGetReState) for a matching getter, or
+[`createReStateMethods`](/docs/methods/createReStateMethods) to create the full named API in one call.

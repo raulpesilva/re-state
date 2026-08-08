@@ -1,56 +1,36 @@
 ---
-title: Hello re-state
-description: Learn the core re-state APIs and choose the right usage style for your application.
+title: Choose an API
+description: Pick the smallest re-state API that fits the state you need to share.
 ---
 
-# Hello re-state
+# Choose an API
 
-re-state is a small external store for shared React and React Native state. It keeps the useState mental model,
-identifies values with string keys, and does not require a provider.
+You do not need to learn the whole library before using it. Start with the smallest API that fits your state, then move
+to a state module when the feature grows.
 
-If you have not installed it yet, start with the [installation guide](/docs/getting-started/install).
+| If you need to...                              | Start with                                                                  |
+| ---------------------------------------------- | --------------------------------------------------------------------------- |
+| Share one small value between components       | [`useReState`](/docs/methods/useReState)                                    |
+| Give a state named hooks, actions, and a reset | [`createReStateMethods`](/docs/methods/createReStateMethods)                |
+| Create only one kind of helper for a key       | An individual factory from the [API reference](/docs/methods/createReState) |
+| Derive a value from one or more state keys     | [`useReStateSelector`](/docs/methods/useReStateSelector)                    |
 
-## Choose an API
+## Share a small value
 
-| API                                                        | Best for                                             |
-| ---------------------------------------------------------- | ---------------------------------------------------- |
-| [useReState](/docs/methods/useReState)                     | A small shared value used directly by components     |
-| [createReState](/docs/methods/createReState)               | A reusable read/write hook for one key               |
-| [createReStateMethods](/docs/methods/createReStateMethods) | A complete state module with named hooks and actions |
-| [useReStateSelector](/docs/methods/useReStateSelector)     | Derived data across one or more state keys           |
-
-Start with useReState for a quick experiment. Use createReStateMethods when the state has domain logic or needs to
-be read and updated outside React.
-
-## A direct hook
-
-The direct hook returns the same tuple as useState:
+`useReState` is the quickest way to get started. It returns the same `[value, setValue]` tuple as `useState`, but
+components using the same key share the value:
 
 ```tsx
-import { useReState } from '@raulpesilva/re-state';
-
-export function Counter() {
-  const [count, setCount] = useReState('count', 0);
-
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button type="button" onClick={() => setCount((previous) => previous + 1)}>
-        Increment
-      </button>
-    </div>
-  );
-}
+const [count, setCount] = useReState('count', 0);
 ```
 
-Another component can call useReState('count', 0) and observe the same value. The initial value is used only when the
-key is initialized; it is not a default that is reapplied on every render.
+Use this for a one-off value shared by a few components. The [quick start](/docs/getting-started/simple-usage) walks
+through a complete example.
 
-See [Simple usage](/docs/getting-started/simple-usage) for the complete keyed-state example.
+## Give the state a home
 
-## A named state module
-
-For application state that will be reused, define the key and its behavior in one module:
+When a state has domain logic, is used throughout a feature, or needs to be read outside React, create a module with
+`createReStateMethods`:
 
 ```ts filename="states/counter.ts"
 import { createReStateMethods } from '@raulpesilva/re-state';
@@ -65,79 +45,30 @@ export const increment = (): void => {
 };
 ```
 
-The factory creates five named methods:
+The module owns the key and initial value. Components import named hooks and actions instead of repeating those details.
+See [Build a state module](/docs/getting-started/recommended) for the full pattern.
 
-| Generated method       | Purpose                                                    |
-| ---------------------- | ---------------------------------------------------------- |
-| useCounter()           | Read and update the value from a component                 |
-| useCounterSelect()     | Read the value from a component without returning a setter |
-| dispatchCounter(value) | Update the value from any JavaScript or TypeScript code    |
-| getCounter()           | Read the current value synchronously without subscribing   |
-| resetCounter()         | Restore the initial value                                  |
+## Derive data from several keys
 
-Use the read-only hook in a display component:
-
-```tsx filename="components/CounterDisplay.tsx"
-import { useCounterSelect } from '../states/counter';
-
-export function CounterDisplay() {
-  const count = useCounterSelect();
-  return <output>Current count: {count}</output>;
-}
-```
-
-The generated dispatcher and getter can be used outside React:
-
-```ts
-import { dispatchCounter, getCounter } from './states/counter';
-
-export const incrementFromShortcut = (): void => {
-  dispatchCounter((previous) => previous + 1);
-};
-
-export const logCounter = (): void => {
-  console.log(getCounter());
-};
-```
-
-## Select derived data
-
-useReStateSelector receives the complete keyed store and returns the value selected by your function. Its default
-equality check avoids a render when the selected value has not changed:
+`useReStateSelector` receives the complete keyed state object. Use it when a component needs a derived value rather
+than one key as-is:
 
 ```tsx
-import { useReStateSelector } from '@raulpesilva/re-state';
-
-type AppStore = {
-  todos: Array<{ finished: boolean }>;
-};
-
-const todoCount = (state: AppStore): number => state.todos.length;
-
-export function TodoCount() {
-  const count = useReStateSelector<AppStore, number>(todoCount);
-  return <output>Total: {count}</output>;
-}
+const finishedCount = useReStateSelector<AppState, number>(
+  (state) => state.todos.filter((todo) => todo.finished).length
+);
 ```
 
-The todos key must be initialized by a state module before the selector is used. Use a custom equality function when
-the selected value needs comparison rules other than the default shallow equality.
+The keys used by a selector must already be initialized. For a single key without derived data, a generated
+`use<Name>Select` hook is simpler.
 
-## Important behavior
+## Keep these rules in mind
 
-- A key identifies one global value in the current application runtime. Use different keys for independent instances.
-- An updater function receives the current value, which is safer when several updates can be queued.
-- State updates replace the value. Merge object or array state explicitly with a new value.
-- Factory functions initialize their key when the module is evaluated, which makes them suitable for state modules.
-- onReStateChange can subscribe to key changes outside React and returns an unsubscribe function.
+- A key identifies one value in the current JavaScript runtime.
+- The first initialization of a key establishes its value and reset baseline.
+- Updates replace the current value. Create a new object or array when changing structured state.
+- `createReState` and `createReStateMethods` initialize a key when their factory runs. Read-only factories do not.
+- Use different keys when you need independent values.
 
-## Explore the API
-
-| Topic                  | Guide                                                                                                         |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Direct keyed state     | [useReState](/docs/methods/useReState)                                                                        |
-| Named state modules    | [createReStateMethods](/docs/methods/createReStateMethods)                                                    |
-| Individual factories   | [createReState](/docs/methods/createReState) and related factory methods                                      |
-| Derived values         | [useReStateSelector](/docs/methods/useReStateSelector)                                                        |
-| External subscriptions | [onReStateChange](/docs/methods/onReStateChange)                                                              |
-| Reset behavior         | [resetReState](/docs/methods/resetReState) and [setReStateInitialValue](/docs/methods/setReStateInitialValue) |
+If the scope and lifetime of the state matter more than access outside React, read
+[Context or re-state?](/docs/getting-started/tradeoff) before choosing.
