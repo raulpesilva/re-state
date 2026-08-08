@@ -1,6 +1,11 @@
+---
+title: setReStateInitialValue
+description: Set or replace the reset baseline stored for one shared state key.
+---
+
 # setReStateInitialValue
 
-Sets or replaces the initial value stored for one state key. [resetReState](/methods/resetReState) uses this value when restoring the key.
+Sets or replaces the initial value stored for one state key. [resetReState](/docs/methods/resetReState) uses this value when restoring the key.
 
 ```ts
 import { createReState, createReStateDispatch, resetReState, setReStateInitialValue } from '@raulpesilva/re-state';
@@ -23,7 +28,7 @@ const computeResetCount = (previous: number | undefined): number => previous ?? 
 setReStateInitialValue('count', computeResetCount);
 ```
 
-For a direct reset value, pass the value itself. This is also the behavior used by the `valueOfReset` option of [createReStateMethods](/methods/createReStateMethods).
+For a direct reset value, pass the value itself. This is also the behavior used by the `valueOfReset` option of [createReStateMethods](/docs/methods/createReStateMethods).
 
 ## API
 
@@ -40,5 +45,5 @@ The function is synchronous and returns `void`.
 
 ## Related
 
-- [resetReState](/methods/resetReState) restores all stored baselines.
-- [createReStateMethods](/methods/createReStateMethods) accepts a reset value when a key is created.
+- [resetReState](/docs/methods/resetReState) restores all stored baselines.
+- [createReStateMethods](/docs/methods/createReStateMethods) accepts a reset value when a key is created.

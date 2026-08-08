@@ -1,7 +1,0 @@
-export default {
-  install: 'Install',
-  'hello-re-state': 'Hello re-state',
-  recommended: 'Recommended Usage',
-  'simple-usage': 'Simple Usage',
-  tradeoff: 'Tradeoffs',
-};

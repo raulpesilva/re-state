@@ -1,3 +1,8 @@
+---
+title: createGetReState
+description: Create a synchronous getter for a shared state key without subscribing to updates.
+---
+
 # createGetReState
 
 Creates a getter bound to one state key. The returned function reads the current value synchronously and does not subscribe to updates, so calling it does not cause a React render.
@@ -39,6 +44,6 @@ The returned getter has no parameters and returns the current value. It always r
 
 ## Related
 
-- [createReState](/methods/createReState) creates a keyed state hook.
-- [createReStateDispatch](/methods/createReStateDispatch) creates a keyed updater.
-- [createReStateMethods](/methods/createReStateMethods) creates a getter together with the other keyed methods.
+- [createReState](/docs/methods/createReState) creates a keyed state hook.
+- [createReStateDispatch](/docs/methods/createReStateDispatch) creates a keyed updater.
+- [createReStateMethods](/docs/methods/createReStateMethods) creates a getter together with the other keyed methods.

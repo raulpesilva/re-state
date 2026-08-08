@@ -1,18 +1,23 @@
+---
+title: Hello re-state
+description: Learn the core re-state APIs and choose the right usage style for your application.
+---
+
 # Hello re-state
 
 re-state is a small external store for shared React and React Native state. It keeps the useState mental model,
 identifies values with string keys, and does not require a provider.
 
-If you have not installed it yet, start with the [installation guide](/getting-started/install).
+If you have not installed it yet, start with the [installation guide](/docs/getting-started/install).
 
 ## Choose an API
 
-| API                                                   | Best for                                             |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| [useReState](/methods/useReState)                     | A small shared value used directly by components     |
-| [createReState](/methods/createReState)               | A reusable read/write hook for one key               |
-| [createReStateMethods](/methods/createReStateMethods) | A complete state module with named hooks and actions |
-| [useReStateSelector](/methods/useReStateSelector)     | Derived data across one or more state keys           |
+| API                                                        | Best for                                             |
+| ---------------------------------------------------------- | ---------------------------------------------------- |
+| [useReState](/docs/methods/useReState)                     | A small shared value used directly by components     |
+| [createReState](/docs/methods/createReState)               | A reusable read/write hook for one key               |
+| [createReStateMethods](/docs/methods/createReStateMethods) | A complete state module with named hooks and actions |
+| [useReStateSelector](/docs/methods/useReStateSelector)     | Derived data across one or more state keys           |
 
 Start with useReState for a quick experiment. Use createReStateMethods when the state has domain logic or needs to
 be read and updated outside React.
@@ -41,7 +46,7 @@ export function Counter() {
 Another component can call useReState('count', 0) and observe the same value. The initial value is used only when the
 key is initialized; it is not a default that is reapplied on every render.
 
-See [Simple usage](/getting-started/simple-usage) for the complete keyed-state example.
+See [Simple usage](/docs/getting-started/simple-usage) for the complete keyed-state example.
 
 ## A named state module
 
@@ -128,11 +133,11 @@ the selected value needs comparison rules other than the default shallow equalit
 
 ## Explore the API
 
-| Topic                  | Guide                                                                                               |
-| ---------------------- | --------------------------------------------------------------------------------------------------- |
-| Direct keyed state     | [useReState](/methods/useReState)                                                                   |
-| Named state modules    | [createReStateMethods](/methods/createReStateMethods)                                               |
-| Individual factories   | [createReState](/methods/createReState) and related factory methods                                 |
-| Derived values         | [useReStateSelector](/methods/useReStateSelector)                                                   |
-| External subscriptions | [onReStateChange](/methods/onReStateChange)                                                         |
-| Reset behavior         | [resetReState](/methods/resetReState) and [setReStateInitialValue](/methods/setReStateInitialValue) |
+| Topic                  | Guide                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Direct keyed state     | [useReState](/docs/methods/useReState)                                                                        |
+| Named state modules    | [createReStateMethods](/docs/methods/createReStateMethods)                                                    |
+| Individual factories   | [createReState](/docs/methods/createReState) and related factory methods                                      |
+| Derived values         | [useReStateSelector](/docs/methods/useReStateSelector)                                                        |
+| External subscriptions | [onReStateChange](/docs/methods/onReStateChange)                                                              |
+| Reset behavior         | [resetReState](/docs/methods/resetReState) and [setReStateInitialValue](/docs/methods/setReStateInitialValue) |

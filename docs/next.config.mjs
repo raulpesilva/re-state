@@ -1,13 +1,22 @@
-import nextra from 'nextra';
+import { createMDX } from 'fumadocs-mdx/next';
 
-const withNextra = nextra({
-  defaultShowCopyCode: true,
-});
+const withMDX = createMDX();
 
-export default withNextra({
-  turbopack: {
-    resolveAlias: {
-      'next-mdx-import-source-file': './mdx-components.js',
-    },
+export default withMDX({
+  agentRules: false,
+  reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/getting-started/:path*',
+        destination: '/docs/getting-started/:path*',
+        permanent: true,
+      },
+      {
+        source: '/methods/:path*',
+        destination: '/docs/methods/:path*',
+        permanent: true,
+      },
+    ];
   },
 });

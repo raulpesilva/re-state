@@ -1,3 +1,8 @@
+---
+title: createReState
+description: Create a reusable read-and-write hook bound to one shared state key.
+---
+
 # createReState
 
 Creates a hook bound to a state key. The factory initializes the key with `initialValue` when it is first registered, and the returned hook provides the familiar `[value, setValue]` tuple.
@@ -42,6 +47,6 @@ If no initial value is supplied, the value is `undefined` until something initia
 
 ## Related
 
-- [useReState](/methods/useReState) accepts the key at the hook call site.
-- [createReStateSelect](/methods/createReStateSelect) creates a read-only keyed hook.
-- [createReStateMethods](/methods/createReStateMethods) creates all keyed methods together.
+- [useReState](/docs/methods/useReState) accepts the key at the hook call site.
+- [createReStateSelect](/docs/methods/createReStateSelect) creates a read-only keyed hook.
+- [createReStateMethods](/docs/methods/createReStateMethods) creates all keyed methods together.
